@@ -27,6 +27,7 @@ class _StudentsWEBState extends State<StudentsWEB> {
   String? error;
   String? search = '';
   Student? updateStudent;
+  final _formKey = GlobalKey<FormState>();
   Future<List<Student>>? _studentModel;
   static const menuItems = <String>[
     'Male',
@@ -356,6 +357,7 @@ class _StudentsWEBState extends State<StudentsWEB> {
             gender: gender)
         .then((value) {
       isLoading = false;
+      _formKey.currentState!.reset();
       Navigator.of(context, rootNavigator: true).pop();
       updatePage();
     });
@@ -378,6 +380,7 @@ class _StudentsWEBState extends State<StudentsWEB> {
             image: image,
             gender: gender)
         .then((value) {
+      _formKey.currentState!.reset();
       isLoading = false;
       Navigator.of(context, rootNavigator: true).pop();
       updatePage();
@@ -389,84 +392,89 @@ class _StudentsWEBState extends State<StudentsWEB> {
       width: SizeConfig.screenWidth! / 1.8,
       height: SizeConfig.screenHeight! / 1.5,
       child: SingleChildScrollView(
-        child: Column(
-          children: [
-            ///////////////////// TITLE /////////////////////
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              ///////////////////// TITLE /////////////////////
 
-            Text(title.toString(),
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            SizedBox(
-              height: 40,
-            ),
+              Text(title.toString(),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              SizedBox(
+                height: 40,
+              ),
 
-            /////////////////////////////////////////////////
+              /////////////////////////////////////////////////
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [nameField(), emailField()],
-            ),
-            SizedBox(height: 30),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                phoneNoField(),
-                passwordField(),
-              ],
-            ),
-            SizedBox(height: 30),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                rollNoField(),
-                genderField(),
-              ],
-            ),
-            SizedBox(height: 30),
-
-            Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 25),
-                  child: Container(
-                    height: 35,
-                    color: Colors.grey[300],
-                    child: ElevatedButton.icon(
-                        onPressed: () {
-                          pickImage(myState);
-                        },
-                        icon: Icon(Icons.attach_file),
-                        label: Text('Choos File')),
-                  ),
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                image != null ? Text(image!.path.split('/').last) : Container()
-              ],
-            ),
-            SizedBox(height: 20),
-            Padding(
-              padding: EdgeInsets.only(left: 25),
-              child: Row(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [nameField(), emailField()],
+              ),
+              SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  error != null
-                      ? Row(
-                          children: [
-                            Icon(Icons.error, color: Colors.red),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              '$error',
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        )
-                      : Container(),
+                  phoneNoField(),
+                  passwordField(),
                 ],
               ),
-            )
-          ],
+              SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  rollNoField(),
+                  genderField(),
+                ],
+              ),
+              SizedBox(height: 30),
+
+              Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 25),
+                    child: Container(
+                      height: 35,
+                      color: Colors.grey[300],
+                      child: ElevatedButton.icon(
+                          onPressed: () {
+                            pickImage(myState);
+                          },
+                          icon: Icon(Icons.attach_file),
+                          label: Text('Choos File')),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  image != null
+                      ? Text(image!.path.split('/').last)
+                      : Container()
+                ],
+              ),
+              SizedBox(height: 20),
+              Padding(
+                padding: EdgeInsets.only(left: 25),
+                child: Row(
+                  children: [
+                    error != null
+                        ? Row(
+                            children: [
+                              Icon(Icons.error, color: Colors.red),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                '$error',
+                                style: TextStyle(color: Colors.red),
+                              )
+                            ],
+                          )
+                        : Container(),
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -616,194 +624,200 @@ class _StudentsWEBState extends State<StudentsWEB> {
       width: SizeConfig.screenWidth! / 1.8,
       height: SizeConfig.screenHeight! / 1.5,
       child: SingleChildScrollView(
-        child: Column(
-          children: [
-            ///////////////////// TITLE /////////////////////
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              ///////////////////// TITLE /////////////////////
 
-            Text(title.toString(),
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            SizedBox(
-              height: 40,
-            ),
+              Text(title.toString(),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              SizedBox(
+                height: 40,
+              ),
 
-            /////////////////////////////////////////////////
+              /////////////////////////////////////////////////
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ////// NAME FIELD /////
-                Container(
-                    width: SizeConfig.screenWidth! / 4,
-                    child: TextFormField(
-                      initialValue:
-                          updateStudent != null ? updateStudent!.name : null,
-                      onChanged: (value) {
-                        name = value;
-                      },
-                      onFieldSubmitted: (value) {
-                        name = value;
-                      },
-                      onSaved: (value) {
-                        name = value;
-                      },
-                      decoration: InputDecoration(
-                          hintText: 'Enter name', labelText: 'NAME'),
-                    )),
-
-                ////// EMAIL FIELD //////
-
-                Container(
-                    width: SizeConfig.screenWidth! / 4,
-                    child: TextFormField(
-                      initialValue:
-                          updateStudent != null ? updateStudent!.email : null,
-                      keyboardType: TextInputType.emailAddress,
-                      onChanged: (value) {
-                        email = value;
-                      },
-                      onFieldSubmitted: (value) {
-                        email = value;
-                      },
-                      onSaved: (value) {
-                        email = value;
-                      },
-                      decoration: InputDecoration(
-                          hintText: 'Enter email', labelText: 'EMAIL'),
-                    ))
-              ],
-            ),
-            SizedBox(height: 30),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ////// PHONE No ///////
-
-                Container(
-                    width: SizeConfig.screenWidth! / 4,
-                    child: TextFormField(
-                      initialValue: updateStudent != null
-                          ? updateStudent!.phoneNumber
-                          : null,
-                      keyboardType: TextInputType.phone,
-                      onChanged: (value) {
-                        phoneNo = value;
-                      },
-                      onFieldSubmitted: (value) {
-                        phoneNo = value;
-                      },
-                      onSaved: (value) {
-                        phoneNo = value;
-                      },
-                      decoration: InputDecoration(
-                          hintText: 'Enter phone #', labelText: 'PHONE #'),
-                    )),
-
-                ////// PASSWORD FIELD ///////
-
-                Container(
-                    width: SizeConfig.screenWidth! / 4,
-                    child: TextFormField(
-                      onChanged: (value) {
-                        password = value;
-                      },
-                      onFieldSubmitted: (value) {
-                        password = value;
-                      },
-                      onSaved: (value) {
-                        password = value;
-                      },
-                      obscureText: true,
-                      decoration: InputDecoration(
-                          hintText: 'Enter password', labelText: 'PASSWORD'),
-                    )),
-              ],
-            ),
-            SizedBox(height: 30),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ///// ROLL NO /////
-                Container(
-                    width: SizeConfig.screenWidth! / 4,
-                    child: TextFormField(
-                      initialValue:
-                          updateStudent != null ? updateStudent!.rollNo : null,
-                      onChanged: (value) {
-                        rollNo = value;
-                      },
-                      onFieldSubmitted: (value) {
-                        rollNo = value;
-                      },
-                      onSaved: (value) {
-                        rollNo = value;
-                      },
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                          hintText: 'Enter Roll #', labelText: 'ROLL #'),
-                    )),
-
-                ///// GENDER  /////
-
-                Container(
-                    width: SizeConfig.screenWidth! / 4,
-                    child: DropdownButtonFormField(
-                      onChanged: (value) => gender = value.toString(),
-                      onSaved: (value) => gender = value.toString(),
-                      decoration: InputDecoration(
-                        labelText: "GENDER",
-                        hintText: "Select gender",
-                        floatingLabelBehavior: FloatingLabelBehavior.always,
-                      ),
-                      items: popUpMenuItem,
-                    )),
-              ],
-            ),
-            SizedBox(height: 30),
-
-            Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 25),
-                  child: Container(
-                    height: 35,
-                    color: Colors.grey[300],
-                    child: ElevatedButton.icon(
-                        onPressed: () {
-                          pickImage(myState);
-                        },
-                        icon: Icon(Icons.attach_file),
-                        label: Text('Choos File')),
-                  ),
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                image != null ? Text(image!.path.split('/').last) : Container()
-              ],
-            ),
-            SizedBox(height: 20),
-            Padding(
-              padding: EdgeInsets.only(left: 25),
-              child: Row(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  error != null
-                      ? Row(
-                          children: [
-                            Icon(Icons.error, color: Colors.red),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              '$error',
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        )
-                      : Container(),
+                  ////// NAME FIELD /////
+                  Container(
+                      width: SizeConfig.screenWidth! / 4,
+                      child: TextFormField(
+                        initialValue:
+                            updateStudent != null ? updateStudent!.name : null,
+                        onChanged: (value) {
+                          name = value;
+                        },
+                        onFieldSubmitted: (value) {
+                          name = value;
+                        },
+                        onSaved: (value) {
+                          name = value;
+                        },
+                        decoration: InputDecoration(
+                            hintText: 'Enter name', labelText: 'NAME'),
+                      )),
+
+                  ////// EMAIL FIELD //////
+
+                  Container(
+                      width: SizeConfig.screenWidth! / 4,
+                      child: TextFormField(
+                        initialValue:
+                            updateStudent != null ? updateStudent!.email : null,
+                        keyboardType: TextInputType.emailAddress,
+                        onChanged: (value) {
+                          email = value;
+                        },
+                        onFieldSubmitted: (value) {
+                          email = value;
+                        },
+                        onSaved: (value) {
+                          email = value;
+                        },
+                        decoration: InputDecoration(
+                            hintText: 'Enter email', labelText: 'EMAIL'),
+                      ))
                 ],
               ),
-            )
-          ],
+              SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ////// PHONE No ///////
+
+                  Container(
+                      width: SizeConfig.screenWidth! / 4,
+                      child: TextFormField(
+                        initialValue: updateStudent != null
+                            ? updateStudent!.phoneNumber
+                            : null,
+                        keyboardType: TextInputType.phone,
+                        onChanged: (value) {
+                          phoneNo = value;
+                        },
+                        onFieldSubmitted: (value) {
+                          phoneNo = value;
+                        },
+                        onSaved: (value) {
+                          phoneNo = value;
+                        },
+                        decoration: InputDecoration(
+                            hintText: 'Enter phone #', labelText: 'PHONE #'),
+                      )),
+
+                  ////// PASSWORD FIELD ///////
+
+                  Container(
+                      width: SizeConfig.screenWidth! / 4,
+                      child: TextFormField(
+                        onChanged: (value) {
+                          password = value;
+                        },
+                        onFieldSubmitted: (value) {
+                          password = value;
+                        },
+                        onSaved: (value) {
+                          password = value;
+                        },
+                        obscureText: true,
+                        decoration: InputDecoration(
+                            hintText: 'Enter password', labelText: 'PASSWORD'),
+                      )),
+                ],
+              ),
+              SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ///// ROLL NO /////
+                  Container(
+                      width: SizeConfig.screenWidth! / 4,
+                      child: TextFormField(
+                        initialValue: updateStudent != null
+                            ? updateStudent!.rollNo
+                            : null,
+                        onChanged: (value) {
+                          rollNo = value;
+                        },
+                        onFieldSubmitted: (value) {
+                          rollNo = value;
+                        },
+                        onSaved: (value) {
+                          rollNo = value;
+                        },
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                            hintText: 'Enter Roll #', labelText: 'ROLL #'),
+                      )),
+
+                  ///// GENDER  /////
+
+                  Container(
+                      width: SizeConfig.screenWidth! / 4,
+                      child: DropdownButtonFormField(
+                        onChanged: (value) => gender = value.toString(),
+                        onSaved: (value) => gender = value.toString(),
+                        decoration: InputDecoration(
+                          labelText: "GENDER",
+                          hintText: "Select gender",
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                        ),
+                        items: popUpMenuItem,
+                      )),
+                ],
+              ),
+              SizedBox(height: 30),
+
+              Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 25),
+                    child: Container(
+                      height: 35,
+                      color: Colors.grey[300],
+                      child: ElevatedButton.icon(
+                          onPressed: () {
+                            pickImage(myState);
+                          },
+                          icon: Icon(Icons.attach_file),
+                          label: Text('Choos File')),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  image != null
+                      ? Text(image!.path.split('/').last)
+                      : Container()
+                ],
+              ),
+              SizedBox(height: 20),
+              Padding(
+                padding: EdgeInsets.only(left: 25),
+                child: Row(
+                  children: [
+                    error != null
+                        ? Row(
+                            children: [
+                              Icon(Icons.error, color: Colors.red),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                '$error',
+                                style: TextStyle(color: Colors.red),
+                              )
+                            ],
+                          )
+                        : Container(),
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

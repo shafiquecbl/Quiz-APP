@@ -3,8 +3,6 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
-import 'package:mime/mime.dart';
 import 'package:quiz_app/Models/Admin_Login.dart';
 import 'package:quiz_app/Models/Courses.dart';
 import 'package:quiz_app/Models/Student.dart';
@@ -56,34 +54,20 @@ class APIManager {
       @required phoneNo,
       @required File? image,
       @required gender}) async {
-    final mimeTypeDate =
-        lookupMimeType(image!.path, headerBytes: [0xFF, 0xD8])!.split('/');
-    final imageUploadRequest = http.MultipartRequest(
-      'POST',
-      Uri.parse('$baseUrl/admin/manage/createStudent'),
-    );
-    imageUploadRequest.headers['Authorization'] = 'Bearer $token';
-    final file = await http.MultipartFile.fromPath('image', image.path,
-        contentType: MediaType(mimeTypeDate[0], mimeTypeDate[0]));
-    imageUploadRequest.files.add(file);
-    imageUploadRequest.fields['name'] = name;
-    imageUploadRequest.fields['email'] = email;
-    imageUploadRequest.fields['password'] = password;
-    imageUploadRequest.fields['gender'] = gender;
-    imageUploadRequest.fields['rollno'] = rollNo;
-    imageUploadRequest.fields['phoneNumber'] = phoneNo;
-    try {
-      final streamedResponse = await imageUploadRequest.send();
-      final response = await http.Response.fromStream(streamedResponse);
-      if (response.statusCode != 200) {
-        return null;
-      }
-      final Map<String, dynamic> responseData = json.decode(response.body);
-      return responseData;
-    } catch (e) {
-      print(e);
-      return null;
-    }
+    FormData formData = FormData.fromMap(AddStudent(
+            name: name,
+            email: email,
+            password: password,
+            gender: gender,
+            rollNo: rollNo,
+            image: '',
+            phoneNo: phoneNo)
+        .toJson());
+    return await dio.post('$baseUrl/admin/manage/createStudent',
+        data: formData,
+        options: Options(headers: {
+          'Authorization': 'Bearer $token',
+        }));
   }
 
   ////////////// UPDATE STUDENT //////////////////
