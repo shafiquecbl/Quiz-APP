@@ -1,10 +1,17 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:quiz_app/Models/SubAdmin.dart';
+import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Screens/widget/Search_Field.dart';
 import 'package:quiz_app/Screens/widget/head_card.dart';
+import 'package:quiz_app/Services/api_manager.dart';
+import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/size_config.dart';
 
 class SubAdminWEB extends StatefulWidget {
+  final LoginResponse? loginResponse;
+  SubAdminWEB({@required this.loginResponse});
   @override
   _SubAdminWEBState createState() => _SubAdminWEBState();
 }
@@ -22,6 +29,16 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
             child: Text(value),
           ))
       .toList();
+
+  Future<List<SubAdmin>>? _subAdminModel;
+
+  @override
+  void initState() {
+    _subAdminModel =
+        APIManager().fetchSubAdminsList(token: widget.loginResponse!.token);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -63,58 +80,82 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
         height: SizeConfig.screenHeight,
         child: Card(
           child: Padding(
-              padding: EdgeInsets.only(
-                left: 10,
-                right: 10,
-                top: 50,
-              ),
-              child: SingleChildScrollView(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columns: [
-                      DataColumn(label: Text('ID')),
-                      DataColumn(label: Text('Name')),
-                      DataColumn(label: Text('Email')),
-                      DataColumn(label: Text('Phone #')),
-                      DataColumn(label: Text('Image')),
-                      DataColumn(label: Text('Action')),
-                    ],
-                    rows: List.generate(
-                        10,
-                        (index) => DataRow(cells: [
-                              DataCell(Text('$index')),
-                              DataCell(Text('Muhammad Shafique')),
-                              DataCell(Text('shafiquecbl@gmail.com')),
-                              DataCell(Text('03458628858')),
-                              DataCell(Text('NULL')),
-                              DataCell(Container(
-                                width: 125,
-                                height: 60,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                            primary: Colors.green),
-                                        onPressed: () {},
-                                        child: Text('EDIT')),
-                                    ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                            primary: Colors.red),
-                                        onPressed: () {},
-                                        child: Text('DELETE'))
-                                  ],
-                                ),
-                              )),
-                            ])),
-                  ),
-                ),
-              )),
+            padding: EdgeInsets.only(
+              left: 10,
+              right: 10,
+              top: 50,
+            ),
+            child: FutureBuilder<List<SubAdmin>>(
+              future: _subAdminModel,
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<SubAdmin>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting)
+                  return MyLoading();
+                return subAdminsList(snapshot.data!);
+              },
+            ),
+          ),
         ),
       ),
     );
+  }
+
+  subAdminsList(List<SubAdmin> list) {
+    return SingleChildScrollView(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: DataTable(
+          columns: [
+            DataColumn(label: Text('ID')),
+            DataColumn(label: Text('Name')),
+            DataColumn(label: Text('Email')),
+            DataColumn(label: Text('Phone #')),
+            DataColumn(label: Text('Image')),
+            DataColumn(label: Text('Action')),
+          ],
+          rows: List.generate(
+              list.length, (index) => subAdmin(list[index], index)),
+        ),
+      ),
+    );
+  }
+
+  subAdmin(SubAdmin subAdmin, index) {
+    return DataRow(cells: [
+      DataCell(Text('$index')),
+      DataCell(Text(subAdmin.name.toString())),
+      DataCell(Text(subAdmin.email.toString())),
+      DataCell(Text(subAdmin.phoneNumber.toString())),
+      DataCell(Container(
+        margin: EdgeInsets.all(5),
+        width: 50,
+        height: 50,
+        child: CachedNetworkImage(
+          imageUrl: subAdmin.image.toString(),
+          fit: BoxFit.cover,
+          placeholder: (context, string) {
+            return Icon(Icons.image);
+          },
+        ),
+      )),
+      DataCell(Container(
+        width: 125,
+        height: 60,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(primary: Colors.green),
+                onPressed: () {},
+                child: Text('EDIT')),
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(primary: Colors.red),
+                onPressed: () {},
+                child: Text('DELETE'))
+          ],
+        ),
+      )),
+    ]);
   }
 
   ////////////////////// FORM //////////////////////

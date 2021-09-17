@@ -1,16 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:quiz_app/Models/Teacher_Subject.dart';
+import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Screens/widget/Search_Field.dart';
 import 'package:quiz_app/Screens/widget/head_card.dart';
+import 'package:quiz_app/Services/api_manager.dart';
+import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/size_config.dart';
 
 class TeacherSubjectsWEB extends StatefulWidget {
+  final LoginResponse? loginResponse;
+  TeacherSubjectsWEB({@required this.loginResponse});
   @override
   _TeacherSubjectsWEBState createState() => _TeacherSubjectsWEBState();
 }
 
 class _TeacherSubjectsWEBState extends State<TeacherSubjectsWEB> {
   String? search = '';
+  Future<List<TeacherSubject>>? _teacherSubjectModel;
+
+  @override
+  void initState() {
+    _teacherSubjectModel = APIManager()
+        .fetchTeacherSubjectList(token: widget.loginResponse!.token);
+    super.initState();
+  }
+
   static const menuItems = <String>[
     'ALI',
     'AHMAD',
@@ -85,56 +100,69 @@ class _TeacherSubjectsWEBState extends State<TeacherSubjectsWEB> {
         height: SizeConfig.screenHeight,
         child: Card(
           child: Padding(
-              padding: EdgeInsets.only(
-                left: 10,
-                right: 10,
-                top: 50,
-              ),
-              child: SingleChildScrollView(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columns: [
-                      DataColumn(label: Text('ID')),
-                      DataColumn(label: Text('Name')),
-                      DataColumn(label: Text('Courses')),
-                      DataColumn(label: Text('Subjects')),
-                      DataColumn(label: Text('Action')),
-                    ],
-                    rows: List.generate(
-                        10,
-                        (index) => DataRow(cells: [
-                              DataCell(Text('$index')),
-                              DataCell(Text('Muhammad Shafique')),
-                              DataCell(Text('shafiquecbl@gmail.com')),
-                              DataCell(Text('03458628858')),
-                              DataCell(Container(
-                                width: 125,
-                                height: 60,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                            primary: Colors.green),
-                                        onPressed: () {},
-                                        child: Text('EDIT')),
-                                    ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                            primary: Colors.red),
-                                        onPressed: () {},
-                                        child: Text('DELETE'))
-                                  ],
-                                ),
-                              )),
-                            ])),
-                  ),
-                ),
-              )),
+            padding: EdgeInsets.only(
+              left: 10,
+              right: 10,
+              top: 50,
+            ),
+            child: FutureBuilder<List<TeacherSubject>>(
+              future: _teacherSubjectModel,
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<TeacherSubject>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting)
+                  return MyLoading();
+                return teacherSubjectsList(snapshot.data!);
+              },
+            ),
+          ),
         ),
       ),
     );
+  }
+
+  teacherSubjectsList(List<TeacherSubject> teacherSubject) {
+    return SingleChildScrollView(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: DataTable(
+          columns: [
+            DataColumn(label: Text('ID')),
+            DataColumn(label: Text('Name')),
+            DataColumn(label: Text('Course')),
+            DataColumn(label: Text('Subject')),
+            DataColumn(label: Text('Action')),
+          ],
+          rows: List.generate(teacherSubject.length,
+              (index) => teacherSubjects(teacherSubject[index], index)),
+        ),
+      ),
+    );
+  }
+
+  teacherSubjects(TeacherSubject? subject, index) {
+    return DataRow(cells: [
+      DataCell(Text('$index')),
+      DataCell(Text(subject!.teacher!.name.toString())),
+      DataCell(Text(subject.course!.name.toString())),
+      DataCell(Text(subject.subject!.subjectName.toString())),
+      DataCell(Container(
+        width: 125,
+        height: 60,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(primary: Colors.green),
+                onPressed: () {},
+                child: Text('EDIT')),
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(primary: Colors.red),
+                onPressed: () {},
+                child: Text('DELETE'))
+          ],
+        ),
+      )),
+    ]);
   }
 
   ////////////////////// FORM //////////////////////

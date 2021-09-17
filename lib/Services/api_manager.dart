@@ -5,14 +5,19 @@ import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:quiz_app/Models/Admin_Login.dart';
 import 'package:quiz_app/Models/Courses.dart';
+import 'package:quiz_app/Models/Enroll_Student.dart';
+import 'package:quiz_app/Models/Questions.dart';
+import 'package:quiz_app/Models/Quiz.dart';
 import 'package:quiz_app/Models/Student.dart';
+import 'package:quiz_app/Models/SubAdmin.dart';
+import 'package:quiz_app/Models/Subjects.dart';
+import 'package:quiz_app/Models/Teacher_Subject.dart';
 import 'package:quiz_app/Models/Teachers.dart';
 import 'package:quiz_app/Models/User.dart';
 
 class APIManager {
   var client = http.Client();
   var loginResponse;
-  var student;
   String baseUrl = 'http://192.168.100.71:4000';
   Dio dio = Dio();
 
@@ -129,11 +134,10 @@ class APIManager {
     @required token,
     @required courseName,
   }) async {
-    FormData formData = FormData.fromMap(AddCourse(
-      name: courseName,
-    ).toJson());
     return await dio.post('$baseUrl/admin/course/addCourse',
-        data: formData,
+        data: AddCourse(
+          name: courseName,
+        ).toJson(),
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
@@ -146,11 +150,17 @@ class APIManager {
     @required token,
     @required courseName,
   }) async {
-    FormData formData = FormData.fromMap(AddCourse(
-      name: courseName,
-    ).toJson());
-    return await dio.post('$baseUrl/admin/course/addCourse/$courseId',
-        data: formData,
+    return await dio.put('$baseUrl/admin/course/updateCourse/$courseId',
+        data: AddCourse(
+          name: courseName,
+        ).toJson(),
+        options: Options(headers: {
+          'Authorization': 'Bearer $token',
+        }));
+  }
+
+  deleteCourse({@required token, @required id}) async {
+    return await dio.delete('$baseUrl/admin/course/deleteCourse/$id',
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
@@ -236,14 +246,14 @@ class APIManager {
   /////////////////////// SUB ADMINS ////////////////////
   ///////////////////////////////////////////////////////
 
-  Future<List<Teacher>> fetchSubAdminsList({@required token}) async {
-    return await client.get(Uri.parse('$baseUrl/admin/manage/getAllTeachers'),
+  Future<List<SubAdmin>> fetchSubAdminsList({@required token}) async {
+    return await client.get(Uri.parse('$baseUrl/admin/manage/getAllSubadmins'),
         headers: {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
         }).then((response) async {
-      List<Teacher> jsonMap = (json.decode(response.body) as List)
-          .map((e) => Teacher.fromJson(e))
+      List<SubAdmin> jsonMap = (json.decode(response.body) as List)
+          .map((e) => SubAdmin.fromJson(e))
           .toList();
       return jsonMap;
     });
@@ -312,14 +322,14 @@ class APIManager {
   /////////////////////// SUSPENDED USER ////////////////
   ///////////////////////////////////////////////////////
 
-  Future<List<Teacher>> fetchSuspendedUserList({@required token}) async {
-    return await client.get(Uri.parse('$baseUrl/admin/manage/getAllTeachers'),
+  Future<List<User>> fetchSuspendedUserList({@required token}) async {
+    return await client.get(Uri.parse('$baseUrl/admin/manage/suspendUsers'),
         headers: {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
         }).then((response) async {
-      List<Teacher> jsonMap = (json.decode(response.body) as List)
-          .map((e) => Teacher.fromJson(e))
+      List<User> jsonMap = (json.decode(response.body) as List)
+          .map((e) => User.fromJson(e))
           .toList();
       return jsonMap;
     });
@@ -354,14 +364,14 @@ class APIManager {
   /////////////////////// SUBJETCS ////////////////////
   ///////////////////////////////////////////////////////
 
-  Future<List<Teacher>> fetchSubjectsList({@required token}) async {
-    return await client.get(Uri.parse('$baseUrl/admin/manage/getAllTeachers'),
+  Future<List<Subject>> fetchSubjectsList({@required token}) async {
+    return await client.get(Uri.parse('$baseUrl/admin/subject/getAllSubjects'),
         headers: {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
         }).then((response) async {
-      List<Teacher> jsonMap = (json.decode(response.body) as List)
-          .map((e) => Teacher.fromJson(e))
+      List<Subject> jsonMap = (json.decode(response.body) as List)
+          .map((e) => Subject.fromJson(e))
           .toList();
       return jsonMap;
     });
@@ -430,14 +440,15 @@ class APIManager {
   /////////////////////// TEACHER SUBJECTS //////////////
   ///////////////////////////////////////////////////////
 
-  Future<List<Teacher>> fetchTeacherSubjectList({@required token}) async {
-    return await client.get(Uri.parse('$baseUrl/admin/manage/getAllTeachers'),
+  Future<List<TeacherSubject>> fetchTeacherSubjectList(
+      {@required token}) async {
+    return await client.get(Uri.parse('$baseUrl/admin/manage/teacherSubjects'),
         headers: {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
         }).then((response) async {
-      List<Teacher> jsonMap = (json.decode(response.body) as List)
-          .map((e) => Teacher.fromJson(e))
+      List<TeacherSubject> jsonMap = (json.decode(response.body) as List)
+          .map((e) => TeacherSubject.fromJson(e))
           .toList();
       return jsonMap;
     });
@@ -506,15 +517,15 @@ class APIManager {
   /////////////////////// ENROLL STUDENTS ///////////////
   ///////////////////////////////////////////////////////
 
-  Future<List<Teacher>> fetchENrollStudentList({@required token}) async {
-    return await client.get(Uri.parse('$baseUrl/admin/manage/getAllTeachers'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          "Content-Type": "application/json"
-        }).then((response) async {
-      List<Teacher> jsonMap = (json.decode(response.body) as List)
-          .map((e) => Teacher.fromJson(e))
+  Future<List<EnrollStudent>> fetchENrollStudentList({@required token}) async {
+    return await client.get(Uri.parse('$baseUrl/api/enrollStudent'), headers: {
+      'Authorization': 'Bearer $token',
+      "Content-Type": "application/json"
+    }).then((response) async {
+      List<EnrollStudent> jsonMap = (json.decode(response.body) as List)
+          .map((e) => EnrollStudent.fromJson(e))
           .toList();
+
       return jsonMap;
     });
   }
@@ -544,33 +555,6 @@ class APIManager {
         }));
   }
 
-  ////////////// UPDATE ENROLL STUDENT //////////////////
-
-  updateENrollStudent(
-      {@required id,
-      @required token,
-      @required name,
-      @required email,
-      @required password,
-      @required phoneNo,
-      @required File? image,
-      @required gender}) async {
-    FormData formData = FormData.fromMap(UpdateTeacher(
-            name: name,
-            email: email,
-            password: password,
-            gender: gender,
-            image: '',
-            phoneNo: phoneNo)
-        .toJson());
-
-    return await dio.put('$baseUrl/admin/manage/updateTeacher/$id',
-        data: formData,
-        options: Options(headers: {
-          'Authorization': 'Bearer $token',
-        }));
-  }
-
   deleteENrollStudent({@required token, @required id}) async {
     return await dio.delete('$baseUrl/admin/manage/deleteTeacher/$id',
         options: Options(headers: {
@@ -582,14 +566,14 @@ class APIManager {
   /////////////////////// QUESTIONS /////////////////////
   ///////////////////////////////////////////////////////
 
-  Future<List<Teacher>> fetchQuestiontList({@required token}) async {
-    return await client.get(Uri.parse('$baseUrl/admin/manage/getAllTeachers'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          "Content-Type": "application/json"
-        }).then((response) async {
-      List<Teacher> jsonMap = (json.decode(response.body) as List)
-          .map((e) => Teacher.fromJson(e))
+  Future<List<Questions>> fetchQuestiontList({@required token}) async {
+    return await client
+        .get(Uri.parse('$baseUrl/admin/question/getAllQuestions'), headers: {
+      'Authorization': 'Bearer $token',
+      "Content-Type": "application/json"
+    }).then((response) async {
+      List<Questions> jsonMap = (json.decode(response.body) as List)
+          .map((e) => Questions.fromJson(e))
           .toList();
       return jsonMap;
     });
@@ -658,14 +642,14 @@ class APIManager {
   /////////////////////// QUIZ //////////////////////////
   ///////////////////////////////////////////////////////
 
-  Future<List<Teacher>> fetchQUIZList({@required token}) async {
-    return await client.get(Uri.parse('$baseUrl/admin/manage/getAllTeachers'),
+  Future<List<Quiz>> fetchQUIZList({@required token}) async {
+    return await client.get(Uri.parse('$baseUrl/admin/quiz/getAllQuiz'),
         headers: {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
         }).then((response) async {
-      List<Teacher> jsonMap = (json.decode(response.body) as List)
-          .map((e) => Teacher.fromJson(e))
+      List<Quiz> jsonMap = (json.decode(response.body) as List)
+          .map((e) => Quiz.fromJson(e))
           .toList();
       return jsonMap;
     });

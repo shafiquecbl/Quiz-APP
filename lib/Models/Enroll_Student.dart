@@ -14,8 +14,8 @@ class EnrollStudent {
 
   factory EnrollStudent.fromJson(Map<String, dynamic> json) => EnrollStudent(
         id: json['_id'],
-        course: json['course'],
-        student: json['student'],
+        course: Course.fromJson(json['course']),
+        student: Student.fromJson(json['student'][0]),
       );
 }
 

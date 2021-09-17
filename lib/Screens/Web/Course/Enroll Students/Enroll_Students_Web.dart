@@ -1,39 +1,81 @@
 import 'package:flutter/material.dart';
+import 'package:quiz_app/Models/Courses.dart';
+import 'package:quiz_app/Models/Enroll_Student.dart';
+import 'package:quiz_app/Models/Student.dart';
+import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Screens/widget/Search_Field.dart';
 import 'package:quiz_app/Screens/widget/head_card.dart';
+import 'package:quiz_app/Services/api_manager.dart';
+import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/size_config.dart';
 
 class EnrollStudentsWEB extends StatefulWidget {
+  final LoginResponse? loginResponse;
+  EnrollStudentsWEB({@required this.loginResponse});
   @override
   _EnrollStudentsWEBState createState() => _EnrollStudentsWEBState();
 }
 
 class _EnrollStudentsWEBState extends State<EnrollStudentsWEB> {
   String? search = '';
-  static const menuItems = <String>[
-    'ALI',
-    'AHMAD',
-    'YASIR',
-  ];
-  final List<DropdownMenuItem<String>> students = menuItems
-      .map((String value) => DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          ))
-      .toList();
+  List<Student> menuItems = [];
+  List<Course> menuItems1 = [];
 
-  static const menuItems1 = <String>[
-    'ENGLISH',
-    'SCIENCE',
-    'MATH',
-  ];
-  final List<DropdownMenuItem<String>> courses = menuItems1
-      .map((String value) => DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          ))
-      .toList();
+  //////////////////////////////////
+
+  bool isLoading = false;
+  String? courseId, studentId;
+  final _formKey = GlobalKey<FormState>();
+  Function(void Function())? myState;
+  EnrollStudent? editEnrollStudent;
+  Future<List<EnrollStudent>>? _enrollModel;
+
+  //////////////////////////////////
+
+  @override
+  void initState() {
+    _enrollModel =
+        APIManager().fetchENrollStudentList(token: widget.loginResponse!.token);
+    getStudents();
+    getCourses();
+    super.initState();
+  }
+
+  updatePage() {
+    setState(() {
+      _enrollModel = APIManager()
+          .fetchENrollStudentList(token: widget.loginResponse!.token);
+    });
+  }
+
+  getStudents() {
+    APIManager()
+        .fetchStudentsList(token: widget.loginResponse!.token)
+        .then((value) {
+      setState(() {
+        menuItems = value;
+      });
+      myState!(() {
+        menuItems = value;
+      });
+    });
+  }
+
+  getCourses() {
+    APIManager()
+        .getCoursesList(token: widget.loginResponse!.token)
+        .then((value) {
+      setState(() {
+        menuItems1 = value;
+      });
+      myState!(() {
+        menuItems1 = value;
+      });
+    });
+  }
+
+  /////////////////////////////////
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -74,38 +116,51 @@ class _EnrollStudentsWEBState extends State<EnrollStudentsWEB> {
         height: SizeConfig.screenHeight,
         child: Card(
           child: Padding(
-              padding: EdgeInsets.only(
-                left: 10,
-                right: 10,
-                top: 50,
-              ),
-              child: SingleChildScrollView(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columns: [
-                      DataColumn(label: Text('ID')),
-                      DataColumn(label: Text('Name')),
-                      DataColumn(label: Text('Course')),
-                      DataColumn(label: Text('Action')),
-                    ],
-                    rows: List.generate(
-                        10,
-                        (index) => DataRow(cells: [
-                              DataCell(Text('$index')),
-                              DataCell(Text('Muhammad Shafique')),
-                              DataCell(Text('shafiquecbl@gmail.com')),
-                              DataCell(Container(
-                                child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                        primary: Colors.red),
-                                    onPressed: () {},
-                                    child: Text('DELETE')),
-                              )),
-                            ])),
-                  ),
-                ),
+            padding: EdgeInsets.only(
+              left: 10,
+              right: 10,
+              top: 50,
+            ),
+            child: FutureBuilder<List<EnrollStudent>>(
+              future: _enrollModel,
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<EnrollStudent>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting)
+                  return MyLoading();
+                return enrollStudents(snapshot);
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  enrollStudents(AsyncSnapshot<List<EnrollStudent>> snapshot) {
+    return SingleChildScrollView(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: DataTable(
+          columns: [
+            DataColumn(label: Text('ID')),
+            DataColumn(label: Text('Name')),
+            DataColumn(label: Text('Course')),
+            DataColumn(label: Text('Action')),
+          ],
+          rows: List.generate(snapshot.data!.length, (index) {
+            EnrollStudent std = snapshot.data![index];
+            return DataRow(cells: [
+              DataCell(Text('$index')),
+              DataCell(Text(std.student!.name.toString())),
+              DataCell(Text(std.course!.name.toString())),
+              DataCell(Container(
+                child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(primary: Colors.red),
+                    onPressed: () {},
+                    child: Text('DELETE')),
               )),
+            ]);
+          }),
         ),
       ),
     );
@@ -176,14 +231,21 @@ class _EnrollStudentsWEBState extends State<EnrollStudentsWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: DropdownButtonFormField(
-          onSaved: (newValue) => {},
-          onChanged: (value) {},
+          onSaved: (newValue) => {studentId = newValue.toString()},
+          onChanged: (value) {
+            studentId = value.toString();
+          },
           decoration: InputDecoration(
             labelText: "STUDENTS",
             hintText: "Select student",
             floatingLabelBehavior: FloatingLabelBehavior.always,
           ),
-          items: students,
+          items: menuItems.map((e) {
+            return DropdownMenuItem(
+              child: Text(e.name.toString()),
+              value: e.id,
+            );
+          }).toList(),
         ));
   }
 
@@ -191,14 +253,21 @@ class _EnrollStudentsWEBState extends State<EnrollStudentsWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: DropdownButtonFormField(
-          onSaved: (newValue) => {},
-          onChanged: (value) {},
+          onSaved: (newValue) => {studentId = newValue.toString()},
+          onChanged: (value) {
+            studentId = value.toString();
+          },
           decoration: InputDecoration(
             labelText: "COURSES",
             hintText: "Select course",
             floatingLabelBehavior: FloatingLabelBehavior.always,
           ),
-          items: courses,
+          items: menuItems1.map((e) {
+            return DropdownMenuItem(
+              child: Text(e.name.toString()),
+              value: e.id,
+            );
+          }).toList(),
         ));
   }
 }

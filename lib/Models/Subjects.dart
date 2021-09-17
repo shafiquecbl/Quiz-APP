@@ -1,21 +1,25 @@
-class Subject {
-  Subject({this.id, this.courseName, this.subjectName});
+import 'package:quiz_app/Models/Courses.dart';
 
-  String? id, courseName, subjectName;
+class Subject {
+  Subject({this.id, this.course, this.subjectName});
+
+  String? id, subjectName;
+  Course? course;
 
   factory Subject.fromJson(Map<String, dynamic> json) => Subject(
         id: json['_id'],
-        courseName: json['course'][0]['name'],
+        course: Course.fromJson(json['course'][0]),
         subjectName: json['subjectName'],
       );
 }
 
 class AddSubject {
-  AddSubject({this.courseName, this.subjectName});
-  String? courseName, subjectName;
+  AddSubject({this.course, this.subjectName});
+  String? subjectName;
+  Course? course;
 
   Map<String, dynamic> toJson() => {
-        "course": courseName,
+        "course": course,
         "subjectName": subjectName,
       };
 }

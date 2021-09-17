@@ -1,27 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:quiz_app/Models/Courses.dart';
+import 'package:quiz_app/Models/Subjects.dart';
+import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Screens/widget/Search_Field.dart';
 import 'package:quiz_app/Screens/widget/head_card.dart';
+import 'package:quiz_app/Services/api_manager.dart';
+import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/size_config.dart';
 
 class SubjectsWEB extends StatefulWidget {
+  final LoginResponse? loginResponse;
+  SubjectsWEB({@required this.loginResponse});
   @override
   _SubjectsWEBState createState() => _SubjectsWEBState();
 }
 
 class _SubjectsWEBState extends State<SubjectsWEB> {
   String? search = '';
-  static const menuItems = <String>[
-    'ENGLISH',
-    'SCIENCE',
-    'MATH',
-  ];
-  final List<DropdownMenuItem<String>> popUpMenuItem = menuItems
-      .map((String value) => DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          ))
-      .toList();
+  bool isLoading = false;
+  static List<Course> menuItems = [];
+  List<DropdownMenuItem<Course>>? popUpMenuItem;
+  Future<List<Subject>>? _subjectModel;
+
+  @override
+  void initState() {
+    _subjectModel =
+        APIManager().fetchSubjectsList(token: widget.loginResponse!.token);
+    super.initState();
+  }
+
+  getCourses() {
+    APIManager()
+        .getCoursesList(token: widget.loginResponse!.token)
+        .then((value) {
+      value.map((e) {
+        menuItems.add(e);
+        if (menuItems.isNotEmpty) {
+          popUpMenuItem = menuItems
+              .map((Course value) => DropdownMenuItem<Course>(
+                    value: value,
+                    child: Text(value.name.toString()),
+                  ))
+              .toList();
+        }
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -62,54 +88,68 @@ class _SubjectsWEBState extends State<SubjectsWEB> {
         height: SizeConfig.screenHeight,
         child: Card(
           child: Padding(
-              padding: EdgeInsets.only(
-                left: 10,
-                right: 10,
-                top: 50,
-              ),
-              child: SingleChildScrollView(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columns: [
-                      DataColumn(label: Text('ID')),
-                      DataColumn(label: Text('Subject Name')),
-                      DataColumn(label: Text('Course Name')),
-                      DataColumn(label: Text('Action')),
-                    ],
-                    rows: List.generate(
-                        10,
-                        (index) => DataRow(cells: [
-                              DataCell(Text('$index')),
-                              DataCell(Text('Muhammad Shafique')),
-                              DataCell(Text('shafiquecbl@gmail.com')),
-                              DataCell(Container(
-                                width: 125,
-                                height: 60,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                            primary: Colors.green),
-                                        onPressed: () {},
-                                        child: Text('EDIT')),
-                                    ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                            primary: Colors.red),
-                                        onPressed: () {},
-                                        child: Text('DELETE'))
-                                  ],
-                                ),
-                              )),
-                            ])),
-                  ),
-                ),
-              )),
+            padding: EdgeInsets.only(
+              left: 10,
+              right: 10,
+              top: 50,
+            ),
+            child: FutureBuilder<List<Subject>>(
+              future: _subjectModel,
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<Subject>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting)
+                  return MyLoading();
+                return subjectsList(snapshot.data!);
+              },
+            ),
+          ),
         ),
       ),
     );
+  }
+
+  subjectsList(List<Subject> subjects) {
+    return SingleChildScrollView(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: DataTable(
+          columns: [
+            DataColumn(label: Text('ID')),
+            DataColumn(label: Text('Subject Name')),
+            DataColumn(label: Text('Course Name')),
+            DataColumn(label: Text('Action')),
+          ],
+          rows: List.generate(subjects.length, (index) {
+            return subject(subjects[index], index);
+          }),
+        ),
+      ),
+    );
+  }
+
+  subject(Subject? subject, int index) {
+    return DataRow(cells: [
+      DataCell(Text('$index')),
+      DataCell(Text(subject!.subjectName.toString())),
+      DataCell(Text(subject.course!.name.toString())),
+      DataCell(Container(
+        width: 125,
+        height: 60,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(primary: Colors.green),
+                onPressed: () {},
+                child: Text('EDIT')),
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(primary: Colors.red),
+                onPressed: () {},
+                child: Text('DELETE'))
+          ],
+        ),
+      )),
+    ]);
   }
 
   ////////////////////// FORM //////////////////////

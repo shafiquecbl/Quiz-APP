@@ -12,9 +12,9 @@ class TeacherSubject {
 
   factory TeacherSubject.fromJson(Map<String, dynamic> json) => TeacherSubject(
         id: json['_id'],
-        teacher: json['teacher'],
-        course: json['course'][0],
-        subject: json['subject'][0],
+        teacher: Teacher.fromJson(json['teacher']),
+        course: Course.fromJson(json['course'][0]),
+        subject: Subject.fromJson(json['subject'][0]),
       );
 }
 

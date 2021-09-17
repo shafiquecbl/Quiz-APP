@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:quiz_app/Models/Questions.dart';
+import 'package:quiz_app/Models/Quiz.dart';
+import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Screens/widget/Search_Field.dart';
 import 'package:quiz_app/Screens/widget/head_card.dart';
+import 'package:quiz_app/Services/api_manager.dart';
+import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/size_config.dart';
 
 class QuestionsWEB extends StatefulWidget {
+  final LoginResponse? loginResponse;
+  QuestionsWEB({@required this.loginResponse});
   @override
   _QuestionsWEBState createState() => _QuestionsWEBState();
 }
@@ -22,6 +29,15 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
             child: Text(value),
           ))
       .toList();
+  Future<List<Questions>>? _questionModel;
+
+  @override
+  void initState() {
+    _questionModel =
+        APIManager().fetchQuestiontList(token: widget.loginResponse!.token);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -62,65 +78,83 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
         height: SizeConfig.screenHeight,
         child: Card(
           child: Padding(
-              padding: EdgeInsets.only(
-                left: 10,
-                right: 10,
-                top: 50,
-              ),
-              child: SingleChildScrollView(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columns: [
-                      DataColumn(label: Text('ID')),
-                      DataColumn(label: Text('Question Statement')),
-                      DataColumn(label: Text('Type')),
-                      DataColumn(label: Text('Level')),
-                      DataColumn(label: Text('Subjects')),
-                      DataColumn(label: Text('Course')),
-                      DataColumn(label: Text('Action')),
-                    ],
-                    rows: List.generate(
-                        10,
-                        (index) => DataRow(cells: [
-                              DataCell(Text('$index')),
-                              DataCell(Container(
-                                  width: 290,
-                                  child: Text('Muhammad Shafique'))),
-                              DataCell(Text('MCQ\'s')),
-                              DataCell(Text('Advanced')),
-                              DataCell(Container(
-                                width: 50,
-                                child: Text('Act'),
-                              )),
-                              DataCell(Text('English')),
-                              DataCell(Container(
-                                width: 125,
-                                height: 60,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                            primary: Colors.green),
-                                        onPressed: () {},
-                                        child: Text('EDIT')),
-                                    ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                            primary: Colors.red),
-                                        onPressed: () {},
-                                        child: Text('DELETE'))
-                                  ],
-                                ),
-                              )),
-                            ])),
-                  ),
-                ),
-              )),
+            padding: EdgeInsets.only(
+              left: 10,
+              right: 10,
+              top: 50,
+            ),
+            child: FutureBuilder<List<Questions>>(
+              future: _questionModel,
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<Questions>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting)
+                  return MyLoading();
+                return questionsList(snapshot.data!);
+              },
+            ),
+          ),
         ),
       ),
     );
+  }
+
+  questionsList(List<Questions> list) {
+    return SingleChildScrollView(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: DataTable(
+          dataRowHeight: 60,
+          columns: [
+            DataColumn(label: Text('ID')),
+            DataColumn(label: Text('Question Statement')),
+            DataColumn(label: Text('Type')),
+            DataColumn(label: Text('Level')),
+            DataColumn(label: Text('Subjects')),
+            DataColumn(label: Text('Course')),
+            DataColumn(label: Text('Action')),
+          ],
+          rows: List.generate(
+              list.length, (index) => questions(list[index], index)),
+        ),
+      ),
+    );
+  }
+
+  questions(Questions? question, index) {
+    return DataRow(cells: [
+      DataCell(Text('$index')),
+      DataCell(Container(
+          width: 290,
+          child: Text(
+            question!.questionStatement.toString(),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ))),
+      DataCell(Text(question.type.toString())),
+      DataCell(Text(question.level.toString())),
+      DataCell(Container(
+        width: 50,
+        child: Text(question.subject!.subjectName.toString()),
+      )),
+      DataCell(Text(question.course!.name.toString())),
+      DataCell(Container(
+        width: 125,
+        height: 60,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(primary: Colors.green),
+                onPressed: () {},
+                child: Text('EDIT')),
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(primary: Colors.red),
+                onPressed: () {},
+                child: Text('DELETE'))
+          ],
+        ),
+      )),
+    ]);
   }
   ////////////////////// FORM //////////////////////
 

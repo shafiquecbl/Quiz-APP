@@ -1,10 +1,17 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:quiz_app/Models/Teachers.dart';
+import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Screens/widget/Search_Field.dart';
 import 'package:quiz_app/Screens/widget/head_card.dart';
+import 'package:quiz_app/Services/api_manager.dart';
+import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/size_config.dart';
 
 class TeachersWEB extends StatefulWidget {
+  final LoginResponse? loginResponse;
+  TeachersWEB({@required this.loginResponse});
   @override
   _TeachersWEBState createState() => _TeachersWEBState();
 }
@@ -22,6 +29,15 @@ class _TeachersWEBState extends State<TeachersWEB> {
             child: Text(value),
           ))
       .toList();
+  Future<List<Teacher>>? _teacherModel;
+
+  @override
+  void initState() {
+    _teacherModel =
+        APIManager().fetchTeachersList(token: widget.loginResponse!.token);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -62,58 +78,82 @@ class _TeachersWEBState extends State<TeachersWEB> {
         height: SizeConfig.screenHeight,
         child: Card(
           child: Padding(
-              padding: EdgeInsets.only(
-                left: 10,
-                right: 10,
-                top: 50,
-              ),
-              child: SingleChildScrollView(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columns: [
-                      DataColumn(label: Text('ID')),
-                      DataColumn(label: Text('Name')),
-                      DataColumn(label: Text('Email')),
-                      DataColumn(label: Text('Phone #')),
-                      DataColumn(label: Text('Image')),
-                      DataColumn(label: Text('Action')),
-                    ],
-                    rows: List.generate(
-                        10,
-                        (index) => DataRow(cells: [
-                              DataCell(Text('$index')),
-                              DataCell(Text('Muhammad Shafique')),
-                              DataCell(Text('shafiquecbl@gmail.com')),
-                              DataCell(Text('03458628858')),
-                              DataCell(Text('NULL')),
-                              DataCell(Container(
-                                width: 125,
-                                height: 60,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                            primary: Colors.green),
-                                        onPressed: () {},
-                                        child: Text('EDIT')),
-                                    ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                            primary: Colors.red),
-                                        onPressed: () {},
-                                        child: Text('DELETE'))
-                                  ],
-                                ),
-                              )),
-                            ])),
-                  ),
-                ),
-              )),
+            padding: EdgeInsets.only(
+              left: 10,
+              right: 10,
+              top: 50,
+            ),
+            child: FutureBuilder<List<Teacher>>(
+              future: _teacherModel,
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<Teacher>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting)
+                  return MyLoading();
+                return teacherList(snapshot.data!);
+              },
+            ),
+          ),
         ),
       ),
     );
+  }
+
+  teacherList(List<Teacher> list) {
+    return SingleChildScrollView(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: DataTable(
+          columns: [
+            DataColumn(label: Text('ID')),
+            DataColumn(label: Text('Name')),
+            DataColumn(label: Text('Email')),
+            DataColumn(label: Text('Phone #')),
+            DataColumn(label: Text('Image')),
+            DataColumn(label: Text('Action')),
+          ],
+          rows: List.generate(
+              list.length, (index) => teacher(list[index], index)),
+        ),
+      ),
+    );
+  }
+
+  teacher(Teacher? teacher, index) {
+    return DataRow(cells: [
+      DataCell(Text('$index')),
+      DataCell(Text(teacher!.name.toString())),
+      DataCell(Text(teacher.email.toString())),
+      DataCell(Text(teacher.phoneNumber.toString())),
+      DataCell(Container(
+        margin: EdgeInsets.all(5),
+        width: 50,
+        height: 50,
+        child: CachedNetworkImage(
+          imageUrl: teacher.image.toString(),
+          fit: BoxFit.cover,
+          placeholder: (context, string) {
+            return Icon(Icons.image);
+          },
+        ),
+      )),
+      DataCell(Container(
+        width: 125,
+        height: 60,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(primary: Colors.green),
+                onPressed: () {},
+                child: Text('EDIT')),
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(primary: Colors.red),
+                onPressed: () {},
+                child: Text('DELETE'))
+          ],
+        ),
+      )),
+    ]);
   }
 
   ////////////////////// FORM //////////////////////

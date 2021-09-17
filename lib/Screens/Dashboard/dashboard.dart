@@ -42,23 +42,39 @@ class _DashboardState extends State<Dashboard> {
         AppResponsive.isDesktop(context)
             ? StudentsWEB(loginResponse: widget.loginResponse)
             : StudentsMobile(),
-        AppResponsive.isDesktop(context) ? TeachersWEB() : TeachersMobile(),
-        AppResponsive.isDesktop(context) ? SuspendedWEB() : SuspendedMobile(),
-        AppResponsive.isDesktop(context) ? SubAdminWEB() : SubAdminMobile(),
+        AppResponsive.isDesktop(context)
+            ? TeachersWEB(loginResponse: widget.loginResponse)
+            : TeachersMobile(),
+        AppResponsive.isDesktop(context)
+            ? SuspendedWEB(loginResponse: widget.loginResponse)
+            : SuspendedMobile(),
+        AppResponsive.isDesktop(context)
+            ? SubAdminWEB(loginResponse: widget.loginResponse)
+            : SubAdminMobile(),
         AppResponsive.isDesktop(context)
             ? CoursesWEB(
                 loginResponse: widget.loginResponse,
               )
             : CoursesMobile(),
-        AppResponsive.isDesktop(context) ? SubjectsWEB() : SubjectsMobile(),
         AppResponsive.isDesktop(context)
-            ? TeacherSubjectsWEB()
+            ? SubjectsWEB(
+                loginResponse: widget.loginResponse,
+              )
+            : SubjectsMobile(),
+        AppResponsive.isDesktop(context)
+            ? TeacherSubjectsWEB(loginResponse: widget.loginResponse)
             : TeacherSubjectsMobile(),
         AppResponsive.isDesktop(context)
-            ? EnrollStudentsWEB()
+            ? EnrollStudentsWEB(
+                loginResponse: widget.loginResponse,
+              )
             : EnrollStudentsMobile(),
-        AppResponsive.isDesktop(context) ? QuizWEB() : QuizMobile(),
-        AppResponsive.isDesktop(context) ? QuestionsWEB() : QuestionsMobile(),
+        AppResponsive.isDesktop(context)
+            ? QuizWEB(loginResponse: widget.loginResponse)
+            : QuizMobile(),
+        AppResponsive.isDesktop(context)
+            ? QuestionsWEB(loginResponse: widget.loginResponse)
+            : QuestionsMobile(),
       ],
     );
   }

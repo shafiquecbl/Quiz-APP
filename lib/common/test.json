@@ -1,0 +1,82 @@
+{
+    "subject": [
+        {
+            "course": [
+                {
+                    "assignToTeacher": true,
+                    "_id": "6116588dfb72220670c43006",
+                    "name": "ENGLISH",
+                    "createdAt": "2021-08-13T11:33:33.306Z",
+                    "updatedAt": "2021-09-16T11:53:44.480Z",
+                    "__v": 0
+                }
+            ],
+            "_id": "611658b0fb72220670c43008",
+            "subjectName": "ACT",
+            "createdAt": "2021-08-13T11:34:08.464Z",
+            "updatedAt": "2021-08-13T11:34:08.464Z",
+            "__v": 0
+        }
+    ],
+    "level": [
+        "Advanced"
+    ],
+    "question": [
+        
+        {
+            "subject": [
+                "611658b0fb72220670c43008"
+            ],
+            "options": [
+                {
+                    "options1": "support for the essay’s point about Banneker’s love of learning.",
+                    "options2": "a direct link to the previous paragraph.",
+                    "options3": "a humorous description of Banneker’s other interests.",
+                    "options4": "an extensive digression about music"
+                }
+            ],
+            "questionImage": [],
+            "flag": false,
+            "_id": "61165c42fb72220670c43010",
+            "questionStatement": "Banneker lived and worked on the family farm. After his father died in 1759, Banneker took over the responsibility of the farm and the care of his mother and younger sisters. In addition, he pursued scientific studies and taught himself to play the flute and violin. If the writer were to delete the last part of the preceding sentence (ending the sentence with a period after the word studies), the paragraph would primarily lose:",
+            "type": "MCQ`s ",
+            "answer": "support for the essay’s point about Banneker’s love of learning.",
+            "course": "6116588dfb72220670c43006",
+            "level": "Advanced",
+            "user": "611647eafb72220670c43005",
+            "createdAt": "2021-08-13T11:49:22.266Z",
+            "updatedAt": "2021-08-13T11:49:22.266Z",
+            "__v": 0
+        }
+    ],
+    "public": false,
+    "_id": "6116697afb72220670c4301e",
+    "quizName": "ACT quiz",
+    "attemptDate": "2021-08-14T00:00:00.000Z",
+    "course": {
+        "assignToTeacher": true,
+        "_id": "6116588dfb72220670c43006",
+        "name": "ENGLISH",
+        "createdAt": "2021-08-13T11:33:33.306Z",
+        "updatedAt": "2021-09-16T11:53:44.480Z",
+        "__v": 0
+    },
+    "time": 60,
+    "bound": "perQuestion",
+    "user": {
+        "role": "admin",
+        "suspend": false,
+        "deviceTokens": [],
+        "_id": "611647eafb72220670c43005",
+        "name": "Rabshan",
+        "email": "rnatiq@gmail.com",
+        "phoneNumber": "345678987654",
+        "gender": "Male",
+        "createdAt": "2021-08-13T10:22:34.682Z",
+        "updatedAt": "2021-08-13T10:22:34.682Z",
+        "__v": 0
+    },
+    "createdAt": "2021-08-13T12:45:46.333Z",
+    "updatedAt": "2021-08-13T12:45:46.333Z",
+    "__v": 0
+}

@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:quiz_app/Models/Quiz.dart';
+import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Screens/widget/Search_Field.dart';
 import 'package:quiz_app/Screens/widget/head_card.dart';
+import 'package:quiz_app/Services/api_manager.dart';
+import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/size_config.dart';
 
 class QuizWEB extends StatefulWidget {
+  final LoginResponse? loginResponse;
+  QuizWEB({@required this.loginResponse});
   @override
   _QuizWEBState createState() => _QuizWEBState();
 }
@@ -23,6 +29,15 @@ class _QuizWEBState extends State<QuizWEB> {
             child: Text(value),
           ))
       .toList();
+
+  Future<List<Quiz>>? _quizModel;
+
+  @override
+  void initState() {
+    _quizModel = APIManager().fetchQUIZList(token: widget.loginResponse!.token);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -63,61 +78,70 @@ class _QuizWEBState extends State<QuizWEB> {
         height: SizeConfig.screenHeight,
         child: Card(
           child: Padding(
-              padding: EdgeInsets.only(
-                left: 10,
-                right: 10,
-                top: 50,
-              ),
-              child: SingleChildScrollView(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columns: [
-                      DataColumn(label: Text('ID')),
-                      DataColumn(label: Text('Name')),
-                      DataColumn(label: Text('Attempt Date')),
-                      DataColumn(label: Text('Subjects')),
-                      DataColumn(label: Text('Course')),
-                      DataColumn(label: Text('Action')),
-                    ],
-                    rows: List.generate(
-                        10,
-                        (index) => DataRow(cells: [
-                              DataCell(Text('$index')),
-                              DataCell(Text('Muhammad Shafique')),
-                              DataCell(Text('shafiquecbl@gmail.com')),
-                              DataCell(Text('03458628858')),
-                              DataCell(Container(
-                                width: 50,
-                                child: Text('093'),
-                              )),
-                              DataCell(Container(
-                                width: 125,
-                                height: 60,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                            primary: Colors.green),
-                                        onPressed: () {},
-                                        child: Text('EDIT')),
-                                    ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                            primary: Colors.red),
-                                        onPressed: () {},
-                                        child: Text('DELETE'))
-                                  ],
-                                ),
-                              )),
-                            ])),
-                  ),
-                ),
-              )),
+            padding: EdgeInsets.only(
+              left: 10,
+              right: 10,
+              top: 50,
+            ),
+            child: FutureBuilder<List<Quiz>>(
+              future: _quizModel,
+              builder:
+                  (BuildContext context, AsyncSnapshot<List<Quiz>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting)
+                  return MyLoading();
+                return quizList(snapshot.data!);
+              },
+            ),
+          ),
         ),
       ),
     );
+  }
+
+  quizList(List<Quiz> list) {
+    return SingleChildScrollView(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: DataTable(
+          columns: [
+            DataColumn(label: Text('ID')),
+            DataColumn(label: Text('Name')),
+            DataColumn(label: Text('Attempt Date')),
+            DataColumn(label: Text('Subjects')),
+            DataColumn(label: Text('Course')),
+            DataColumn(label: Text('Action')),
+          ],
+          rows: List.generate(list.length, (index) => quiz(list[index], index)),
+        ),
+      ),
+    );
+  }
+
+  quiz(Quiz? quiz, index) {
+    return DataRow(cells: [
+      DataCell(Text('$index')),
+      DataCell(Text(quiz!.quizName.toString())),
+      DataCell(Text(quiz.attempDate.toString())),
+      DataCell(Text(quiz.subject!.subjectName.toString())),
+      DataCell(Text(quiz.course!.name.toString())),
+      DataCell(Container(
+        width: 125,
+        height: 60,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(primary: Colors.green),
+                onPressed: () {},
+                child: Text('EDIT')),
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(primary: Colors.red),
+                onPressed: () {},
+                child: Text('DELETE'))
+          ],
+        ),
+      )),
+    ]);
   }
 
   ////////////////////// FORM //////////////////////

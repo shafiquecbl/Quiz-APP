@@ -7,6 +7,7 @@ import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Screens/widget/Search_Field.dart';
 import 'package:quiz_app/Screens/widget/head_card.dart';
 import 'package:quiz_app/Services/api_manager.dart';
+import 'package:quiz_app/WIdgets/Custom_Error.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/size_config.dart';
@@ -457,17 +458,8 @@ class _StudentsWEBState extends State<StudentsWEB> {
                 child: Row(
                   children: [
                     error != null
-                        ? Row(
-                            children: [
-                              Icon(Icons.error, color: Colors.red),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text(
-                                '$error',
-                                style: TextStyle(color: Colors.red),
-                              )
-                            ],
+                        ? MyError(
+                            error: error,
                           )
                         : Container(),
                   ],
