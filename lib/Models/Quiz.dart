@@ -41,17 +41,33 @@ class Quiz {
 }
 
 class AddQuiz {
-  AddQuiz({this.name, this.attempDate, this.course, this.subject});
+  AddQuiz(
+      {this.quizName,
+      this.attemptDate,
+      this.courseId,
+      this.subjectId,
+      this.questions,
+      this.public,
+      this.time,
+      this.timeType,
+      this.level});
 
-  String? name, attempDate;
-  Subject? subject;
-  Course? course;
+  String? quizName, attemptDate, level, courseId, timeType;
+  bool? public;
+  List? subjectId;
+  int? time;
+  List? questions;
 
   Map<String, dynamic> toJson() => {
-        "name": name,
-        "attempDate": attempDate,
-        "subject": subject,
-        "course": course
+        "quizName": quizName,
+        "attemptDate": attemptDate,
+        "subject": subjectId,
+        "course": courseId,
+        "level": level,
+        "question": questions,
+        "time": time,
+        "bound": timeType,
+        "public": public
       };
 }
 
@@ -108,9 +124,22 @@ class QuestionOptions {
 
   factory QuestionOptions.fromJson(Map<String, dynamic> json) =>
       QuestionOptions(
-        option1: json['option1'],
-        option2: json['option2'],
-        option3: json['option3'],
-        option4: json['option4'],
+        option1: json['options1'],
+        option2: json['options2'],
+        option3: json['options3'],
+        option4: json['options4'],
       );
+}
+
+class AddQustionOption {
+  AddQustionOption({this.option1, this.option2, this.option3, this.option4});
+
+  String? option1, option2, option3, option4;
+
+  Map<String, dynamic> toJson() => {
+        "options1": option1,
+        "options2": option2,
+        "options3": option3,
+        "options4": option4,
+      };
 }

@@ -1,45 +1,61 @@
-import 'package:quiz_app/Models/User.dart';
-
 import 'Courses.dart';
 import 'Quiz.dart';
 import 'Subjects.dart';
 
 class Questions {
   Questions(
-      {this.name,
-      this.attempDate,
-      this.options,
+      {this.options,
       this.subject,
       this.id,
-      this.flag,
       this.questionStatement,
       this.type,
       this.answer,
       this.course,
       this.level,
-      this.user,
       this.questionImage});
 
-  String? id, name, attempDate, questionStatement, type, answer, level;
+  String? id, questionStatement, type, answer, level;
   Subject? subject;
   Course? course;
-  User? user;
   List? questionImage;
-  bool? flag;
   QuestionOptions? options;
 
   factory Questions.fromJson(Map<String, dynamic> json) => Questions(
       id: json['_id'],
-      name: json['name'],
-      attempDate: json['attempDate'],
       subject: Subject.fromJson(json['subject'][0]),
       questionImage: List.from(json['questionImage'].map((x) => x)),
-      flag: json['flag'],
       questionStatement: json['questionStatement'],
       type: json['type'],
       answer: json['answer'],
       course: Course.fromJson(json['course']),
       level: json['level'],
-      user: User.fromJson(json['user']),
       options: QuestionOptions.fromJson(json['options'][0]));
+}
+
+class AddQuestion {
+  AddQuestion(
+      {this.id,
+      this.questionStatement,
+      this.type,
+      this.answer,
+      this.subjectId,
+      this.courseId,
+      this.questionImage,
+      this.options,
+      this.level});
+  String? id, questionStatement, type, answer, level, courseId;
+  List? subjectId;
+  List? questionImage;
+  AddQustionOption? options;
+
+  Map<String, dynamic> toJson() => {
+        "subject": subjectId,
+        "questionImage": questionImage,
+        "questionStatement": questionStatement,
+        "type": type,
+        "answer": answer,
+        "course": courseId,
+        "level": level,
+        "options": options!.toJson(),
+      };
 }

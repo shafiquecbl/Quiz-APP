@@ -19,12 +19,12 @@ class TeacherSubject {
 }
 
 class AddTeacherSubject {
-  AddTeacherSubject({this.name, this.courseId, this.subjectId});
-  String? courseId, subjectId, name;
+  AddTeacherSubject({this.teacherId, this.courseId, this.subjectId});
+  String? courseId, subjectId, teacherId;
 
   Map<String, dynamic> toJson() => {
         "subjects": subjectId,
         "course": courseId,
-        "teacher": name,
+        "teacher": teacherId,
       };
 }

@@ -11,3 +11,17 @@ class Login {
         "password": password,
       };
 }
+
+class StudentLogin {
+  StudentLogin({
+    this.rollNo,
+    this.password,
+  });
+  String? rollNo;
+  String? password;
+
+  Map<String, dynamic> toJson() => {
+        "rollno": rollNo,
+        "password": password,
+      };
+}

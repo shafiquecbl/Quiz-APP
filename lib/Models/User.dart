@@ -34,3 +34,41 @@ class User {
       suspend: json['suspend'],
       gender: json['gender']);
 }
+
+class StudentLoginResponse {
+  StudentLoginResponse({this.token, this.user});
+
+  String? token;
+  StudentLogin? user;
+
+  factory StudentLoginResponse.fromJson(Map<String, dynamic> json) =>
+      StudentLoginResponse(
+          token: json["token"], user: StudentLogin.fromJson(json['user']));
+}
+
+class StudentLogin {
+  StudentLogin(
+      {this.role,
+      this.id,
+      this.createdAt,
+      this.email,
+      this.gender,
+      this.name,
+      this.phoneNumber,
+      this.suspend,
+      this.updatedAt});
+
+  String? role, id, name, email, phoneNumber, gender, createdAt, updatedAt;
+  bool? suspend;
+
+  factory StudentLogin.fromJson(Map<String, dynamic> json) => StudentLogin(
+      role: json['role'],
+      id: json['_id'],
+      createdAt: json['createdAt'],
+      updatedAt: json['updatedAt'],
+      phoneNumber: json['phoneNumber'],
+      email: json['email'],
+      name: json['name'],
+      suspend: json['suspend'],
+      gender: json['gender']);
+}

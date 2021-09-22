@@ -3,22 +3,26 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 import 'package:quiz_app/Models/Admin_Login.dart';
 import 'package:quiz_app/Models/Courses.dart';
 import 'package:quiz_app/Models/Enroll_Student.dart';
 import 'package:quiz_app/Models/Questions.dart';
 import 'package:quiz_app/Models/Quiz.dart';
 import 'package:quiz_app/Models/Student.dart';
+import 'package:quiz_app/Models/Student/student_courses.dart';
 import 'package:quiz_app/Models/SubAdmin.dart';
 import 'package:quiz_app/Models/Subjects.dart';
 import 'package:quiz_app/Models/Teacher_Subject.dart';
 import 'package:quiz_app/Models/Teachers.dart';
 import 'package:quiz_app/Models/User.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class APIManager {
   var client = http.Client();
   var loginResponse;
-  String baseUrl = 'http://192.168.100.71:4000';
+  String baseUrl = 'http://192.168.100.75:4000';
   Dio dio = Dio();
 
   ///////////////////////////////////////////////////////////
@@ -27,10 +31,11 @@ class APIManager {
     return await client
         .post(Uri.parse('$baseUrl/admin/auth/login'),
             body: Login(email: email, password: password).toJson())
-        .then((response) {
-      var jsonString = response.body;
-      var jsonMap = json.decode(jsonString);
+        .then((response) async {
+      var jsonMap = json.decode(response.body);
       loginResponse = LoginResponse.fromJson(jsonMap);
+      SharedPreferences pref = await SharedPreferences.getInstance();
+      await pref.setString('LoginResponse', jsonEncode(jsonMap));
       return loginResponse;
     });
   }
@@ -65,7 +70,8 @@ class APIManager {
             password: password,
             gender: gender,
             rollNo: rollNo,
-            image: '',
+            image: await http.MultipartFile.fromPath('image', image!.path,
+                filename: image.path.split('/').last),
             phoneNo: phoneNo)
         .toJson());
     return await dio.post('$baseUrl/admin/manage/createStudent',
@@ -193,19 +199,26 @@ class APIManager {
       @required phoneNo,
       @required File? image,
       @required gender}) async {
-    FormData formData = FormData.fromMap(AddTeacher(
-            name: name,
-            email: email,
-            password: password,
-            gender: gender,
-            image: '',
-            phoneNo: phoneNo)
-        .toJson());
-    return await dio.post('$baseUrl/admin/manage/createTeacher',
-        data: formData,
-        options: Options(headers: {
-          'Authorization': 'Bearer $token',
-        }));
+    final mimeTypeData =
+        lookupMimeType(image!.path, headerBytes: [0xFF, 0xD8])!.split('/');
+    return await http.MultipartFile.fromPath('image', image.path,
+            filename: image.path.split('/').last,
+            contentType: MediaType(mimeTypeData[0], mimeTypeData[1]))
+        .then((value) async {
+      FormData formData = FormData.fromMap(AddTeacher(
+              name: name,
+              email: email,
+              password: password,
+              gender: gender,
+              image: value,
+              phoneNo: phoneNo)
+          .toJson());
+      return await dio.post('$baseUrl/admin/manage/createTeacher',
+          data: formData,
+          options: Options(headers: {
+            'Authorization': 'Bearer $token',
+          }));
+    });
   }
 
   ////////////// UPDATE TEACHER //////////////////
@@ -379,24 +392,13 @@ class APIManager {
 
   ///////////////// ADD SUBJECT ///////////////
 
-  addSubject(
-      {@required token,
-      @required name,
-      @required email,
-      @required password,
-      @required phoneNo,
-      @required File? image,
-      @required gender}) async {
-    FormData formData = FormData.fromMap(AddTeacher(
-            name: name,
-            email: email,
-            password: password,
-            gender: gender,
-            image: '',
-            phoneNo: phoneNo)
-        .toJson());
-    return await dio.post('$baseUrl/admin/manage/createTeacher',
-        data: formData,
+  addSubject({
+    @required token,
+    @required course,
+    @required subjectName,
+  }) async {
+    return await dio.post('$baseUrl/admin/subject/addSubject',
+        data: AddSubject(subjectName: subjectName, courseId: course).toJson(),
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
@@ -404,33 +406,20 @@ class APIManager {
 
   ////////////// UPDATE SUBJECT //////////////////
 
-  updateSubject(
-      {@required id,
-      @required token,
-      @required name,
-      @required email,
-      @required password,
-      @required phoneNo,
-      @required File? image,
-      @required gender}) async {
-    FormData formData = FormData.fromMap(UpdateTeacher(
-            name: name,
-            email: email,
-            password: password,
-            gender: gender,
-            image: '',
-            phoneNo: phoneNo)
-        .toJson());
-
-    return await dio.put('$baseUrl/admin/manage/updateTeacher/$id',
-        data: formData,
+  updateSubject({
+    @required token,
+    @required id,
+    @required subjectName,
+  }) async {
+    return await dio.put('$baseUrl/admin/subject/updateSubject/$id',
+        data: {"subjectName": subjectName},
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
   }
 
   deleteSubject({@required token, @required id}) async {
-    return await dio.delete('$baseUrl/admin/manage/deleteTeacher/$id',
+    return await dio.delete('$baseUrl/admin/subject/deleteSubject/$id',
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
@@ -458,22 +447,13 @@ class APIManager {
 
   addTeacherSubject(
       {@required token,
-      @required name,
-      @required email,
-      @required password,
-      @required phoneNo,
-      @required File? image,
-      @required gender}) async {
-    FormData formData = FormData.fromMap(AddTeacher(
-            name: name,
-            email: email,
-            password: password,
-            gender: gender,
-            image: '',
-            phoneNo: phoneNo)
-        .toJson());
-    return await dio.post('$baseUrl/admin/manage/createTeacher',
-        data: formData,
+      @required teacher,
+      @required courseId,
+      @required subjectId}) async {
+    return await dio.post('$baseUrl/admin/manage/addTeacherSubjects',
+        data: AddTeacherSubject(
+                teacherId: teacher, subjectId: subjectId, courseId: courseId)
+            .toJson(),
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
@@ -484,23 +464,13 @@ class APIManager {
   updateTeacherSubject(
       {@required id,
       @required token,
-      @required name,
-      @required email,
-      @required password,
-      @required phoneNo,
-      @required File? image,
-      @required gender}) async {
-    FormData formData = FormData.fromMap(UpdateTeacher(
-            name: name,
-            email: email,
-            password: password,
-            gender: gender,
-            image: '',
-            phoneNo: phoneNo)
-        .toJson());
-
-    return await dio.put('$baseUrl/admin/manage/updateTeacher/$id',
-        data: formData,
+      @required teacher,
+      @required courseId,
+      @required subjectId}) async {
+    return await dio.put('$baseUrl/admin/manage/updateTeacherSubjects/$id',
+        data: AddTeacherSubject(
+                teacherId: teacher, subjectId: subjectId, courseId: courseId)
+            .toJson(),
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
@@ -532,31 +502,21 @@ class APIManager {
 
   ///////////////// ADD ENROLL STUDENT ///////////////
 
-  addENrollStudent(
-      {@required token,
-      @required name,
-      @required email,
-      @required password,
-      @required phoneNo,
-      @required File? image,
-      @required gender}) async {
-    FormData formData = FormData.fromMap(AddTeacher(
-            name: name,
-            email: email,
-            password: password,
-            gender: gender,
-            image: '',
-            phoneNo: phoneNo)
-        .toJson());
-    return await dio.post('$baseUrl/admin/manage/createTeacher',
-        data: formData,
+  addENrollStudent({
+    @required token,
+    @required studentID,
+    @required courseID,
+  }) async {
+    return await dio.post('$baseUrl/api/enrollStudent/enroll',
+        data:
+            AddEnrollStudent(courseId: courseID, studentId: studentID).toJson(),
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
   }
 
   deleteENrollStudent({@required token, @required id}) async {
-    return await dio.delete('$baseUrl/admin/manage/deleteTeacher/$id',
+    return await dio.delete('$baseUrl/api/enrollStudent/deleteEnroll/$id',
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
@@ -583,24 +543,32 @@ class APIManager {
 
   addQuestion(
       {@required token,
-      @required name,
-      @required email,
-      @required password,
-      @required phoneNo,
-      @required File? image,
-      @required gender}) async {
-    FormData formData = FormData.fromMap(AddTeacher(
-            name: name,
-            email: email,
-            password: password,
-            gender: gender,
-            image: '',
-            phoneNo: phoneNo)
-        .toJson());
-    return await dio.post('$baseUrl/admin/manage/createTeacher',
+      @required questionStatement,
+      @required type,
+      @required answer,
+      @required level,
+      @required List? subjectId,
+      @required courseId,
+      @required List? questionImage,
+      @required AddQustionOption? options}) async {
+    FormData formData = FormData.fromMap(
+      AddQuestion(
+        questionStatement: questionStatement,
+        type: type,
+        questionImage: questionImage,
+        answer: answer,
+        level: level,
+        subjectId: subjectId,
+        courseId: courseId,
+        options: options,
+      ).toJson(),
+    );
+
+    return await dio.post('$baseUrl/admin/question/addQuestion',
         data: formData,
         options: Options(headers: {
           'Authorization': 'Bearer $token',
+          "Content-Type": "application/json"
         }));
   }
 
@@ -609,30 +577,32 @@ class APIManager {
   updateQuestion(
       {@required id,
       @required token,
-      @required name,
-      @required email,
-      @required password,
-      @required phoneNo,
-      @required File? image,
-      @required gender}) async {
-    FormData formData = FormData.fromMap(UpdateTeacher(
-            name: name,
-            email: email,
-            password: password,
-            gender: gender,
-            image: '',
-            phoneNo: phoneNo)
-        .toJson());
-
-    return await dio.put('$baseUrl/admin/manage/updateTeacher/$id',
-        data: formData,
+      @required questionStatement,
+      @required type,
+      @required answer,
+      @required level,
+      @required subjectId,
+      @required courseId,
+      @required List? questionImage,
+      @required AddQustionOption? options}) async {
+    return await dio.put('$baseUrl/admin/question/updateQuestion/$id',
+        data: AddQuestion(
+          questionStatement: questionStatement,
+          type: type,
+          answer: answer,
+          level: level,
+          subjectId: subjectId,
+          courseId: courseId,
+          options: options,
+        ).toJson(),
         options: Options(headers: {
           'Authorization': 'Bearer $token',
+          "Content-Type": "application/json"
         }));
   }
 
   deleteQuestion({@required token, @required id}) async {
-    return await dio.delete('$baseUrl/admin/manage/deleteTeacher/$id',
+    return await dio.delete('$baseUrl/admin/manage/deleteQuestion/$id',
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
@@ -659,24 +629,30 @@ class APIManager {
 
   addQUIZ(
       {@required token,
-      @required name,
-      @required email,
-      @required password,
-      @required phoneNo,
-      @required File? image,
-      @required gender}) async {
-    FormData formData = FormData.fromMap(AddTeacher(
-            name: name,
-            email: email,
-            password: password,
-            gender: gender,
-            image: '',
-            phoneNo: phoneNo)
-        .toJson());
-    return await dio.post('$baseUrl/admin/manage/createTeacher',
-        data: formData,
+      @required quizName,
+      @required courseId,
+      @required attemptDate,
+      @required List? subjectId,
+      @required level,
+      @required bool? public,
+      @required timeType,
+      @required int? time,
+      @required List? questions}) async {
+    return await dio.post('$baseUrl/admin/quiz/addQuiz',
+        data: AddQuiz(
+                quizName: quizName,
+                attemptDate: attemptDate,
+                courseId: courseId,
+                subjectId: subjectId,
+                level: level,
+                questions: questions,
+                public: public,
+                timeType: timeType,
+                time: time)
+            .toJson(),
         options: Options(headers: {
           'Authorization': 'Bearer $token',
+          "Content-Type": "application/json"
         }));
   }
 
@@ -685,32 +661,108 @@ class APIManager {
   updateQUIZ(
       {@required id,
       @required token,
-      @required name,
-      @required email,
-      @required password,
-      @required phoneNo,
-      @required File? image,
-      @required gender}) async {
-    FormData formData = FormData.fromMap(UpdateTeacher(
-            name: name,
-            email: email,
-            password: password,
-            gender: gender,
-            image: '',
-            phoneNo: phoneNo)
-        .toJson());
+      @required quizName,
+      @required courseId,
+      @required attemptDate,
+      @required subjectId,
+      @required level,
+      @required bool? public,
+      @required timeType,
+      @required int? time,
+      @required List? questions}) async {
+    return await dio.put('$baseUrl/admin/quiz/updateQuiz/$id',
+        data: AddQuiz(
+                quizName: quizName,
+                attemptDate: attemptDate,
+                courseId: courseId,
+                subjectId: subjectId,
+                level: level,
+                questions: questions,
+                public: public,
+                timeType: timeType,
+                time: time)
+            .toJson(),
+        options: Options(headers: {
+          'Authorization': 'Bearer $token',
+          "Content-Type": "application/json"
+        }));
+  }
 
-    return await dio.put('$baseUrl/admin/manage/updateTeacher/$id',
-        data: formData,
+  deleteQUIZ({@required token, @required id}) async {
+    return await dio.delete('$baseUrl/admin/quiz/deleteQuiz/$id',
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
   }
 
-  deleteQUIZ({@required token, @required id}) async {
-    return await dio.delete('$baseUrl/admin/manage/deleteTeacher/$id',
-        options: Options(headers: {
+  //////////////////////////////////
+  ///////////////////////////////////
+  ////////////////////////////////////
+
+  Future<List<NewSubject>> getSubjectByCourseId(
+      {@required token, @required courseId}) async {
+    return await client
+        .get(Uri.parse('$baseUrl/admin/quiz/getSubjects/$courseId'), headers: {
+      'Authorization': 'Bearer $token',
+      "Content-Type": "application/json"
+    }).then((response) async {
+      List<NewSubject> jsonMap = (json.decode(response.body) as List)
+          .map((e) => NewSubject.fromJson(e))
+          .toList();
+      return jsonMap;
+    });
+  }
+
+  Future<List<Questions>> getQuestionsBySubjectId(
+      {@required token, @required subjectId, @required level}) async {
+    return await client
+        .post(Uri.parse('$baseUrl/admin/quiz/getQuestions'), headers: {
+      'Authorization': 'Bearer $token',
+    }, body: {
+      'id': subjectId,
+      'level': level,
+    }).then((response) async {
+      List<Questions> jsonMap = (json.decode(response.body) as List)
+          .map((e) => Questions.fromJson(e))
+          .toList();
+      return jsonMap;
+    });
+  }
+
+  ///////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////
+  /////////////////////// STUDENTS SIDE /////////////////
+  ///////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////
+
+  Future<StudentLoginResponse> studentLogin(rollNo, password) async {
+    return await client.post(Uri.parse('$baseUrl/student/auth/login'),
+        body: {"rollno": rollNo, "password": password}).then((response) async {
+      print(response.body);
+      var jsonMap = json.decode(response.body);
+      StudentLoginResponse loginResponse =
+          StudentLoginResponse.fromJson(jsonMap);
+      SharedPreferences pref = await SharedPreferences.getInstance();
+      await pref.setString('LoginResponse', jsonEncode(jsonMap));
+      return loginResponse;
+    });
+  }
+
+  Future<List<StudentCourse>> getStudentCourses(
+      {@required token, @required String? id}) async {
+    print(token);
+    print(id);
+    return await client.get(
+        Uri.parse('$baseUrl/api/enrollStudent/getCourseByStdId/$id'),
+        headers: {
           'Authorization': 'Bearer $token',
-        }));
+          "Content-Type": "application/json"
+        }).then((response) async {
+      print(response.body);
+      List<StudentCourse> jsonMap = (json.decode(response.body) as List)
+          .map((e) => StudentCourse.fromJson(e))
+          .toList();
+      return jsonMap;
+    });
   }
 }

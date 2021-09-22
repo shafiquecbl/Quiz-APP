@@ -14,12 +14,29 @@ class Subject {
 }
 
 class AddSubject {
-  AddSubject({this.course, this.subjectName});
-  String? subjectName;
-  Course? course;
+  AddSubject({this.courseId, this.subjectName});
+  String? subjectName, courseId;
 
   Map<String, dynamic> toJson() => {
-        "course": course,
+        "course": courseId,
         "subjectName": subjectName,
       };
+}
+
+class NewSubject {
+  NewSubject({
+    this.course,
+    this.id,
+    this.subjectName,
+  });
+
+  List<String>? course;
+  String? id;
+  String? subjectName;
+
+  factory NewSubject.fromJson(Map<String, dynamic> json) => NewSubject(
+        course: List<String>.from(json["course"].map((x) => x)),
+        id: json["_id"],
+        subjectName: json["subjectName"],
+      );
 }
