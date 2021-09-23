@@ -56,9 +56,18 @@ class StudentLogin {
       this.name,
       this.phoneNumber,
       this.suspend,
+      this.image,
       this.updatedAt});
 
-  String? role, id, name, email, phoneNumber, gender, createdAt, updatedAt;
+  String? role,
+      id,
+      name,
+      email,
+      phoneNumber,
+      gender,
+      createdAt,
+      updatedAt,
+      image;
   bool? suspend;
 
   factory StudentLogin.fromJson(Map<String, dynamic> json) => StudentLogin(
@@ -69,6 +78,7 @@ class StudentLogin {
       phoneNumber: json['phoneNumber'],
       email: json['email'],
       name: json['name'],
+      image: json['image'],
       suspend: json['suspend'],
       gender: json['gender']);
 }

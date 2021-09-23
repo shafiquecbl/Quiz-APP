@@ -27,7 +27,9 @@ class _StudentHomeState extends State<StudentHome> {
             /// Only show in desktop
             if (AppResponsive.isDesktop(context))
               Expanded(
-                child: StudentSideBar(),
+                child: StudentSideBar(
+                  loginResponse: widget.loginResponse,
+                ),
               ),
 
             /// Main Body Part

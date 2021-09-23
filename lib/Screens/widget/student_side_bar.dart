@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/controllers/page_controller.dart';
 
 class StudentSideBar extends StatefulWidget {
+  final StudentLoginResponse? loginResponse;
+  StudentSideBar({@required this.loginResponse});
   @override
   _StudentSideBarState createState() => _StudentSideBarState();
 }
@@ -42,7 +45,7 @@ class _StudentSideBarState extends State<StudentSideBar> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(50),
                   child: Image.network(
-                    photo,
+                    widget.loginResponse!.user!.image.toString(),
                     width: 120,
                     height: 120,
                   ),
@@ -54,7 +57,7 @@ class _StudentSideBarState extends State<StudentSideBar> {
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: Text(
-                  "Muhammad Shafique",
+                  widget.loginResponse!.user!.name.toString().toUpperCase(),
                   style: TextStyle(
                     color: white,
                     fontSize: 16,
@@ -64,7 +67,7 @@ class _StudentSideBarState extends State<StudentSideBar> {
               ),
               Container(
                 child: Text(
-                  "( Student )",
+                  "( ${widget.loginResponse!.user!.role!.toUpperCase()} )",
                   style: TextStyle(
                     color: white,
                     fontSize: 14,

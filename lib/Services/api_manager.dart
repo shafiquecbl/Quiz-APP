@@ -12,6 +12,7 @@ import 'package:quiz_app/Models/Questions.dart';
 import 'package:quiz_app/Models/Quiz.dart';
 import 'package:quiz_app/Models/Student.dart';
 import 'package:quiz_app/Models/Student/student_courses.dart';
+import 'package:quiz_app/Models/Student/student_subjects.dart';
 import 'package:quiz_app/Models/SubAdmin.dart';
 import 'package:quiz_app/Models/Subjects.dart';
 import 'package:quiz_app/Models/Teacher_Subject.dart';
@@ -750,17 +751,29 @@ class APIManager {
 
   Future<List<StudentCourse>> getStudentCourses(
       {@required token, @required String? id}) async {
-    print(token);
-    print(id);
     return await client.get(
         Uri.parse('$baseUrl/api/enrollStudent/getCourseByStdId/$id'),
         headers: {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
         }).then((response) async {
-      print(response.body);
       List<StudentCourse> jsonMap = (json.decode(response.body) as List)
           .map((e) => StudentCourse.fromJson(e))
+          .toList();
+      return jsonMap;
+    });
+  }
+
+  Future<List<StudentSubject>> getStudentSubjects(
+      {@required token, @required String? id}) async {
+    return await client.get(
+        Uri.parse('$baseUrl/api/enrollStudent/getSubjectsByCourseId/$id'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          "Content-Type": "application/json"
+        }).then((response) async {
+      List<StudentSubject> jsonMap = (json.decode(response.body) as List)
+          .map((e) => StudentSubject.fromJson(e))
           .toList();
       return jsonMap;
     });
