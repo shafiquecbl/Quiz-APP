@@ -18,7 +18,7 @@ class Questions {
   Subject? subject;
   Course? course;
   List? questionImage;
-  QuestionOptions? options;
+  List<QuestionOptions>? options;
 
   factory Questions.fromJson(Map<String, dynamic> json) => Questions(
       id: json['_id'],
@@ -29,7 +29,8 @@ class Questions {
       answer: json['answer'],
       course: Course.fromJson(json['course']),
       level: json['level'],
-      options: QuestionOptions.fromJson(json['options'][0]));
+      options:
+          List.from(json['options'].map((x) => QuestionOptions.fromJson(x))));
 }
 
 class AddQuestion {

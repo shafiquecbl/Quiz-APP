@@ -4,12 +4,14 @@ import 'package:quiz_app/controllers/page_controller.dart';
 
 import 'drawerListTile.dart';
 
-class SideBar extends StatefulWidget {
+class TeacherSideBar extends StatefulWidget {
+  final String? role;
+  TeacherSideBar({@required this.role});
   @override
-  _SideBarState createState() => _SideBarState();
+  _TeacherSideBarState createState() => _TeacherSideBarState();
 }
 
-class _SideBarState extends State<SideBar> {
+class _TeacherSideBarState extends State<TeacherSideBar> {
   MyPageController pageController = MyPageController();
   TextStyle style = TextStyle(color: Colors.white);
   @override
@@ -40,8 +42,6 @@ class _SideBarState extends State<SideBar> {
               Expanded(
                 child: ListView(
                   children: [
-                    userTile(),
-                    courseTile(),
                     quizTile(),
                   ],
                 ),
@@ -64,86 +64,6 @@ class _SideBarState extends State<SideBar> {
     );
   }
 
-  Widget userTile() {
-    return ExpansionTile(
-      collapsedIconColor: whiteColor,
-      backgroundColor: complexDrawerBlueGrey,
-      iconColor: yellow,
-      expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
-      title: Text(
-        'Users',
-        style: style,
-      ),
-      leading: Icon(Icons.person),
-      children: [
-        DrawerListTile(
-          title: 'Students',
-          onPressed: () {
-            pageController.changePage(0);
-          },
-        ),
-        DrawerListTile(
-          title: 'Teachers',
-          onPressed: () {
-            pageController.changePage(1);
-          },
-        ),
-        DrawerListTile(
-          title: 'Suspended',
-          onPressed: () {
-            pageController.changePage(2);
-          },
-        ),
-        DrawerListTile(
-          title: 'SubAdmin',
-          onPressed: () {
-            pageController.changePage(3);
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget courseTile() {
-    return ExpansionTile(
-      collapsedIconColor: whiteColor,
-      backgroundColor: complexDrawerBlueGrey,
-      iconColor: yellow,
-      expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
-      title: Text(
-        'Course',
-        style: style,
-      ),
-      leading: Icon(Icons.person),
-      children: [
-        DrawerListTile(
-          title: 'Course',
-          onPressed: () {
-            pageController.changePage(4);
-          },
-        ),
-        DrawerListTile(
-          title: 'Subjects',
-          onPressed: () {
-            pageController.changePage(5);
-          },
-        ),
-        DrawerListTile(
-          title: 'Teacher Subjects',
-          onPressed: () {
-            pageController.changePage(6);
-          },
-        ),
-        DrawerListTile(
-          title: 'Enroll Students',
-          onPressed: () {
-            pageController.changePage(7);
-          },
-        ),
-      ],
-    );
-  }
-
   Widget quizTile() {
     return ExpansionTile(
       collapsedIconColor: whiteColor,
@@ -159,13 +79,13 @@ class _SideBarState extends State<SideBar> {
         DrawerListTile(
           title: 'Quiz',
           onPressed: () {
-            pageController.changePage(8);
+            pageController.changePage(0);
           },
         ),
         DrawerListTile(
           title: 'Question',
           onPressed: () {
-            pageController.changePage(9);
+            pageController.changePage(1);
           },
         ),
       ],

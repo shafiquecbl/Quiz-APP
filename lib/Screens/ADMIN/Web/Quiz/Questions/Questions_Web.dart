@@ -620,6 +620,10 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
       myState!(() {
         error = 'Please provide option C';
       });
+    } else if (optionD == null) {
+      myState!(() {
+        error = 'Please provide option D';
+      });
     } else if (correctAnswerr == null) {
       myState!(() {
         error = 'Please provide correct answer';
@@ -650,13 +654,16 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
       questionStatement = editQuestion!.questionStatement;
     }
     if (optionA == null) {
-      optionA = editQuestion!.options!.option1;
+      optionA = editQuestion!.options![0].option1;
     }
     if (optionB == null) {
-      optionB = editQuestion!.options!.option2;
+      optionB = editQuestion!.options![0].option2;
     }
     if (optionC == null) {
-      optionC = editQuestion!.options!.option3;
+      optionC = editQuestion!.options![0].option3;
+    }
+    if (optionD == null) {
+      optionD = editQuestion!.options![0].option4;
     }
     if (correctAnswerr == null) {
       correctAnswerr = editQuestion!.answer;

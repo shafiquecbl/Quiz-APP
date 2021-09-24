@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:quiz_app/Models/User.dart';
-import 'package:quiz_app/Screens/STUDENT/Student%20Dashboard/student_dashboard.dart';
-import 'package:quiz_app/Screens/widget/side_bar_menu.dart';
-import 'package:quiz_app/Screens/widget/student_side_bar.dart';
+import 'package:quiz_app/Screens/Teacher/Teacher%20Dashboard/teacher_dashbaord.dart';
+import 'package:quiz_app/Screens/widget/teacher_sideBar.dart';
 import 'package:quiz_app/common/app_responsive.dart';
 import 'package:quiz_app/constants.dart';
 
-class StudentHome extends StatefulWidget {
-  final StudentLoginResponse loginResponse;
-  StudentHome({required this.loginResponse});
+class TeacherHomePage extends StatefulWidget {
+  final LoginResponse loginResponse;
+  TeacherHomePage({required this.loginResponse});
   @override
-  _StudentHomeState createState() => _StudentHomeState();
+  _TeacherHomePageState createState() => _TeacherHomePageState();
 }
 
-class _StudentHomeState extends State<StudentHome> {
+class _TeacherHomePageState extends State<TeacherHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: StudentSideBar(
-        loginResponse: widget.loginResponse,
+      drawer: TeacherSideBar(
+        role: widget.loginResponse.user!.role,
       ),
       backgroundColor: complexDrawerBlack,
       body: SafeArea(
@@ -29,15 +28,15 @@ class _StudentHomeState extends State<StudentHome> {
             /// Only show in desktop
             if (AppResponsive.isDesktop(context))
               Expanded(
-                child: StudentSideBar(
-                  loginResponse: widget.loginResponse,
+                child: TeacherSideBar(
+                  role: widget.loginResponse.user!.role,
                 ),
               ),
 
             /// Main Body Part
             Expanded(
               flex: 4,
-              child: StudentDashboard(
+              child: TeacherDashboard(
                 loginResponse: widget.loginResponse,
               ),
             ),

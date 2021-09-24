@@ -34,7 +34,7 @@ class _StudentSubjectsWEBState extends State<StudentSubjectsWEB> {
           child: FutureBuilder<List<StudentSubject>>(
             future: APIManager().getStudentSubjects(
                 token: widget.loginResponse!.token,
-                id: widget.course!.course!.id!),
+                id: widget.course!.course!.id),
             builder: (BuildContext context,
                 AsyncSnapshot<List<StudentSubject>> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting)
@@ -50,6 +50,7 @@ class _StudentSubjectsWEBState extends State<StudentSubjectsWEB> {
                   childAspectRatio: 1.4,
                   children: List.generate(snapshot.data!.length, (index) {
                     StudentSubject subject = snapshot.data![index];
+                    print(subject.id);
                     return CustomCard(
                         onPressed: () {
                           provider.saveStudentSubject(studentSubject: subject);

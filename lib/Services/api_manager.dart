@@ -11,6 +11,7 @@ import 'package:quiz_app/Models/Enroll_Student.dart';
 import 'package:quiz_app/Models/Questions.dart';
 import 'package:quiz_app/Models/Quiz.dart';
 import 'package:quiz_app/Models/Student.dart';
+import 'package:quiz_app/Models/Student/Quiz.dart';
 import 'package:quiz_app/Models/Student/student_courses.dart';
 import 'package:quiz_app/Models/Student/student_subjects.dart';
 import 'package:quiz_app/Models/SubAdmin.dart';
@@ -776,6 +777,38 @@ class APIManager {
           .map((e) => StudentSubject.fromJson(e))
           .toList();
       return jsonMap;
+    });
+  }
+
+  Future<List<Quiz1>> getSubjectQuizs(
+      {@required token, @required String? id}) async {
+    return await client.get(Uri.parse('$baseUrl/api/student/$id/quizname'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          "Content-Type": "application/json"
+        }).then((response) async {
+      List<Quiz1> jsonMap = (json.decode(response.body) as List)
+          .map((e) => Quiz1.fromJson(e))
+          .toList();
+      return jsonMap;
+    });
+  }
+
+  ///////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////
+  /////////////////////// TEACHER SIDE //////////////////
+  ///////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////
+
+  Future<LoginResponse> teacherLogin(email, password) async {
+    return await client.post(Uri.parse('$baseUrl/teacher/auth/login'),
+        body: {"email": email, "password": password}).then((response) async {
+      print(response.body);
+      var jsonMap = json.decode(response.body);
+      LoginResponse loginResponse = LoginResponse.fromJson(jsonMap);
+      SharedPreferences pref = await SharedPreferences.getInstance();
+      await pref.setString('LoginResponse', jsonEncode(jsonMap));
+      return loginResponse;
     });
   }
 }

@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:quiz_app/Screens/ADMIN/Main%20Page/action_button.dart';
+import 'package:quiz_app/Screens/ADMIN/home_page.dart';
 import 'package:quiz_app/Screens/STUDENT/Home/student_home.dart';
+import 'package:quiz_app/Screens/Teacher/teacher_main.dart';
 import 'package:quiz_app/Screens/widget/Navigator.dart';
 import 'package:quiz_app/Services/api_manager.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class StudentLogIn extends StatefulWidget {
+class TeacherLogIn extends StatefulWidget {
   final Function? onSignUpSelected;
 
-  StudentLogIn({@required this.onSignUpSelected});
+  TeacherLogIn({@required this.onSignUpSelected});
 
   @override
-  _StudentLogInState createState() => _StudentLogInState();
+  _TeacherLogInState createState() => _TeacherLogInState();
 }
 
-class _StudentLogInState extends State<StudentLogIn> {
+class _TeacherLogInState extends State<TeacherLogIn> {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   String? error;
-  String? rollNo, password;
+  String? email, password;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +46,7 @@ class _StudentLogInState extends State<StudentLogIn> {
             height: size.height *
                 (size.height > 770
                     ? 0.7
-                    : size.height > 670
+                    : size.height > 67
                         ? 0.8
                         : 0.9),
             width: 500,
@@ -81,22 +83,22 @@ class _StudentLogInState extends State<StudentLogIn> {
                         TextFormField(
                           onChanged: (value) {
                             setState(() {
-                              rollNo = value;
+                              email = value;
                             });
                           },
                           onSaved: (value) {
                             setState(() {
-                              rollNo = value;
+                              email = value;
                             });
                           },
                           onFieldSubmitted: (value) {
                             setState(() {
-                              rollNo = value;
+                              email = value;
                             });
                           },
                           decoration: InputDecoration(
-                            hintText: 'ROLL NO',
-                            labelText: 'Roll no',
+                            hintText: 'EMAIL',
+                            labelText: 'Email',
                             suffixIcon: Icon(
                               Icons.mail_outline,
                             ),
@@ -135,9 +137,9 @@ class _StudentLogInState extends State<StudentLogIn> {
                         ActionButton(
                           text: "Log In",
                           onPressed: () {
-                            if (rollNo == null) {
+                            if (email == null) {
                               setState(() {
-                                error = 'Please provide roll no';
+                                error = 'Please provide email';
                               });
                             } else if (password == null) {
                               setState(() {
@@ -168,6 +170,45 @@ class _StudentLogInState extends State<StudentLogIn> {
                         SizedBox(
                           height: 20,
                         ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "You do not have an account?",
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 8,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                widget.onSignUpSelected!();
+                              },
+                              child: Row(
+                                children: [
+                                  Text(
+                                    "Sign Up",
+                                    style: TextStyle(
+                                      color: yellow,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 8,
+                                  ),
+                                  Icon(
+                                    Icons.arrow_forward,
+                                    color: yellow,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -185,7 +226,7 @@ class _StudentLogInState extends State<StudentLogIn> {
       error = null;
     });
     showLoadingDialog(context);
-    APIManager().studentLogin(rollNo, password).then((value) async {
+    APIManager().teacherLogin(email, password).then((value) async {
       SharedPreferences pref = await SharedPreferences.getInstance();
       Navigator.pop(context);
       if (value.user!.suspend == true) {
@@ -194,12 +235,12 @@ class _StudentLogInState extends State<StudentLogIn> {
           error = 'User Suspended';
         });
       } else {
-        pushAndRemoveUntil(context, StudentHome(loginResponse: value));
+        pushAndRemoveUntil(context, TeacherHomePage(loginResponse: value));
       }
     }).catchError((e) {
       Navigator.pop(context);
       setState(() {
-        error = 'Invalid Credentials';
+        error = '${e.message}';
       });
     });
   }

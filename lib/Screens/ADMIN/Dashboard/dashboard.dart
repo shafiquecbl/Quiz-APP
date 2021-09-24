@@ -23,8 +23,6 @@ import 'package:quiz_app/Screens/ADMIN/Web/Users/Teachers/Teachers_Web.dart';
 import 'package:quiz_app/common/app_responsive.dart';
 import 'package:quiz_app/controllers/page_controller.dart';
 
-import '../dashboard_home.dart';
-
 class Dashboard extends StatefulWidget {
   final LoginResponse loginResponse;
   Dashboard({required this.loginResponse});
@@ -39,7 +37,6 @@ class _DashboardState extends State<Dashboard> {
       physics: new NeverScrollableScrollPhysics(),
       controller: MyPageController.controller,
       children: [
-        DashboardHome(),
         AppResponsive.isDesktop(context)
             ? StudentsWEB(loginResponse: widget.loginResponse)
             : StudentsMobile(),

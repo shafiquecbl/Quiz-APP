@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:quiz_app/Screens/ADMIN/Main%20Page/constants.dart';
-import 'package:quiz_app/Screens/STUDENT/Main/Login/login.dart';
+import 'package:quiz_app/Screens/Teacher/Main/Login/login.dart';
 import 'package:quiz_app/constants.dart';
 
-class StudentMainPage extends StatefulWidget {
+class TeacherMainPage extends StatefulWidget {
   @override
-  _StudentMainPageState createState() => _StudentMainPageState();
+  _TeacherMainPageState createState() => _TeacherMainPageState();
 }
 
-class _StudentMainPageState extends State<StudentMainPage> {
+class _TeacherMainPageState extends State<TeacherMainPage> {
   Option selectedOption = Option.LogIn;
 
   @override
@@ -102,16 +102,17 @@ class _StudentMainPageState extends State<StudentMainPage> {
               ),
             ),
             AnimatedSwitcher(
-                duration: Duration(milliseconds: 500),
-                transitionBuilder: (widget, animation) =>
-                    ScaleTransition(child: widget, scale: animation),
-                child: StudentLogIn(
-                  onSignUpSelected: () {
-                    setState(() {
-                      selectedOption = Option.SignUp;
-                    });
-                  },
-                )),
+              duration: Duration(milliseconds: 500),
+              transitionBuilder: (widget, animation) =>
+                  ScaleTransition(child: widget, scale: animation),
+              child: TeacherLogIn(
+                onSignUpSelected: () {
+                  setState(() {
+                    selectedOption = Option.SignUp;
+                  });
+                },
+              ),
+            ),
           ],
         ),
       ),
