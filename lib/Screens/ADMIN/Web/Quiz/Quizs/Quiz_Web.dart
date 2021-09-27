@@ -264,7 +264,7 @@ class _QuizWEBState extends State<QuizWEB> {
         child: ElevatedButton(
             style: ElevatedButton.styleFrom(primary: yellow),
             onPressed: () {
-              title == 'ADD TEACHER SUBJECT' ? checkAdd() : checkUpdate();
+              title == 'ADD QUIZ' ? checkAdd() : checkUpdate();
             },
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -377,6 +377,11 @@ class _QuizWEBState extends State<QuizWEB> {
             questions: questions)
         .then((value) {
       clearValues('');
+    }).catchError((e) {
+      setState(() {
+        print('ERROR');
+        error = 'e';
+      });
     });
   }
 

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Provider/provider.dart';
 import 'package:quiz_app/Screens/ADMIN/Main%20Page/Main_Page.dart';
+import 'package:quiz_app/Screens/ADMIN/home_page.dart';
 import 'package:quiz_app/Screens/STUDENT/Home/student_home.dart';
 import 'package:quiz_app/Screens/STUDENT/Main/student_main.dart';
 import 'package:quiz_app/Screens/STUDENT/QuizPage/quiz_page.dart';
@@ -39,26 +40,26 @@ class _MyAppState extends State<MyApp> {
             primaryColor: yellow,
             textTheme:
                 GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme)),
-        home: FutureBuilder<StudentLoginResponse>(
+        home: FutureBuilder<LoginResponse>(
           future: getResponse(),
-          builder: (BuildContext context,
-              AsyncSnapshot<StudentLoginResponse> snapshot) {
+          builder:
+              (BuildContext context, AsyncSnapshot<LoginResponse> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting)
               return MyLoading();
 
             return snapshot.data != null
-                ? StudentHome(loginResponse: snapshot.data!)
-                : StudentMainPage();
+                ? HomePage(loginResponse: snapshot.data!)
+                : MainPage();
           },
         ),
       ),
     );
   }
 
-  Future<StudentLoginResponse> getResponse() async {
+  Future<LoginResponse> getResponse() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String userPref = pref.getString('LoginResponse').toString();
     var jsonMap = json.decode(userPref);
-    return StudentLoginResponse.fromJson(jsonMap);
+    return LoginResponse.fromJson(jsonMap);
   }
 }

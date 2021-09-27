@@ -14,17 +14,20 @@ import 'package:quiz_app/Models/Student.dart';
 import 'package:quiz_app/Models/Student/Quiz.dart';
 import 'package:quiz_app/Models/Student/student_courses.dart';
 import 'package:quiz_app/Models/Student/student_subjects.dart';
+import 'package:quiz_app/Models/Student/submit_quiz.dart';
 import 'package:quiz_app/Models/SubAdmin.dart';
 import 'package:quiz_app/Models/Subjects.dart';
 import 'package:quiz_app/Models/Teacher_Subject.dart';
 import 'package:quiz_app/Models/Teachers.dart';
 import 'package:quiz_app/Models/User.dart';
+import 'package:quiz_app/Screens/STUDENT/Home/student_home.dart';
+import 'package:quiz_app/Screens/widget/Navigator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class APIManager {
   var client = http.Client();
   var loginResponse;
-  String baseUrl = 'http://192.168.100.75:4000';
+  String baseUrl = 'http://192.168.100.111:4000';
   Dio dio = Dio();
 
   ///////////////////////////////////////////////////////////
@@ -792,6 +795,46 @@ class APIManager {
           .toList();
       return jsonMap;
     });
+  }
+
+  submitQuestion(BuildContext context, StudentLoginResponse loginResponse,
+      {@required token,
+      @required String? quizId,
+      @required String? questionId,
+      @required String? correctAnswer}) async {
+    return await dio
+        .post('$baseUrl/api/solvedQuizData/addSolvedQuizData',
+            data: SubmitQuiz(
+                    quizId: quizId,
+                    questionId: questionId,
+                    correctAnswer: correctAnswer)
+                .toJson(),
+            options: Options(headers: {
+              'Authorization': 'Bearer $token',
+              "Content-Type": "application/json"
+            }))
+        .then((value) => pushAndRemoveUntil(
+            context, StudentHome(loginResponse: loginResponse)));
+  }
+
+  submitLastQuestion(BuildContext context, StudentLoginResponse loginResponse,
+      {@required token,
+      @required String? quizId,
+      @required String? questionId,
+      @required String? correctAnswer}) async {
+    return await dio
+        .post('$baseUrl/api/solvedQuizData/addSolvedQuizData',
+            data: SubmitQuiz(
+                    quizId: quizId,
+                    questionId: questionId,
+                    correctAnswer: correctAnswer)
+                .toJson(),
+            options: Options(headers: {
+              'Authorization': 'Bearer $token',
+              "Content-Type": "application/json"
+            }))
+        .then((value) => pushAndRemoveUntil(
+            context, StudentHome(loginResponse: loginResponse)));
   }
 
   ///////////////////////////////////////////////////////
