@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:quiz_app/Models/Questions.dart';
 import 'package:quiz_app/Models/Quiz.dart';
 import 'package:quiz_app/Models/User.dart';
@@ -383,14 +382,14 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
   }
 
   pickImage() async {
-    PickedFile? pickedImae =
-        // ignore: invalid_use_of_visible_for_testing_member
-        await ImagePicker.platform.pickImage(source: ImageSource.gallery);
+    // PickedFile? pickedImae =
+    //     // ignore: invalid_use_of_visible_for_testing_member
+    //     await ImagePicker.platform.pickImage(source: ImageSource.gallery);
 
-    myState!(() {
-      image = File(pickedImae!.path);
-    });
-    return image;
+    // myState!(() {
+    //   image = File(pickedImae!.path);
+    // });
+    // return image;
   }
 
   Widget selectCourseField() {

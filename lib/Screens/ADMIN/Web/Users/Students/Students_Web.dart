@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:quiz_app/Models/Student.dart';
 import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Screens/widget/Search_Field.dart';
@@ -23,7 +23,7 @@ class _StudentsWEBState extends State<StudentsWEB> {
   //////////////////////////////////////////////////////////
 
   String? name, email, phoneNo, password, gender, rollNo;
-  File? image;
+  PlatformFile? image;
   bool isLoading = false;
   String? error;
   String? search = '';
@@ -446,15 +446,13 @@ class _StudentsWEBState extends State<StudentsWEB> {
                             pickImage(myState);
                           },
                           icon: Icon(Icons.attach_file),
-                          label: Text('Choos File')),
+                          label: Text('Choose File')),
                     ),
                   ),
                   SizedBox(
                     width: 10,
                   ),
-                  image != null
-                      ? Text(image!.path.split('/').last)
-                      : Container()
+                  image != null ? Text('Image Selected') : Container()
                 ],
               ),
               SizedBox(height: 20),
@@ -478,11 +476,15 @@ class _StudentsWEBState extends State<StudentsWEB> {
   }
 
   pickImage(Function(void Function()) myState) async {
-    PickedFile? pickedImage = await
-        // ignore: invalid_use_of_visible_for_testing_member
-        ImagePicker.platform.pickImage(source: ImageSource.gallery);
-    myState(() {
-      image = File(pickedImage!.path);
+    await FilePicker.platform
+        .pickFiles(
+      withReadStream:
+          true, // this will return PlatformFile object with read stream
+    )
+        .then((value) {
+      setState(() {
+        image = value!.files.single;
+      });
     });
 
     return image;
@@ -786,9 +788,7 @@ class _StudentsWEBState extends State<StudentsWEB> {
                   SizedBox(
                     width: 10,
                   ),
-                  image != null
-                      ? Text(image!.path.split('/').last)
-                      : Container()
+                  image != null ? Text('Image Selected') : Container()
                 ],
               ),
               SizedBox(height: 20),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -67,23 +68,47 @@ class APIManager {
       @required password,
       @required rollNo,
       @required phoneNo,
-      @required File? image,
+      @required PlatformFile? image,
       @required gender}) async {
-    FormData formData = FormData.fromMap(AddStudent(
-            name: name,
-            email: email,
-            password: password,
-            gender: gender,
-            rollNo: rollNo,
-            image: await http.MultipartFile.fromPath('image', image!.path,
-                filename: image.path.split('/').last),
-            phoneNo: phoneNo)
-        .toJson());
-    return await dio.post('$baseUrl/admin/manage/createStudent',
-        data: formData,
-        options: Options(headers: {
-          'Authorization': 'Bearer $token',
-        }));
+    http.MultipartRequest request = http.MultipartRequest(
+      "POST",
+      Uri.parse('$baseUrl/admin/manage/createStudent'),
+    );
+    request.headers['Authorization'] = 'Bearer $token';
+
+    request.fields['name'] = name;
+    request.fields['email'] = email;
+    request.fields['password'] = password;
+    request.fields['gender'] = gender;
+    request.fields['rollno'] = rollNo;
+    request.fields['phoneNumber'] = phoneNo;
+    request.files.add(new http.MultipartFile(
+        'image', image!.readStream!, image.size,
+        filename: image.name));
+
+    //-------Send request
+    var resp = await request.send();
+
+    //------Read response
+    String result = await resp.stream.bytesToString();
+
+    //-------Your response
+    print(result);
+
+    // FormData formData = FormData.fromMap(AddStudent(
+    //         name: name,
+    //         email: email,
+    //         password: password,
+    //         gender: gender,
+    //         rollNo: rollNo,
+    //         image: '',
+    //         phoneNo: phoneNo)
+    //     .toJson());
+    // return await dio.post('$baseUrl/admin/manage/createStudent',
+    //     data: formData,
+    //     options: Options(headers: {
+    //       'Authorization': 'Bearer $token',
+    //     }));
   }
 
   ////////////// UPDATE STUDENT //////////////////
@@ -96,7 +121,7 @@ class APIManager {
       @required password,
       @required rollNo,
       @required phoneNo,
-      @required File? image,
+      @required PlatformFile? image,
       @required gender}) async {
     FormData formData = FormData.fromMap(AddStudent(
             name: name,

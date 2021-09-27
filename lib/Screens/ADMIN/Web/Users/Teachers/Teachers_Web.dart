@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:quiz_app/Models/Teachers.dart';
 import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Screens/widget/Search_Field.dart';
@@ -441,13 +440,13 @@ class _TeachersWEBState extends State<TeachersWEB> {
   }
 
   pickImage() async {
-    PickedFile? pickedFile =
-        // ignore: invalid_use_of_visible_for_testing_member
-        await ImagePicker.platform.pickImage(source: ImageSource.gallery);
-    myState!(() {
-      image = File(pickedFile!.path);
-    });
-    return image;
+    // PickedFile? pickedFile =
+    //     // ignore: invalid_use_of_visible_for_testing_member
+    //     await ImagePicker.platform.pickImage(source: ImageSource.gallery);
+    // myState!(() {
+    //   image = File(pickedFile!.path);
+    // });
+    // return image;
   }
 
   Widget nameField() {
