@@ -1,3 +1,4 @@
+import 'package:data_tables/data_tables.dart';
 import 'package:flutter/material.dart';
 import 'package:quiz_app/Models/Courses.dart';
 import 'package:quiz_app/Models/Subjects.dart';
@@ -7,6 +8,7 @@ import 'package:quiz_app/Screens/widget/head_card.dart';
 import 'package:quiz_app/Services/api_manager.dart';
 import 'package:quiz_app/WIdgets/Custom_Error.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
+import 'package:quiz_app/WIdgets/network_error.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/size_config.dart';
 
@@ -18,6 +20,8 @@ class SubjectsWEB extends StatefulWidget {
 }
 
 class _SubjectsWEBState extends State<SubjectsWEB> {
+  int _rowsPerPage = 25;
+  int _rowsOffset = 0;
   String? search = '';
   String? error;
   bool isLoading = false;
@@ -90,23 +94,27 @@ class _SubjectsWEBState extends State<SubjectsWEB> {
 
   Widget dataTable() {
     return Padding(
-      padding: const EdgeInsets.only(top: 30, bottom: 30),
+      padding: const EdgeInsets.only(top: 12, bottom: 20),
       child: Container(
         width: SizeConfig.screenWidth,
         height: SizeConfig.screenHeight,
         child: Card(
           child: Padding(
-            padding: EdgeInsets.only(
-              left: 10,
-              right: 10,
-              top: 50,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 10),
             child: FutureBuilder<List<Subject>>(
               future: _subjectModel,
               builder: (BuildContext context,
                   AsyncSnapshot<List<Subject>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting)
                   return MyLoading();
+                if (snapshot.data == null)
+                  return NetworkError(onPressed: () {
+                    setState(() {
+                      _subjectModel = APIManager().fetchSubjectsList(
+                          token: widget.loginResponse!.token);
+                      getCourses();
+                    });
+                  });
                 return subjectsList(snapshot.data!);
               },
             ),
@@ -117,22 +125,49 @@ class _SubjectsWEBState extends State<SubjectsWEB> {
   }
 
   subjectsList(List<Subject> subjects) {
-    return SingleChildScrollView(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          columns: [
-            DataColumn(label: Text('ID')),
-            DataColumn(label: Text('Subject Name')),
-            DataColumn(label: Text('Course Name')),
-            DataColumn(label: Text('Action')),
-          ],
-          rows: List.generate(subjects.length, (index) {
-            return subject(subjects[index], index);
-          }),
-        ),
+    return Expanded(
+        child: Container(
+      height: MediaQuery.of(context).size.height / 1.1,
+      child: NativeDataTable(
+        rowsPerPage: _rowsPerPage,
+        firstRowIndex: _rowsOffset,
+        handleNext: () {
+          if (_rowsOffset + 25 < subjects.length) {
+            setState(() {
+              _rowsOffset += _rowsPerPage;
+              print(_rowsOffset.toString());
+            });
+          }
+        },
+        handlePrevious: () {
+          if (_rowsOffset > 0) {
+            setState(() {
+              _rowsOffset -= _rowsPerPage;
+              print(_rowsOffset.toString());
+            });
+          }
+        },
+        mobileIsLoading: CircularProgressIndicator(),
+        mobileItemBuilder: (context, index) {
+          return ExpansionTile(
+              leading: Text('${index + 1}'),
+              title: Text(
+                'ABC',
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ));
+        },
+        columns: [
+          DataColumn(label: Text('ID')),
+          DataColumn(label: Text('Subject Name')),
+          DataColumn(label: Text('Course Name')),
+          DataColumn(label: Text('Action')),
+        ],
+        rows: List.generate(subjects.length, (index) {
+          return subject(subjects[index], index);
+        }),
       ),
-    );
+    ));
   }
 
   subject(Subject? subject, int index) {

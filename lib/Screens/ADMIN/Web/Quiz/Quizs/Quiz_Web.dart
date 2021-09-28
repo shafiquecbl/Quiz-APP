@@ -1,3 +1,4 @@
+import 'package:data_tables/data_tables.dart';
 import 'package:flutter/material.dart';
 import 'package:quiz_app/Models/Questions.dart';
 import 'package:quiz_app/Models/Quiz.dart';
@@ -7,6 +8,7 @@ import 'package:quiz_app/Screens/widget/head_card.dart';
 import 'package:quiz_app/Services/api_manager.dart';
 import 'package:quiz_app/WIdgets/Custom_Error.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
+import 'package:quiz_app/WIdgets/network_error.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/size_config.dart';
 import 'package:intl/intl.dart';
@@ -19,6 +21,8 @@ class QuizWEB extends StatefulWidget {
 }
 
 class _QuizWEBState extends State<QuizWEB> {
+  int _rowsPerPage = 25;
+  int _rowsOffset = 0;
   String? search = '';
   bool checkBox = false;
   Quiz? editQuiz;
@@ -154,23 +158,27 @@ class _QuizWEBState extends State<QuizWEB> {
 
   Widget dataTable() {
     return Padding(
-      padding: const EdgeInsets.only(top: 30, bottom: 30),
+      padding: const EdgeInsets.only(top: 12, bottom: 20),
       child: Container(
         width: SizeConfig.screenWidth,
         height: SizeConfig.screenHeight,
         child: Card(
           child: Padding(
-            padding: EdgeInsets.only(
-              left: 10,
-              right: 10,
-              top: 50,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 10),
             child: FutureBuilder<List<Quiz>>(
               future: _quizModel,
               builder:
                   (BuildContext context, AsyncSnapshot<List<Quiz>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting)
                   return MyLoading();
+                if (snapshot.data == null)
+                  return NetworkError(onPressed: () {
+                    setState(() {
+                      _quizModel = APIManager()
+                          .fetchQUIZList(token: widget.loginResponse!.token);
+                      getCourses();
+                    });
+                  });
                 return quizList(snapshot.data!);
               },
             ),
@@ -181,22 +189,49 @@ class _QuizWEBState extends State<QuizWEB> {
   }
 
   quizList(List<Quiz> list) {
-    return SingleChildScrollView(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          columns: [
-            DataColumn(label: Text('ID')),
-            DataColumn(label: Text('Name')),
-            DataColumn(label: Text('Attempt Date')),
-            DataColumn(label: Text('Subjects')),
-            DataColumn(label: Text('Course')),
-            DataColumn(label: Text('Action')),
-          ],
-          rows: List.generate(list.length, (index) => quiz(list[index], index)),
-        ),
+    return Expanded(
+        child: Container(
+      height: MediaQuery.of(context).size.height / 1.1,
+      child: NativeDataTable(
+        rowsPerPage: _rowsPerPage,
+        firstRowIndex: _rowsOffset,
+        handleNext: () {
+          if (_rowsOffset + 25 < list.length) {
+            setState(() {
+              _rowsOffset += _rowsPerPage;
+              print(_rowsOffset.toString());
+            });
+          }
+        },
+        handlePrevious: () {
+          if (_rowsOffset > 0) {
+            setState(() {
+              _rowsOffset -= _rowsPerPage;
+              print(_rowsOffset.toString());
+            });
+          }
+        },
+        mobileIsLoading: CircularProgressIndicator(),
+        mobileItemBuilder: (context, index) {
+          return ExpansionTile(
+              leading: Text('${index + 1}'),
+              title: Text(
+                'ABC',
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ));
+        },
+        columns: [
+          DataColumn(label: Text('ID')),
+          DataColumn(label: Text('Name')),
+          DataColumn(label: Text('Attempt Date')),
+          DataColumn(label: Text('Subjects')),
+          DataColumn(label: Text('Course')),
+          DataColumn(label: Text('Action')),
+        ],
+        rows: List.generate(list.length, (index) => quiz(list[index], index)),
       ),
-    );
+    ));
   }
 
   quiz(Quiz? quiz, index) {
@@ -221,7 +256,14 @@ class _QuizWEBState extends State<QuizWEB> {
                 child: Text('EDIT')),
             ElevatedButton(
                 style: ElevatedButton.styleFrom(primary: Colors.red),
-                onPressed: () {},
+                onPressed: () {
+                  APIManager()
+                      .deleteQUIZ(
+                          token: widget.loginResponse!.token, id: quiz.id)
+                      .then((value) {
+                    updatePage();
+                  });
+                },
                 child: Text('DELETE'))
           ],
         ),

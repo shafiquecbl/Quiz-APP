@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:quiz_app/Screens/ADMIN/Main%20Page/Main_Page.dart';
+import 'package:quiz_app/Screens/widget/Navigator.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/controllers/page_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'drawerListTile.dart';
 
@@ -53,7 +56,12 @@ class _SideBarState extends State<SideBar> {
                   height: 40,
                   child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(primary: yellow),
-                      onPressed: () {},
+                      onPressed: () async {
+                        SharedPreferences pref =
+                            await SharedPreferences.getInstance();
+                        pref.remove('LoginResponse').then(
+                            (value) => pushAndRemoveUntil(context, MainPage()));
+                      },
                       icon: Icon(Icons.logout),
                       label: Text('Logout', style: style)),
                 ),

@@ -1,5 +1,6 @@
-import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:data_tables/data_tables.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:quiz_app/Models/SubAdmin.dart';
 import 'package:quiz_app/Models/User.dart';
@@ -7,6 +8,7 @@ import 'package:quiz_app/Screens/widget/Search_Field.dart';
 import 'package:quiz_app/Screens/widget/head_card.dart';
 import 'package:quiz_app/Services/api_manager.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
+import 'package:quiz_app/WIdgets/network_error.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/size_config.dart';
 
@@ -18,9 +20,11 @@ class SubAdminWEB extends StatefulWidget {
 }
 
 class _SubAdminWEBState extends State<SubAdminWEB> {
+  int _rowsPerPage = 25;
+  int _rowsOffset = 0;
   String? search = '';
   String? name, email, phoneNo, password, gender;
-  File? image;
+  PlatformFile? image;
 
   bool isLoading = false;
   String? error;
@@ -83,23 +87,26 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
 
   Widget dataTable() {
     return Padding(
-      padding: const EdgeInsets.only(top: 30, bottom: 30),
+      padding: const EdgeInsets.only(top: 12, bottom: 20),
       child: Container(
         width: SizeConfig.screenWidth,
         height: SizeConfig.screenHeight,
         child: Card(
           child: Padding(
-            padding: EdgeInsets.only(
-              left: 10,
-              right: 10,
-              top: 50,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 10),
             child: FutureBuilder<List<SubAdmin>>(
               future: _subAdminModel,
               builder: (BuildContext context,
                   AsyncSnapshot<List<SubAdmin>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting)
                   return MyLoading();
+                if (snapshot.data == null)
+                  return NetworkError(onPressed: () {
+                    setState(() {
+                      _subAdminModel = APIManager().fetchSubAdminsList(
+                          token: widget.loginResponse!.token);
+                    });
+                  });
                 return subAdminsList(snapshot.data!);
               },
             ),
@@ -110,23 +117,50 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
   }
 
   subAdminsList(List<SubAdmin> list) {
-    return SingleChildScrollView(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          columns: [
-            DataColumn(label: Text('ID')),
-            DataColumn(label: Text('Name')),
-            DataColumn(label: Text('Email')),
-            DataColumn(label: Text('Phone #')),
-            DataColumn(label: Text('Image')),
-            DataColumn(label: Text('Action')),
-          ],
-          rows: List.generate(
-              list.length, (index) => subAdmin(list[index], index)),
-        ),
+    return Expanded(
+        child: Container(
+      height: MediaQuery.of(context).size.height / 1.1,
+      child: NativeDataTable(
+        rowsPerPage: _rowsPerPage,
+        firstRowIndex: _rowsOffset,
+        handleNext: () {
+          if (_rowsOffset + 25 < list.length) {
+            setState(() {
+              _rowsOffset += _rowsPerPage;
+              print(_rowsOffset.toString());
+            });
+          }
+        },
+        handlePrevious: () {
+          if (_rowsOffset > 0) {
+            setState(() {
+              _rowsOffset -= _rowsPerPage;
+              print(_rowsOffset.toString());
+            });
+          }
+        },
+        mobileIsLoading: CircularProgressIndicator(),
+        mobileItemBuilder: (context, index) {
+          return ExpansionTile(
+              leading: Text('${index + 1}'),
+              title: Text(
+                'ABC',
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ));
+        },
+        columns: [
+          DataColumn(label: Text('ID')),
+          DataColumn(label: Text('Name')),
+          DataColumn(label: Text('Email')),
+          DataColumn(label: Text('Phone #')),
+          DataColumn(label: Text('Image')),
+          DataColumn(label: Text('Action')),
+        ],
+        rows:
+            List.generate(list.length, (index) => subAdmin(list[index], index)),
       ),
-    );
+    ));
   }
 
   subAdmin(SubAdmin subAdmin, index) {
@@ -162,7 +196,14 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
                 child: Text('EDIT')),
             ElevatedButton(
                 style: ElevatedButton.styleFrom(primary: Colors.red),
-                onPressed: () {},
+                onPressed: () {
+                  APIManager()
+                      .deleteSubAdmin(
+                          token: widget.loginResponse!.token, id: subAdmin.id)
+                      .then((value) {
+                    updatePage();
+                  });
+                },
                 child: Text('DELETE'))
           ],
         ),
@@ -193,6 +234,7 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
         child: ElevatedButton(
             style: ElevatedButton.styleFrom(primary: Colors.red),
             onPressed: () {
+              editSubAdmin = null;
               Navigator.pop(context);
             },
             child: Text('CANCEL')));
@@ -264,6 +306,10 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
   }
 
   addSubAdmin() {
+    myState!(() {
+      isLoading = true;
+      error = null;
+    });
     APIManager()
         .addSubAdmin(
             token: widget.loginResponse!.token,
@@ -280,37 +326,18 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
 
   checkUpdate() {
     if (name == null) {
-      myState!(() {
-        error = 'Please provide name';
-      });
+      name = editSubAdmin!.name;
     }
     if (email == null) {
-      myState!(() {
-        error = 'Please provide email';
-      });
-    }
-    if (password == null) {
-      myState!(() {
-        error = 'Please provide password';
-      });
+      email = editSubAdmin!.email;
     }
     if (phoneNo == null) {
-      myState!(() {
-        error = 'Please provide phone no.';
-      });
-    }
-    if (image == null) {
-      myState!(() {
-        error = 'Please select image';
-      });
+      phoneNo = editSubAdmin!.phoneNumber;
     }
     if (gender == null) {
-      myState!(() {
-        error = 'Please select gender';
-      });
-    } else {
-      updateSubAdmin();
+      gender = editSubAdmin!.gender;
     }
+    updateSubAdmin();
   }
 
   updateSubAdmin() {
@@ -359,64 +386,82 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
       width: SizeConfig.screenWidth! / 1.8,
       height: SizeConfig.screenHeight! / 1.8,
       child: Form(
+          key: _formKey,
           child: Column(
-        children: [
-          ///////////////////// TITLE /////////////////////
-
-          Text(title.toString(),
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          SizedBox(
-            height: 40,
-          ),
-
-          /////////////////////////////////////////////////
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [nameField(), emailField()],
-          ),
-          SizedBox(height: 30),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              phoneNoField(),
-              passwordField(),
-            ],
-          ),
-          SizedBox(height: 30),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 25),
-                child: genderField(),
-              ),
-            ],
-          ),
-          SizedBox(height: 30),
+              ///////////////////// TITLE /////////////////////
 
-          Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 25),
-                child: Container(
-                  height: 35,
-                  color: Colors.grey[300],
-                  child: ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: Icon(Icons.attach_file),
-                      label: Text('Choos File')),
-                ),
-              ),
+              Text(title.toString(),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               SizedBox(
-                width: 20,
+                height: 40,
               ),
-              image != null ? Text(image!.path.split('/').last) : Container()
+
+              /////////////////////////////////////////////////
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [nameField(), emailField()],
+              ),
+              SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  phoneNoField(),
+                  passwordField(),
+                ],
+              ),
+              SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 25),
+                    child: genderField(),
+                  ),
+                ],
+              ),
+              SizedBox(height: 30),
+
+              Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 25),
+                    child: Container(
+                      height: 35,
+                      color: Colors.grey[300],
+                      child: ElevatedButton.icon(
+                          onPressed: () {
+                            pickImage();
+                          },
+                          icon: Icon(Icons.attach_file),
+                          label: Text('Choose File')),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  image != null ? Text('Image Selected') : Container()
+                ],
+              )
             ],
-          )
-        ],
-      )),
+          )),
     );
+  }
+
+  pickImage() async {
+    await FilePicker.platform
+        .pickFiles(
+      withReadStream:
+          true, // this will return PlatformFile object with read stream
+    )
+        .then((value) {
+      myState!(() {
+        image = value!.files.single;
+      });
+    });
+
+    return image;
   }
 
   Widget nameField() {

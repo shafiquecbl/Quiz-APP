@@ -4,8 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
-import 'package:mime/mime.dart';
 import 'package:quiz_app/Models/Admin_Login.dart';
 import 'package:quiz_app/Models/Courses.dart';
 import 'package:quiz_app/Models/Enroll_Student.dart';
@@ -33,12 +31,13 @@ class APIManager {
 
   ///////////////////////////////////////////////////////////
 
-  Future<LoginResponse> adminLogin(email, password) async {
+  adminLogin(email, password) async {
     return await client
         .post(Uri.parse('$baseUrl/admin/auth/login'),
             body: Login(email: email, password: password).toJson())
         .then((response) async {
       var jsonMap = json.decode(response.body);
+      print(jsonMap);
       loginResponse = LoginResponse.fromJson(jsonMap);
       SharedPreferences pref = await SharedPreferences.getInstance();
       await pref.setString('LoginResponse', jsonEncode(jsonMap));
@@ -87,28 +86,13 @@ class APIManager {
         filename: image.name));
 
     //-------Send request
-    var resp = await request.send();
+    await request.send().then((value) async {
+      //------Read response
+      String result = await value.stream.bytesToString();
 
-    //------Read response
-    String result = await resp.stream.bytesToString();
-
-    //-------Your response
-    print(result);
-
-    // FormData formData = FormData.fromMap(AddStudent(
-    //         name: name,
-    //         email: email,
-    //         password: password,
-    //         gender: gender,
-    //         rollNo: rollNo,
-    //         image: '',
-    //         phoneNo: phoneNo)
-    //     .toJson());
-    // return await dio.post('$baseUrl/admin/manage/createStudent',
-    //     data: formData,
-    //     options: Options(headers: {
-    //       'Authorization': 'Bearer $token',
-    //     }));
+      //-------Your response
+      print(result);
+    });
   }
 
   ////////////// UPDATE STUDENT //////////////////
@@ -123,21 +107,35 @@ class APIManager {
       @required phoneNo,
       @required PlatformFile? image,
       @required gender}) async {
-    FormData formData = FormData.fromMap(AddStudent(
-            name: name,
-            email: email,
-            password: password,
-            gender: gender,
-            rollNo: rollNo,
-            image: '',
-            phoneNo: phoneNo)
-        .toJson());
+    http.MultipartRequest request = http.MultipartRequest(
+      "PUT",
+      Uri.parse('$baseUrl/admin/manage/updateStudent/$id'),
+    );
+    request.headers['Authorization'] = 'Bearer $token';
 
-    return await dio.put('$baseUrl/admin/manage/updateStudent/$id',
-        data: formData,
-        options: Options(headers: {
-          'Authorization': 'Bearer $token',
-        }));
+    request.fields['name'] = name;
+    request.fields['email'] = email;
+    if (password != null) {
+      request.fields['password'] = password;
+    }
+    request.fields['gender'] = gender;
+    request.fields['rollno'] = rollNo;
+    request.fields['phoneNumber'] = phoneNo;
+    if (image != null) {
+      request.files.add(new http.MultipartFile(
+          'image', image.readStream!, image.size,
+          filename: image.name));
+    }
+
+    //-------Send request
+    var resp = await request.send();
+    //------Read response
+    String result = await resp.stream.bytesToString();
+
+    //-------Your response
+    print(result);
+
+    return result;
   }
 
   deleteStudent({@required token, @required id}) async {
@@ -227,28 +225,34 @@ class APIManager {
       @required email,
       @required password,
       @required phoneNo,
-      @required File? image,
+      @required PlatformFile? image,
       @required gender}) async {
-    final mimeTypeData =
-        lookupMimeType(image!.path, headerBytes: [0xFF, 0xD8])!.split('/');
-    return await http.MultipartFile.fromPath('image', image.path,
-            filename: image.path.split('/').last,
-            contentType: MediaType(mimeTypeData[0], mimeTypeData[1]))
-        .then((value) async {
-      FormData formData = FormData.fromMap(AddTeacher(
-              name: name,
-              email: email,
-              password: password,
-              gender: gender,
-              image: value,
-              phoneNo: phoneNo)
-          .toJson());
-      return await dio.post('$baseUrl/admin/manage/createTeacher',
-          data: formData,
-          options: Options(headers: {
-            'Authorization': 'Bearer $token',
-          }));
-    });
+    http.MultipartRequest request = http.MultipartRequest(
+      "POST",
+      Uri.parse('$baseUrl/admin/manage/createTeacher'),
+    );
+    request.headers['Authorization'] = 'Bearer $token';
+
+    request.fields['name'] = name;
+    request.fields['email'] = email;
+    request.fields['password'] = password;
+    request.fields['gender'] = gender;
+    request.fields['phoneNumber'] = phoneNo;
+    if (image != null) {
+      request.files.add(new http.MultipartFile(
+          'image', image.readStream!, image.size,
+          filename: image.name));
+    }
+
+    //-------Send request
+    var resp = await request.send();
+    //------Read response
+    String result = await resp.stream.bytesToString();
+
+    //-------Your response
+    print(result);
+
+    return result;
   }
 
   ////////////// UPDATE TEACHER //////////////////
@@ -260,22 +264,36 @@ class APIManager {
       @required email,
       @required password,
       @required phoneNo,
-      @required File? image,
+      @required PlatformFile? image,
       @required gender}) async {
-    FormData formData = FormData.fromMap(UpdateTeacher(
-            name: name,
-            email: email,
-            password: password,
-            gender: gender,
-            image: '',
-            phoneNo: phoneNo)
-        .toJson());
+    http.MultipartRequest request = http.MultipartRequest(
+      "PUT",
+      Uri.parse('$baseUrl/admin/manage/updateTeacher/$id'),
+    );
+    request.headers['Authorization'] = 'Bearer $token';
 
-    return await dio.put('$baseUrl/admin/manage/updateTeacher/$id',
-        data: formData,
-        options: Options(headers: {
-          'Authorization': 'Bearer $token',
-        }));
+    request.fields['name'] = name;
+    request.fields['email'] = email;
+    if (password != null) {
+      request.fields['password'] = password;
+    }
+    request.fields['gender'] = gender;
+    request.fields['phoneNumber'] = phoneNo;
+    if (image != null) {
+      request.files.add(new http.MultipartFile(
+          'image', image.readStream!, image.size,
+          filename: image.name));
+    }
+
+    //-------Send request
+    var resp = await request.send();
+    //------Read response
+    String result = await resp.stream.bytesToString();
+
+    //-------Your response
+    print(result);
+
+    return result;
   }
 
   deleteTeacher({@required token, @required id}) async {
@@ -310,21 +328,32 @@ class APIManager {
       @required email,
       @required password,
       @required phoneNo,
-      @required File? image,
+      @required PlatformFile? image,
       @required gender}) async {
-    FormData formData = FormData.fromMap(AddTeacher(
-            name: name,
-            email: email,
-            password: password,
-            gender: gender,
-            image: '',
-            phoneNo: phoneNo)
-        .toJson());
-    return await dio.post('$baseUrl/admin/manage/createTeacher',
-        data: formData,
-        options: Options(headers: {
-          'Authorization': 'Bearer $token',
-        }));
+    http.MultipartRequest request = http.MultipartRequest(
+      "POST",
+      Uri.parse('$baseUrl/admin/manage/createSubAdmin'),
+    );
+    request.headers['Authorization'] = 'Bearer $token';
+
+    request.fields['name'] = name;
+    request.fields['email'] = email;
+    request.fields['password'] = password;
+    request.fields['gender'] = gender;
+    request.fields['phoneNumber'] = phoneNo;
+    request.files.add(new http.MultipartFile(
+        'image', image!.readStream!, image.size,
+        filename: image.name));
+
+    //-------Send request
+    var resp = await request.send();
+    //------Read response
+    String result = await resp.stream.bytesToString();
+
+    //-------Your response
+    print(result);
+
+    return result;
   }
 
   ////////////// UPDATE SUBADMIN //////////////////
@@ -336,26 +365,39 @@ class APIManager {
       @required email,
       @required password,
       @required phoneNo,
-      @required File? image,
+      @required PlatformFile? image,
       @required gender}) async {
-    FormData formData = FormData.fromMap(UpdateTeacher(
-            name: name,
-            email: email,
-            password: password,
-            gender: gender,
-            image: '',
-            phoneNo: phoneNo)
-        .toJson());
+    http.MultipartRequest request = http.MultipartRequest(
+      "PUT",
+      Uri.parse('$baseUrl/admin/manage/updateSubAdmin/$id'),
+    );
+    request.headers['Authorization'] = 'Bearer $token';
 
-    return await dio.put('$baseUrl/admin/manage/updateTeacher/$id',
-        data: formData,
-        options: Options(headers: {
-          'Authorization': 'Bearer $token',
-        }));
+    request.fields['name'] = name;
+    request.fields['email'] = email;
+    if (password != null) {
+      request.fields['password'] = password;
+    }
+    request.fields['gender'] = gender;
+    request.fields['phoneNumber'] = phoneNo;
+    if (image != null) {
+      request.files.add(new http.MultipartFile(
+          'image', image.readStream!, image.size,
+          filename: image.name));
+    }
+    //-------Send request
+    var resp = await request.send();
+    //------Read response
+    String result = await resp.stream.bytesToString();
+
+    //-------Your response
+    print(result);
+
+    return result;
   }
 
   deleteSubAdmin({@required token, @required id}) async {
-    return await dio.delete('$baseUrl/admin/manage/deleteTeacher/$id',
+    return await dio.delete('$baseUrl/admin/manage/deleteSubAdmin/$id',
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
@@ -581,25 +623,36 @@ class APIManager {
       @required courseId,
       @required List? questionImage,
       @required AddQustionOption? options}) async {
-    FormData formData = FormData.fromMap(
-      AddQuestion(
-        questionStatement: questionStatement,
-        type: type,
-        questionImage: questionImage,
-        answer: answer,
-        level: level,
-        subjectId: subjectId,
-        courseId: courseId,
-        options: options,
-      ).toJson(),
+    print('START');
+    http.MultipartRequest request = http.MultipartRequest(
+      "POST",
+      Uri.parse('$baseUrl/admin/question/addQuestion'),
     );
+    request.headers['Authorization'] = 'Bearer $token';
 
-    return await dio.post('$baseUrl/admin/question/addQuestion',
-        data: formData,
-        options: Options(headers: {
-          'Authorization': 'Bearer $token',
-          "Content-Type": "application/json"
-        }));
+    for (String subject in subjectId!) {
+      request.files.add(http.MultipartFile.fromString('subject', subject));
+    }
+    request.fields['questionStatement'] = questionStatement;
+    request.fields['type'] = type;
+    request.fields['answer'] = answer;
+    request.fields['course'] = courseId;
+    request.fields['level'] = level;
+    request.fields['options'] = json.encode(options!);
+    request.files.add(new http.MultipartFile(
+        'questionImage', questionImage![0].readStream!, questionImage[0].size,
+        filename: questionImage[0].name));
+
+    //-------Send request
+    var resp = await request.send();
+    //------Read response
+    String result = await resp.stream.bytesToString();
+
+    //-------Your response
+    print('RESULTTTTTTTTTTTTTT: $result');
+    print('END');
+
+    return result;
   }
 
   ////////////// UPDATE Question //////////////////
@@ -611,24 +664,42 @@ class APIManager {
       @required type,
       @required answer,
       @required level,
-      @required subjectId,
+      @required List? subjectId,
       @required courseId,
-      @required List? questionImage,
+      @required PlatformFile? questionImage,
       @required AddQustionOption? options}) async {
-    return await dio.put('$baseUrl/admin/question/updateQuestion/$id',
-        data: AddQuestion(
-          questionStatement: questionStatement,
-          type: type,
-          answer: answer,
-          level: level,
-          subjectId: subjectId,
-          courseId: courseId,
-          options: options,
-        ).toJson(),
-        options: Options(headers: {
-          'Authorization': 'Bearer $token',
-          "Content-Type": "application/json"
-        }));
+    print('START');
+    http.MultipartRequest request = http.MultipartRequest(
+      "PUT",
+      Uri.parse('$baseUrl/admin/question/updateQuestion/$id'),
+    );
+    request.headers['Authorization'] = 'Bearer $token';
+
+    for (String subject in subjectId!) {
+      request.files.add(http.MultipartFile.fromString('subject', subject));
+    }
+    request.fields['questionStatement'] = questionStatement;
+    request.fields['type'] = type;
+    request.fields['answer'] = answer;
+    request.fields['course'] = courseId;
+    request.fields['level'] = level;
+    request.fields['options'] = json.encode(options!);
+    if (questionImage != null) {
+      request.files.add(new http.MultipartFile(
+          'questionImage', questionImage.readStream!, questionImage.size,
+          filename: questionImage.name));
+    }
+
+    //-------Send request
+    var resp = await request.send();
+    //------Read response
+    String result = await resp.stream.bytesToString();
+
+    //-------Your response
+    print('RESULTTTTTTTTTTTTTT: $result');
+    print('END');
+
+    return result;
   }
 
   deleteQuestion({@required token, @required id}) async {

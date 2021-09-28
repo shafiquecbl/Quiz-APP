@@ -1,6 +1,6 @@
-import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:data_tables/data_tables.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:quiz_app/Models/Teachers.dart';
 import 'package:quiz_app/Models/User.dart';
@@ -9,6 +9,7 @@ import 'package:quiz_app/Screens/widget/head_card.dart';
 import 'package:quiz_app/Services/api_manager.dart';
 import 'package:quiz_app/WIdgets/Custom_Error.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
+import 'package:quiz_app/WIdgets/network_error.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/size_config.dart';
 
@@ -20,9 +21,11 @@ class TeachersWEB extends StatefulWidget {
 }
 
 class _TeachersWEBState extends State<TeachersWEB> {
+  int _rowsPerPage = 25;
+  int _rowsOffset = 0;
   String? search = '';
   String? name, email, phoneNo, password, gender;
-  File? image;
+  PlatformFile? image;
 
   bool isLoading = false;
   String? error;
@@ -83,23 +86,26 @@ class _TeachersWEBState extends State<TeachersWEB> {
 
   Widget dataTable() {
     return Padding(
-      padding: const EdgeInsets.only(top: 30, bottom: 30),
+      padding: const EdgeInsets.only(top: 12, bottom: 20),
       child: Container(
         width: SizeConfig.screenWidth,
         height: SizeConfig.screenHeight,
         child: Card(
           child: Padding(
-            padding: EdgeInsets.only(
-              left: 10,
-              right: 10,
-              top: 50,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 10),
             child: FutureBuilder<List<Teacher>>(
               future: _teacherModel,
               builder: (BuildContext context,
                   AsyncSnapshot<List<Teacher>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting)
                   return MyLoading();
+                if (snapshot.data == null)
+                  return NetworkError(onPressed: () {
+                    setState(() {
+                      _teacherModel = APIManager().fetchTeachersList(
+                          token: widget.loginResponse!.token);
+                    });
+                  });
                 return teacherList(snapshot.data!);
               },
             ),
@@ -110,23 +116,50 @@ class _TeachersWEBState extends State<TeachersWEB> {
   }
 
   teacherList(List<Teacher> list) {
-    return SingleChildScrollView(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          columns: [
-            DataColumn(label: Text('ID')),
-            DataColumn(label: Text('Name')),
-            DataColumn(label: Text('Email')),
-            DataColumn(label: Text('Phone #')),
-            DataColumn(label: Text('Image')),
-            DataColumn(label: Text('Action')),
-          ],
-          rows: List.generate(
-              list.length, (index) => teacher(list[index], index)),
-        ),
+    return Expanded(
+        child: Container(
+      height: MediaQuery.of(context).size.height / 1.1,
+      child: NativeDataTable(
+        rowsPerPage: _rowsPerPage,
+        firstRowIndex: _rowsOffset,
+        handleNext: () {
+          if (_rowsOffset + 25 < list.length) {
+            setState(() {
+              _rowsOffset += _rowsPerPage;
+              print(_rowsOffset.toString());
+            });
+          }
+        },
+        handlePrevious: () {
+          if (_rowsOffset > 0) {
+            setState(() {
+              _rowsOffset -= _rowsPerPage;
+              print(_rowsOffset.toString());
+            });
+          }
+        },
+        mobileIsLoading: CircularProgressIndicator(),
+        mobileItemBuilder: (context, index) {
+          return ExpansionTile(
+              leading: Text('${index + 1}'),
+              title: Text(
+                'ABC',
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ));
+        },
+        columns: [
+          DataColumn(label: Text('ID')),
+          DataColumn(label: Text('Name')),
+          DataColumn(label: Text('Email')),
+          DataColumn(label: Text('Phone #')),
+          DataColumn(label: Text('Image')),
+          DataColumn(label: Text('Action')),
+        ],
+        rows:
+            List.generate(list.length, (index) => teacher(list[index], index)),
       ),
-    );
+    ));
   }
 
   teacher(Teacher? teacher, index) {
@@ -162,7 +195,14 @@ class _TeachersWEBState extends State<TeachersWEB> {
                 child: Text('EDIT')),
             ElevatedButton(
                 style: ElevatedButton.styleFrom(primary: Colors.red),
-                onPressed: () {},
+                onPressed: () {
+                  APIManager()
+                      .deleteTeacher(
+                          token: widget.loginResponse!.token, id: teacher.id)
+                      .then((value) {
+                    updatePage();
+                  });
+                },
                 child: Text('DELETE'))
           ],
         ),
@@ -285,40 +325,25 @@ class _TeachersWEBState extends State<TeachersWEB> {
 
   checkUpdate() {
     if (name == null) {
-      myState!(() {
-        error = 'Please provide name';
-      });
+      name = editTeacher!.name;
     }
     if (email == null) {
-      myState!(() {
-        error = 'Please provide email';
-      });
-    }
-    if (password == null) {
-      myState!(() {
-        error = 'Please provide password';
-      });
+      email = editTeacher!.email;
     }
     if (phoneNo == null) {
-      myState!(() {
-        error = 'Please provide phone no.';
-      });
-    }
-    if (image == null) {
-      myState!(() {
-        error = 'Please select image';
-      });
+      phoneNo = editTeacher!.phoneNumber;
     }
     if (gender == null) {
-      myState!(() {
-        error = 'Please select gender';
-      });
-    } else {
-      updateTeacher();
+      gender = editTeacher!.gender;
     }
+    updateTeacher();
   }
 
   updateTeacher() {
+    myState!(() {
+      isLoading = true;
+      error = null;
+    });
     APIManager()
         .updateTeacher(
             id: editTeacher!.id,
@@ -331,6 +356,10 @@ class _TeachersWEBState extends State<TeachersWEB> {
             gender: gender)
         .then((value) {
       clearValues();
+    }).catchError((e) {
+      myState!(() {
+        error = '${e.message}';
+      });
     });
   }
 
@@ -409,15 +438,13 @@ class _TeachersWEBState extends State<TeachersWEB> {
                             pickImage();
                           },
                           icon: Icon(Icons.attach_file),
-                          label: Text('Choos File')),
+                          label: Text('Choose File')),
                     ),
                   ),
                   SizedBox(
                     width: 20,
                   ),
-                  image != null
-                      ? Text(image!.path.split('/').last)
-                      : Container()
+                  image != null ? Text('Image Selected') : Container()
                 ],
               ),
 
@@ -440,13 +467,18 @@ class _TeachersWEBState extends State<TeachersWEB> {
   }
 
   pickImage() async {
-    // PickedFile? pickedFile =
-    //     // ignore: invalid_use_of_visible_for_testing_member
-    //     await ImagePicker.platform.pickImage(source: ImageSource.gallery);
-    // myState!(() {
-    //   image = File(pickedFile!.path);
-    // });
-    // return image;
+    await FilePicker.platform
+        .pickFiles(
+      withReadStream:
+          true, // this will return PlatformFile object with read stream
+    )
+        .then((value) {
+      myState!(() {
+        image = value!.files.single;
+      });
+    });
+
+    return image;
   }
 
   Widget nameField() {

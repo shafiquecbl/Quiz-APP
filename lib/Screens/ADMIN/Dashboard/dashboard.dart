@@ -70,9 +70,7 @@ class _DashboardState extends State<Dashboard> {
         AppResponsive.isDesktop(context)
             ? QuizWEB(loginResponse: widget.loginResponse)
             : QuizMobile(),
-        AppResponsive.isDesktop(context)
-            ? QuestionsWEB(loginResponse: widget.loginResponse)
-            : QuestionsMobile(),
+        QuestionsWEB(loginResponse: widget.loginResponse),
       ],
     );
   }

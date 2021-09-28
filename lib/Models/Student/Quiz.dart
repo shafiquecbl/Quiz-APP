@@ -33,7 +33,7 @@ class Quiz1 {
 
   Map<String, dynamic> toJson() => {
         "level": List<String>.from(level!.map((x) => x)),
-        "question": List<dynamic>.from(question!.map((x) => x.toJson())),
+        "question": List<Question1>.from(question!.map((x) => x.toJson())),
         "public": public,
         "_id": id,
         "quizName": quizName,
@@ -76,7 +76,7 @@ class Question1 {
   });
 
   List<Option1>? options;
-  List<dynamic>? questionImage;
+  List<String>? questionImage;
   bool? flag;
   String? id;
   String? questionStatement;
@@ -87,7 +87,7 @@ class Question1 {
   factory Question1.fromJson(Map<String, dynamic> json) => Question1(
         options:
             List<Option1>.from(json["options"].map((x) => Option1.fromJson(x))),
-        questionImage: List<dynamic>.from(json["questionImage"].map((x) => x)),
+        questionImage: List<String>.from(json["questionImage"].map((x) => x)),
         flag: json["flag"],
         id: json["_id"],
         questionStatement: json["questionStatement"],
@@ -97,8 +97,8 @@ class Question1 {
       );
 
   Map<String, dynamic> toJson() => {
-        "options": List<dynamic>.from(options!.map((x) => x.toJson())),
-        "questionImage": List<dynamic>.from(questionImage!.map((x) => x)),
+        "options": List<Option1>.from(options!.map((x) => x.toJson())),
+        "questionImage": List<String>.from(questionImage!.map((x) => x)),
         "flag": flag,
         "_id": id,
         "questionStatement": questionStatement,

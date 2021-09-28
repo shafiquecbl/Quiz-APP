@@ -106,7 +106,9 @@ class Question {
       name: json['name'],
       attempDate: json['attempDate'],
       subject: json['subject'][0],
-      questionImage: List<String>.from(json['questionImage'].map((x) => x)),
+      questionImage: json['questionImage'] != null
+          ? List<String>.from(json['questionImage'].map((x) => x))
+          : null,
       flag: json['flag'],
       questionStatement: json['questionStatement'],
       type: json['type'],

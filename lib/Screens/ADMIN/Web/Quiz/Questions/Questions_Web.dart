@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:quiz_app/Models/Questions.dart';
 import 'package:quiz_app/Models/Quiz.dart';
@@ -8,8 +8,10 @@ import 'package:quiz_app/Screens/widget/head_card.dart';
 import 'package:quiz_app/Services/api_manager.dart';
 import 'package:quiz_app/WIdgets/Custom_Error.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
+import 'package:quiz_app/WIdgets/network_error.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/size_config.dart';
+import 'package:data_tables/data_tables.dart';
 
 class QuestionsWEB extends StatefulWidget {
   final LoginResponse? loginResponse;
@@ -19,6 +21,8 @@ class QuestionsWEB extends StatefulWidget {
 }
 
 class _QuestionsWEBState extends State<QuestionsWEB> {
+  int _rowsPerPage = 25;
+  int _rowsOffset = 0;
   String? search = '';
   bool isLoading = false;
   Future<List<Questions>>? _questionModel;
@@ -33,7 +37,7 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
       type,
       level,
       error;
-  File? image;
+  PlatformFile? image;
   Questions? editQuestion;
 
   Function(void Function())? myState;
@@ -131,23 +135,28 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
 
   Widget dataTable() {
     return Padding(
-      padding: const EdgeInsets.only(top: 30, bottom: 30),
+      padding: const EdgeInsets.only(top: 12, bottom: 20),
       child: Container(
         width: SizeConfig.screenWidth,
         height: SizeConfig.screenHeight,
         child: Card(
           child: Padding(
-            padding: EdgeInsets.only(
-              left: 10,
-              right: 10,
-              top: 50,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 10),
             child: FutureBuilder<List<Questions>>(
               future: _questionModel,
               builder: (BuildContext context,
                   AsyncSnapshot<List<Questions>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting)
                   return MyLoading();
+                if (snapshot.data == null)
+                  return NetworkError(onPressed: () {
+                    setState(() {
+                      _questionModel = APIManager().fetchQuestiontList(
+                          token: widget.loginResponse!.token);
+                      getCourses();
+                      getSubjects();
+                    });
+                  });
                 return questionsList(snapshot.data!);
               },
             ),
@@ -158,37 +167,66 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
   }
 
   questionsList(List<Questions> list) {
-    return SingleChildScrollView(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          dataRowHeight: 60,
-          columns: [
-            DataColumn(label: Text('ID')),
-            DataColumn(label: Text('Question Statement')),
-            DataColumn(label: Text('Type')),
-            DataColumn(label: Text('Level')),
-            DataColumn(label: Text('Subjects')),
-            DataColumn(label: Text('Course')),
-            DataColumn(label: Text('Action')),
-          ],
-          rows: List.generate(
-              list.length, (index) => questions(list[index], index)),
-        ),
+    return Expanded(
+      child: Container(
+        height: MediaQuery.of(context).size.height / 1.1,
+        child: NativeDataTable(
+            rowsPerPage: _rowsPerPage,
+            firstRowIndex: _rowsOffset,
+            handleNext: () {
+              if (_rowsOffset + 25 < list.length) {
+                setState(() {
+                  _rowsOffset += _rowsPerPage;
+                  print(_rowsOffset.toString());
+                });
+              }
+            },
+            handlePrevious: () {
+              if (_rowsOffset > 0) {
+                setState(() {
+                  _rowsOffset -= _rowsPerPage;
+                  print(_rowsOffset.toString());
+                });
+              }
+            },
+            mobileIsLoading: CircularProgressIndicator(),
+            mobileItemBuilder: (context, index) {
+              return ExpansionTile(
+                  leading: Text('${index + 1}'),
+                  title: Text(
+                    list[index].questionStatement.toString(),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ));
+            },
+            columns: [
+              DataColumn(label: Text('ID')),
+              DataColumn(label: Text('Question Statement')),
+              DataColumn(label: Text('Type')),
+              DataColumn(label: Text('Level')),
+              DataColumn(label: Text('Subjects')),
+              DataColumn(label: Text('Course')),
+              DataColumn(label: Text('Action')),
+            ],
+            rows: List.generate(
+                list.length, (index) => questions(list[index], index))),
       ),
     );
   }
 
   questions(Questions? question, index) {
     return DataRow(cells: [
-      DataCell(Text('$index')),
-      DataCell(Container(
-          width: 290,
-          child: Text(
-            question!.questionStatement.toString(),
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-          ))),
+      DataCell(Text('${index + 1}')),
+      DataCell(Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Container(
+            width: 290,
+            child: Text(
+              question!.questionStatement.toString(),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            )),
+      )),
       DataCell(Text(question.type.toString())),
       DataCell(Text(question.level.toString())),
       DataCell(Container(
@@ -204,11 +242,21 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
           children: [
             ElevatedButton(
                 style: ElevatedButton.styleFrom(primary: Colors.green),
-                onPressed: () {},
+                onPressed: () {
+                  editQuestion = question;
+                  showForm(title: 'UPDATE QUESTION');
+                },
                 child: Text('EDIT')),
             ElevatedButton(
                 style: ElevatedButton.styleFrom(primary: Colors.red),
-                onPressed: () {},
+                onPressed: () {
+                  APIManager()
+                      .deleteQuestion(
+                          token: widget.loginResponse!.token, id: question.id)
+                      .then((e) {
+                    updatePage();
+                  });
+                },
                 child: Text('DELETE'))
           ],
         ),
@@ -238,6 +286,7 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
         child: ElevatedButton(
             style: ElevatedButton.styleFrom(primary: Colors.red),
             onPressed: () {
+              editQuestion = null;
               Navigator.pop(context);
             },
             child: Text('CANCEL')));
@@ -283,113 +332,119 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
       width: SizeConfig.screenWidth! / 1.8,
       height: SizeConfig.screenHeight! / 0.5,
       child: Form(
+          key: _formKey,
           child: SingleChildScrollView(
-        child: Column(
-          children: [
-            ///////////////////// TITLE /////////////////////
-
-            Text(title.toString(),
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            SizedBox(
-              height: 40,
-            ),
-
-            /////////////////////////////////////////////////
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [selectCourseField(), selectSubjectField()],
-            ),
-            SizedBox(height: 30),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            child: Column(
               children: [
-                selectLevelField(),
-                selectTypeField(),
-              ],
-            ),
-            SizedBox(height: 30),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 25),
-                  child: questionStatementField(),
+                ///////////////////// TITLE /////////////////////
+
+                Text(title.toString(),
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                SizedBox(
+                  height: 40,
                 ),
-              ],
-            ),
-            SizedBox(height: 30),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
+
+                /////////////////////////////////////////////////
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [selectCourseField(), selectSubjectField()],
+                ),
+                SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    selectLevelField(),
+                    selectTypeField(),
+                  ],
+                ),
+                SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 25),
+                      child: questionStatementField(),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 25),
+                      child: Container(
+                        height: 35,
+                        color: Colors.grey[300],
+                        child: ElevatedButton.icon(
+                            onPressed: () {
+                              pickImage();
+                            },
+                            icon: Icon(Icons.attach_file),
+                            label: Text('Choose File')),
+                      ),
+                    ),
+                    SizedBox(width: 20),
+                    image != null ? Text('Image Selected') : Container()
+                  ],
+                ),
+                SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    optionAField(),
+                    optionBField(),
+                  ],
+                ),
+                SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [optionCField(), optionDField()],
+                ),
+                SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 25),
+                      child: correctAnswer(),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20),
                 Padding(
-                  padding: const EdgeInsets.only(left: 25),
-                  child: Container(
-                    height: 35,
-                    color: Colors.grey[300],
-                    child: ElevatedButton.icon(
-                        onPressed: () {
-                          pickImage();
-                        },
-                        icon: Icon(Icons.attach_file),
-                        label: Text('Choos File')),
+                  padding: EdgeInsets.only(left: 25),
+                  child: Row(
+                    children: [
+                      error != null
+                          ? MyError(
+                              error: error,
+                            )
+                          : Container(),
+                    ],
                   ),
-                ),
-                SizedBox(width: 20),
-                image != null ? Text(image!.path.split('/').last) : Container()
+                )
               ],
             ),
-            SizedBox(height: 30),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                optionAField(),
-                optionBField(),
-              ],
-            ),
-            SizedBox(height: 30),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [optionCField(), optionDField()],
-            ),
-            SizedBox(height: 30),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 25),
-                  child: correctAnswer(),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            Padding(
-              padding: EdgeInsets.only(left: 25),
-              child: Row(
-                children: [
-                  error != null
-                      ? MyError(
-                          error: error,
-                        )
-                      : Container(),
-                ],
-              ),
-            )
-          ],
-        ),
-      )),
+          )),
     );
   }
 
   pickImage() async {
-    // PickedFile? pickedImae =
-    //     // ignore: invalid_use_of_visible_for_testing_member
-    //     await ImagePicker.platform.pickImage(source: ImageSource.gallery);
+    await FilePicker.platform
+        .pickFiles(
+      withReadStream:
+          true, // this will return PlatformFile object with read stream
+    )
+        .then((value) {
+      myState!(() {
+        image = value!.files.single;
+      });
+    });
 
-    // myState!(() {
-    //   image = File(pickedImae!.path);
-    // });
-    // return image;
+    return image;
   }
 
   Widget selectCourseField() {
@@ -406,7 +461,9 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
           },
           decoration: InputDecoration(
             labelText: "COURSE",
-            hintText: "Select course",
+            hintText: editQuestion != null
+                ? editQuestion!.course!.name
+                : "Select course",
             floatingLabelBehavior: FloatingLabelBehavior.always,
           ),
           items: courseMenu.map((e) {
@@ -428,7 +485,9 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
           },
           decoration: InputDecoration(
             labelText: "SUBJECT",
-            hintText: "Select subject",
+            hintText: editQuestion != null
+                ? editQuestion!.subject!.subjectName
+                : "Select subject",
             floatingLabelBehavior: FloatingLabelBehavior.always,
           ),
           items: subjectMenu.map((e) {
@@ -450,7 +509,8 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
           },
           decoration: InputDecoration(
             labelText: "LEVEL",
-            hintText: "Select level",
+            hintText:
+                editQuestion != null ? editQuestion!.level : "Select level",
             floatingLabelBehavior: FloatingLabelBehavior.always,
           ),
           items: levelItem,
@@ -467,7 +527,8 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
             },
             decoration: InputDecoration(
               labelText: "TYPE",
-              hintText: "Select type",
+              hintText:
+                  editQuestion != null ? editQuestion!.type : "Select type",
               floatingLabelBehavior: FloatingLabelBehavior.always,
             ),
             items: typeItem));
@@ -477,6 +538,8 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 2,
         child: TextFormField(
+          initialValue:
+              editQuestion != null ? editQuestion!.questionStatement : null,
           onChanged: (value) {
             questionStatement = value;
           },
@@ -496,6 +559,8 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
+          initialValue:
+              editQuestion != null ? editQuestion!.options![0].option1 : null,
           onChanged: (value) {
             optionA = value;
           },
@@ -514,6 +579,8 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
+          initialValue:
+              editQuestion != null ? editQuestion!.options![0].option2 : null,
           onChanged: (value) {
             optionB = value;
           },
@@ -532,6 +599,8 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
+          initialValue:
+              editQuestion != null ? editQuestion!.options![0].option3 : null,
           onChanged: (value) {
             optionC = value;
           },
@@ -550,6 +619,8 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
+          initialValue:
+              editQuestion != null ? editQuestion!.options![0].option4 : null,
           onChanged: (value) {
             optionD = value;
           },
@@ -568,6 +639,7 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 2,
         child: TextFormField(
+          initialValue: editQuestion != null ? editQuestion!.answer : null,
           onChanged: (value) {
             correctAnswerr = value;
           },
@@ -667,9 +739,6 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
     if (correctAnswerr == null) {
       correctAnswerr = editQuestion!.answer;
     }
-    if (image == null) {
-      // image = editQuestion!.questionImage
-    }
     updateQuestion();
   }
 
@@ -687,7 +756,7 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
             level: level,
             subjectId: [subjectId],
             courseId: courseId,
-            questionImage: [],
+            questionImage: [image!],
             options: AddQustionOption(
                 option1: optionA,
                 option2: optionB,
@@ -711,9 +780,9 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
       type: type,
       answer: correctAnswerr,
       level: level,
-      subjectId: subjectId,
+      subjectId: [subjectId],
       courseId: courseId,
-      questionImage: ['image'],
+      questionImage: image,
       options: AddQustionOption(
           option1: optionA,
           option2: optionB,

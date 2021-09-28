@@ -35,8 +35,7 @@ class Questions {
 
 class AddQuestion {
   AddQuestion(
-      {this.id,
-      this.questionStatement,
+      {this.questionStatement,
       this.type,
       this.answer,
       this.subjectId,
@@ -44,7 +43,7 @@ class AddQuestion {
       this.questionImage,
       this.options,
       this.level});
-  String? id, questionStatement, type, answer, level, courseId;
+  String? questionStatement, type, answer, level, courseId;
   List? subjectId;
   List? questionImage;
   AddQustionOption? options;

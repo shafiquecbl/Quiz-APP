@@ -1,3 +1,4 @@
+import 'package:data_tables/data_tables.dart';
 import 'package:flutter/material.dart';
 import 'package:quiz_app/Models/Courses.dart';
 import 'package:quiz_app/Models/Enroll_Student.dart';
@@ -8,6 +9,7 @@ import 'package:quiz_app/Screens/widget/head_card.dart';
 import 'package:quiz_app/Services/api_manager.dart';
 import 'package:quiz_app/WIdgets/Custom_Error.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
+import 'package:quiz_app/WIdgets/network_error.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/size_config.dart';
 
@@ -19,6 +21,8 @@ class EnrollStudentsWEB extends StatefulWidget {
 }
 
 class _EnrollStudentsWEBState extends State<EnrollStudentsWEB> {
+  int _rowsPerPage = 25;
+  int _rowsOffset = 0;
   String? search = '';
   List<Student> menuItems = [];
   List<Course> menuItems1 = [];
@@ -111,23 +115,28 @@ class _EnrollStudentsWEBState extends State<EnrollStudentsWEB> {
 
   Widget dataTable() {
     return Padding(
-      padding: const EdgeInsets.only(top: 30, bottom: 30),
+      padding: const EdgeInsets.only(top: 12, bottom: 20),
       child: Container(
         width: SizeConfig.screenWidth,
         height: SizeConfig.screenHeight,
         child: Card(
           child: Padding(
-            padding: EdgeInsets.only(
-              left: 10,
-              right: 10,
-              top: 50,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 10),
             child: FutureBuilder<List<EnrollStudent>>(
               future: _enrollModel,
               builder: (BuildContext context,
                   AsyncSnapshot<List<EnrollStudent>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting)
                   return MyLoading();
+                if (snapshot.data == null)
+                  return NetworkError(onPressed: () {
+                    setState(() {
+                      _enrollModel = APIManager().fetchENrollStudentList(
+                          token: widget.loginResponse!.token);
+                      getStudents();
+                      getCourses();
+                    });
+                  });
                 return enrollStudents(snapshot);
               },
             ),
@@ -138,40 +147,67 @@ class _EnrollStudentsWEBState extends State<EnrollStudentsWEB> {
   }
 
   enrollStudents(AsyncSnapshot<List<EnrollStudent>> snapshot) {
-    return SingleChildScrollView(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          columns: [
-            DataColumn(label: Text('ID')),
-            DataColumn(label: Text('Name')),
-            DataColumn(label: Text('Course')),
-            DataColumn(label: Text('Action')),
-          ],
-          rows: List.generate(snapshot.data!.length, (index) {
-            EnrollStudent std = snapshot.data![index];
-            return DataRow(cells: [
-              DataCell(Text('$index')),
-              DataCell(Text(std.student!.name.toString())),
-              DataCell(Text(std.course!.name.toString())),
-              DataCell(Container(
-                child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(primary: Colors.red),
-                    onPressed: () {
-                      APIManager()
-                          .deleteENrollStudent(
-                              token: widget.loginResponse!.token, id: std.id)
-                          .then((value) {
-                        updatePage();
-                      });
-                    },
-                    child: Text('DELETE')),
-              )),
-            ]);
-          }),
-        ),
+    return Expanded(
+        child: Container(
+      height: MediaQuery.of(context).size.height / 1.1,
+      child: NativeDataTable(
+        rowsPerPage: _rowsPerPage,
+        firstRowIndex: _rowsOffset,
+        handleNext: () {
+          if (_rowsOffset + 25 < snapshot.data!.length) {
+            setState(() {
+              _rowsOffset += _rowsPerPage;
+              print(_rowsOffset.toString());
+            });
+          }
+        },
+        handlePrevious: () {
+          if (_rowsOffset > 0) {
+            setState(() {
+              _rowsOffset -= _rowsPerPage;
+              print(_rowsOffset.toString());
+            });
+          }
+        },
+        mobileIsLoading: CircularProgressIndicator(),
+        mobileItemBuilder: (context, index) {
+          return ExpansionTile(
+              leading: Text('${index + 1}'),
+              title: Text(
+                'ABC',
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ));
+        },
+        columns: [
+          DataColumn(label: Text('ID')),
+          DataColumn(label: Text('Name')),
+          DataColumn(label: Text('Course')),
+          DataColumn(label: Text('Action')),
+        ],
+        rows: List.generate(snapshot.data!.length, (index) {
+          EnrollStudent std = snapshot.data![index];
+          return DataRow(cells: [
+            DataCell(Text('$index')),
+            DataCell(Text(std.student!.name.toString())),
+            DataCell(Text(std.course!.name.toString())),
+            DataCell(Container(
+              child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(primary: Colors.red),
+                  onPressed: () {
+                    APIManager()
+                        .deleteENrollStudent(
+                            token: widget.loginResponse!.token, id: std.id)
+                        .then((value) {
+                      updatePage();
+                    });
+                  },
+                  child: Text('DELETE')),
+            )),
+          ]);
+        }),
       ),
-    );
+    ));
   }
 
   ////////////////////// FORM //////////////////////

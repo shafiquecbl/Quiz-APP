@@ -1,5 +1,5 @@
-import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:data_tables/data_tables.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:quiz_app/Models/Student.dart';
@@ -9,6 +9,7 @@ import 'package:quiz_app/Screens/widget/head_card.dart';
 import 'package:quiz_app/Services/api_manager.dart';
 import 'package:quiz_app/WIdgets/Custom_Error.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
+import 'package:quiz_app/WIdgets/network_error.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/size_config.dart';
 
@@ -20,16 +21,21 @@ class StudentsWEB extends StatefulWidget {
 }
 
 class _StudentsWEBState extends State<StudentsWEB> {
+  int _rowsPerPage = 25;
+  int _rowsOffset = 0;
   //////////////////////////////////////////////////////////
 
   String? name, email, phoneNo, password, gender, rollNo;
   PlatformFile? image;
+
   bool isLoading = false;
   String? error;
   String? search = '';
   Student? updateStudent;
+
   final _formKey = GlobalKey<FormState>();
   Future<List<Student>>? _studentModel;
+
   static const menuItems = <String>[
     'Male',
     'Female',
@@ -98,24 +104,25 @@ class _StudentsWEBState extends State<StudentsWEB> {
 
   Widget dataTable() {
     return Padding(
-      padding: const EdgeInsets.only(top: 30, bottom: 30),
+      padding: const EdgeInsets.only(top: 12, bottom: 20),
       child: Container(
         width: SizeConfig.screenWidth,
         height: SizeConfig.screenHeight,
         child: Card(
           child: Padding(
-            padding: EdgeInsets.only(
-              left: 10,
-              right: 10,
-              top: 50,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 10),
             child: FutureBuilder<List<Student>>(
               future: _studentModel,
               builder: (BuildContext context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting)
                   return MyLoading();
-
-                return studentsData(snapshot);
+                if (snapshot.data != null) return studentsData(snapshot);
+                return NetworkError(onPressed: () {
+                  setState(() {
+                    _studentModel = APIManager()
+                        .fetchStudentsList(token: widget.loginResponse.token);
+                  });
+                });
               },
             ),
           ),
@@ -125,26 +132,53 @@ class _StudentsWEBState extends State<StudentsWEB> {
   }
 
   studentsData(AsyncSnapshot<List<Student>> snapshot) {
-    return SingleChildScrollView(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          columns: [
-            DataColumn(label: Text('ID')),
-            DataColumn(label: Text('Name')),
-            DataColumn(label: Text('Email')),
-            DataColumn(label: Text('Phone #')),
-            DataColumn(label: Text('Roll #')),
-            DataColumn(label: Text('Image')),
-            DataColumn(label: Text('Action')),
-          ],
-          rows: List.generate(snapshot.data!.length, (index) {
-            Student? student = snapshot.data![index];
-            return students(student, index);
-          }),
-        ),
+    return Expanded(
+        child: Container(
+      height: MediaQuery.of(context).size.height / 1.1,
+      child: NativeDataTable(
+        rowsPerPage: _rowsPerPage,
+        firstRowIndex: _rowsOffset,
+        handleNext: () {
+          if (_rowsOffset + 25 < snapshot.data!.length) {
+            setState(() {
+              _rowsOffset += _rowsPerPage;
+              print(_rowsOffset.toString());
+            });
+          }
+        },
+        handlePrevious: () {
+          if (_rowsOffset > 0) {
+            setState(() {
+              _rowsOffset -= _rowsPerPage;
+              print(_rowsOffset.toString());
+            });
+          }
+        },
+        mobileIsLoading: CircularProgressIndicator(),
+        mobileItemBuilder: (context, index) {
+          return ExpansionTile(
+              leading: Text('${index + 1}'),
+              title: Text(
+                'ABC',
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ));
+        },
+        columns: [
+          DataColumn(label: Text('ID')),
+          DataColumn(label: Text('Name')),
+          DataColumn(label: Text('Email')),
+          DataColumn(label: Text('Phone #')),
+          DataColumn(label: Text('Roll #')),
+          DataColumn(label: Text('Image')),
+          DataColumn(label: Text('Action')),
+        ],
+        rows: List.generate(snapshot.data!.length, (index) {
+          Student? student = snapshot.data![index];
+          return students(student, index);
+        }),
       ),
-    );
+    ));
   }
 
   students(Student? student, index) {
@@ -482,7 +516,7 @@ class _StudentsWEBState extends State<StudentsWEB> {
           true, // this will return PlatformFile object with read stream
     )
         .then((value) {
-      setState(() {
+      myState(() {
         image = value!.files.single;
       });
     });

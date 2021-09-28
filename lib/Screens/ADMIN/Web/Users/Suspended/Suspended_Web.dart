@@ -1,8 +1,10 @@
+import 'package:data_tables/data_tables.dart';
 import 'package:flutter/material.dart';
 import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Screens/widget/Search_Field.dart';
 import 'package:quiz_app/Services/api_manager.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
+import 'package:quiz_app/WIdgets/network_error.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/size_config.dart';
 
@@ -14,6 +16,8 @@ class SuspendedWEB extends StatefulWidget {
 }
 
 class _SuspendedWEBState extends State<SuspendedWEB> {
+  int _rowsPerPage = 25;
+  int _rowsOffset = 0;
   String? search = '';
 
   Future<List<User>>? _userModel;
@@ -77,23 +81,26 @@ class _SuspendedWEBState extends State<SuspendedWEB> {
 
   Widget dataTable() {
     return Padding(
-      padding: const EdgeInsets.only(top: 30, bottom: 30),
+      padding: const EdgeInsets.only(top: 12, bottom: 20),
       child: Container(
         width: SizeConfig.screenWidth,
         height: SizeConfig.screenHeight,
         child: Card(
           child: Padding(
-            padding: EdgeInsets.only(
-              left: 10,
-              right: 10,
-              top: 50,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 10),
             child: FutureBuilder<List<User>>(
               future: _userModel,
               builder:
                   (BuildContext context, AsyncSnapshot<List<User>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting)
                   return MyLoading();
+                if (snapshot.data == null)
+                  return NetworkError(onPressed: () {
+                    setState(() {
+                      _userModel = APIManager().fetchSuspendedUserList(
+                          token: widget.loginResponse!.token);
+                    });
+                  });
                 return userList(snapshot.data!);
               },
             ),
@@ -104,22 +111,49 @@ class _SuspendedWEBState extends State<SuspendedWEB> {
   }
 
   userList(List<User> list) {
-    return SingleChildScrollView(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          columns: [
-            DataColumn(label: Text('ID')),
-            DataColumn(label: Text('Name')),
-            DataColumn(label: Text('Email')),
-            DataColumn(label: Text('Phone #')),
-            DataColumn(label: Text('Image')),
-            DataColumn(label: Text('Action')),
-          ],
-          rows: List.generate(list.length, (index) => user(list[index], index)),
-        ),
+    return Expanded(
+        child: Container(
+      height: MediaQuery.of(context).size.height / 1.1,
+      child: NativeDataTable(
+        rowsPerPage: _rowsPerPage,
+        firstRowIndex: _rowsOffset,
+        handleNext: () {
+          if (_rowsOffset + 25 < list.length) {
+            setState(() {
+              _rowsOffset += _rowsPerPage;
+              print(_rowsOffset.toString());
+            });
+          }
+        },
+        handlePrevious: () {
+          if (_rowsOffset > 0) {
+            setState(() {
+              _rowsOffset -= _rowsPerPage;
+              print(_rowsOffset.toString());
+            });
+          }
+        },
+        mobileIsLoading: CircularProgressIndicator(),
+        mobileItemBuilder: (context, index) {
+          return ExpansionTile(
+              leading: Text('${index + 1}'),
+              title: Text(
+                'ABC',
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ));
+        },
+        columns: [
+          DataColumn(label: Text('ID')),
+          DataColumn(label: Text('Name')),
+          DataColumn(label: Text('Email')),
+          DataColumn(label: Text('Phone #')),
+          DataColumn(label: Text('Image')),
+          DataColumn(label: Text('Action')),
+        ],
+        rows: List.generate(list.length, (index) => user(list[index], index)),
       ),
-    );
+    ));
   }
 
   user(User? user, index) {

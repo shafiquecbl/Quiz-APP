@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quiz_app/Screens/ADMIN/Main%20Page/action_button.dart';
 import 'package:quiz_app/Screens/ADMIN/home_page.dart';
+import 'package:quiz_app/Screens/Teacher/teacher_main.dart';
 import 'package:quiz_app/Screens/widget/Navigator.dart';
 import 'package:quiz_app/Services/api_manager.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
@@ -233,7 +234,10 @@ class _LogInState extends State<LogIn> {
           error = 'User Suspended';
         });
       } else {
-        pushAndRemoveUntil(context, HomePage(loginResponse: value));
+        value.user!.role == 'admin'
+            ? pushAndRemoveUntil(context, HomePage(loginResponse: value))
+            : pushAndRemoveUntil(
+                context, TeacherHomePage(loginResponse: value));
       }
     }).catchError((e) {
       Navigator.pop(context);
