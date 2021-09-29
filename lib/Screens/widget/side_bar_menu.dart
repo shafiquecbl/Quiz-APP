@@ -97,7 +97,7 @@ class _SideBarState extends State<SideBar> {
           },
         ),
         DrawerListTile(
-          title: 'Suspended',
+          title: 'All Users',
           onPressed: () {
             pageController.changePage(2);
           },

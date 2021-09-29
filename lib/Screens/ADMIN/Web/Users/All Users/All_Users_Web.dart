@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:data_tables/data_tables.dart';
 import 'package:flutter/material.dart';
 import 'package:quiz_app/Models/User.dart';
@@ -28,12 +29,19 @@ class _AllUsersWEBState extends State<AllUsersWEB> {
     super.initState();
   }
 
+  updatePage() {
+    setState(() {
+      _userModel =
+          APIManager().fetchAllUsers(token: widget.loginResponse!.token);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Suspended Users',
+        title: Text('Users',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600)),
         actions: [
           Padding(
@@ -45,7 +53,7 @@ class _AllUsersWEBState extends State<AllUsersWEB> {
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: Stack(
-          children: [dataTable(), headCard('Suspended Users List')],
+          children: [dataTable(), headCard('All Users')],
         ),
       ),
     );
@@ -145,6 +153,7 @@ class _AllUsersWEBState extends State<AllUsersWEB> {
         columns: [
           DataColumn(label: Text('ID')),
           DataColumn(label: Text('Name')),
+          DataColumn(label: Text('Role')),
           DataColumn(label: Text('Email')),
           DataColumn(label: Text('Phone #')),
           DataColumn(label: Text('Image')),
@@ -159,13 +168,36 @@ class _AllUsersWEBState extends State<AllUsersWEB> {
     return DataRow(cells: [
       DataCell(Text('$index')),
       DataCell(Text(user!.name.toString())),
+      DataCell(Text(user.role.toString())),
       DataCell(Text(user.email.toString())),
       DataCell(Text(user.phoneNumber.toString())),
-      DataCell(Text(user.role.toString())),
+      DataCell(Container(
+        margin: EdgeInsets.all(5),
+        width: 50,
+        height: 50,
+        child: CachedNetworkImage(
+          imageUrl: user.image.toString(),
+          fit: BoxFit.cover,
+          placeholder: (context, string) {
+            return Icon(Icons.image);
+          },
+        ),
+      )),
       DataCell(ElevatedButton(
-          style: ElevatedButton.styleFrom(primary: Colors.red),
-          onPressed: () {},
-          child: Text('AVTIVATE'))),
+          style: ElevatedButton.styleFrom(
+              primary: user.suspend == false ? Colors.red : Colors.green),
+          onPressed: () {
+            APIManager()
+                .suspendUser(
+                    token: widget.loginResponse!.token,
+                    id: user.id,
+                    suspend: user.suspend == true ? false : true)
+                .then((e) {
+              print(e.body);
+              updatePage();
+            });
+          },
+          child: Text(user.suspend == false ? 'ACTIVATE' : 'DEACTIVATE'))),
     ]);
   }
 }

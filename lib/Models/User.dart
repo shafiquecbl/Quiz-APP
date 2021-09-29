@@ -18,19 +18,29 @@ class User {
       this.name,
       this.phoneNumber,
       this.suspend,
+      this.image,
       this.updatedAt});
 
-  String? role, id, name, email, phoneNumber, gender, createdAt, updatedAt;
+  String? role,
+      id,
+      name,
+      email,
+      image,
+      phoneNumber,
+      gender,
+      createdAt,
+      updatedAt;
   bool? suspend;
 
   factory User.fromJson(Map<String, dynamic> json) => User(
       role: json['role'],
-      id: json['id'],
+      id: json['_id'],
       createdAt: json['createdAt'],
       updatedAt: json['updatedAt'],
       phoneNumber: json['phoneNumber'],
       email: json['email'],
       name: json['name'],
+      image: json['image'],
       suspend: json['suspend'],
       gender: json['gender']);
 }

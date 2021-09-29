@@ -6,6 +6,8 @@ import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Provider/provider.dart';
 import 'package:quiz_app/Screens/ADMIN/Main%20Page/Main_Page.dart';
 import 'package:quiz_app/Screens/ADMIN/home_page.dart';
+import 'package:quiz_app/Screens/STUDENT/Home/student_home.dart';
+import 'package:quiz_app/Screens/STUDENT/Main/student_main.dart';
 import 'package:quiz_app/Screens/Teacher/teacher_main.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/constants.dart';
@@ -37,33 +39,36 @@ class _MyAppState extends State<MyApp> {
             primaryColor: yellow,
             textTheme:
                 GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme)),
-        home: FutureBuilder<LoginResponse>(
+        home: FutureBuilder<StudentLoginResponse>(
           future: getResponse(),
-          builder:
-              (BuildContext context, AsyncSnapshot<LoginResponse> snapshot) {
+          builder: (BuildContext context,
+              AsyncSnapshot<StudentLoginResponse> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting)
               return MyLoading();
-            return snapshot.data != null && snapshot.data!.user!.role == 'admin'
-                ? HomePage(
-                    loginResponse:
-                        snapshot.data!) // data not null and roll is admin
+            return snapshot.data != null
+                ? StudentHome(loginResponse: snapshot.data!)
+                : StudentMainPage();
+            // snapshot.data != null && snapshot.data!.user!.role == 'admin'
+            //     ? HomePage(
+            //         loginResponse:
+            //             snapshot.data!) // data not null and roll is admin
 
-                : snapshot.data != null &&
-                        snapshot.data!.user!.role == 'teacher'
-                    ? TeacherHomePage(
-                        loginResponse:
-                            snapshot.data!) // data not null and roll is teacher
-                    : MainPage();
+            //     : snapshot.data != null &&
+            //             snapshot.data!.user!.role == 'teacher'
+            //         ? TeacherHomePage(
+            //             loginResponse:
+            //                 snapshot.data!) // data not null and roll is teacher
+            //         : MainPage();
           },
         ),
       ),
     );
   }
 
-  Future<LoginResponse> getResponse() async {
+  Future<StudentLoginResponse> getResponse() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String userPref = pref.getString('LoginResponse').toString();
     var jsonMap = json.decode(userPref);
-    return LoginResponse.fromJson(jsonMap);
+    return StudentLoginResponse.fromJson(jsonMap);
   }
 }

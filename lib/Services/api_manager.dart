@@ -404,7 +404,7 @@ class APIManager {
   }
 
   ///////////////////////////////////////////////////////
-  /////////////////////// SUSPENDED USER ////////////////
+  /////////////////////// ALL USER //////////////////////
   ///////////////////////////////////////////////////////
 
   Future<List<User>> fetchAllUsers({@required token}) async {
@@ -418,6 +418,18 @@ class APIManager {
           .toList();
       return jsonMap;
     });
+  }
+
+  Future<http.Response> suspendUser(
+      {@required String? token,
+      @required String? id,
+      @required bool? suspend}) async {
+    return await client
+        .put(Uri.parse('$baseUrl/admin/manage/updateUser/$id'), body: {
+      'suspend': '$suspend'
+    }, headers: {
+      'Authorization': 'Bearer $token',
+    }).then((value) => value);
   }
 
   ///////////////// ADD SUBADMIN ///////////////
@@ -908,10 +920,8 @@ class APIManager {
                 .toJson(),
             options: Options(headers: {
               'Authorization': 'Bearer $token',
-              "Content-Type": "application/json"
             }))
-        .then((value) => pushAndRemoveUntil(
-            context, StudentHome(loginResponse: loginResponse)));
+        .then((value) => print(value.data));
   }
 
   submitLastQuestion(BuildContext context, StudentLoginResponse loginResponse,

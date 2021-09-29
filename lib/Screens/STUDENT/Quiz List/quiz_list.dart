@@ -52,13 +52,15 @@ class _StudentQuizListWEBState extends State<StudentQuizListWEB> {
                     Quiz1 quiz = snapshot.data![index];
                     return CustomCard(
                         onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (builder) => QuizPage(
-                                        quiz: quiz,
-                                        loginResponse: widget.loginResponse,
-                                      )));
+                          print(quiz.quizName);
+                          print(quiz.id);
+                          // Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //         builder: (builder) => QuizPage(
+                          //               quiz: quiz,
+                          //               loginResponse: widget.loginResponse,
+                          //             )));
                         },
                         courseName: quiz.quizName);
                   }));

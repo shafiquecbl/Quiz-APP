@@ -125,6 +125,7 @@ class _QuizPageState extends State<QuizPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                Spacer(),
                 // activeStep == 0
                 //     ? Container()
                 //     : widget.quiz!.bound == 'perQuestion'
@@ -155,6 +156,7 @@ class _QuizPageState extends State<QuizPage> {
         onPressed: () {
           // Increment activeStep, when the next button is tapped. However, check for upper bound.
           if (activeStep < widget.quiz!.question!.length - 1) {
+            print(widget.quiz!.id);
             submitQuestion();
             setState(() {
               activeStep++; //move to next question
