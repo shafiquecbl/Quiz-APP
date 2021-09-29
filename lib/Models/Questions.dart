@@ -17,13 +17,13 @@ class Questions {
   String? id, questionStatement, type, answer, level;
   Subject? subject;
   Course? course;
-  List? questionImage;
+  List<String>? questionImage;
   List<QuestionOptions>? options;
 
   factory Questions.fromJson(Map<String, dynamic> json) => Questions(
       id: json['_id'],
       subject: Subject.fromJson(json['subject'][0]),
-      questionImage: List.from(json['questionImage'].map((x) => x)),
+      // questionImage: List<String>.from(json['questionImage'].map((x) => x)),
       questionStatement: json['questionStatement'],
       type: json['type'],
       answer: json['answer'],

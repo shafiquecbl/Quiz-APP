@@ -26,18 +26,19 @@ class Quiz {
   User? user;
 
   factory Quiz.fromJson(Map<String, dynamic> json) => Quiz(
-      id: json['_id'],
-      quizName: json['quizName'],
-      attempDate: json['attemptDate'],
-      subject: Subject.fromJson(json['subject'][0]),
-      level: json['level'][0],
-      public: json['public'],
-      course: Course.fromJson(json['course']),
-      time: json['time'],
-      bound: json['bound'],
-      user: User.fromJson(json['user']),
-      question: List<Question>.from(
-          json["question"].map((x) => Question.fromJson(x))));
+        id: json['_id'],
+        quizName: json['quizName'],
+        attempDate: json['attemptDate'],
+        subject: Subject.fromJson(json['subject'][0]),
+        level: json['level'][0],
+        public: json['public'],
+        course: Course.fromJson(json['course']),
+        time: json['time'],
+        bound: json['bound'],
+        user: User.fromJson(json['user']),
+        // question: List<Question>.from(
+        //     json["question"].map((x) => Question.fromJson(x)))
+      );
 }
 
 class AddQuiz {
@@ -73,8 +74,7 @@ class AddQuiz {
 
 class Question {
   Question(
-      {this.name,
-      this.attempDate,
+      {this.attempDate,
       this.options,
       this.subject,
       this.id,
@@ -88,7 +88,6 @@ class Question {
       this.questionImage});
 
   String? id,
-      name,
       attempDate,
       subject,
       questionStatement,
@@ -103,12 +102,9 @@ class Question {
 
   factory Question.fromJson(Map<String, dynamic> json) => Question(
       id: json['_id'],
-      name: json['name'],
       attempDate: json['attempDate'],
       subject: json['subject'][0],
-      questionImage: json['questionImage'] != null
-          ? List<String>.from(json['questionImage'].map((x) => x))
-          : null,
+      questionImage: List<String>.from(json['questionImage'].map((x) => x)),
       flag: json['flag'],
       questionStatement: json['questionStatement'],
       type: json['type'],

@@ -169,45 +169,45 @@ class _LogInState extends State<LogIn> {
                         SizedBox(
                           height: 20,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "You do not have an account?",
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 14,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 8,
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                widget.onSignUpSelected!();
-                              },
-                              child: Row(
-                                children: [
-                                  Text(
-                                    "Sign Up",
-                                    style: TextStyle(
-                                      color: yellow,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 8,
-                                  ),
-                                  Icon(
-                                    Icons.arrow_forward,
-                                    color: yellow,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                        // Row(
+                        //   mainAxisAlignment: MainAxisAlignment.center,
+                        //   children: [
+                        //     Text(
+                        //       "You do not have an account?",
+                        //       style: TextStyle(
+                        //         color: Colors.grey,
+                        //         fontSize: 14,
+                        //       ),
+                        //     ),
+                        //     SizedBox(
+                        //       width: 8,
+                        //     ),
+                        //     GestureDetector(
+                        //       onTap: () {
+                        //         widget.onSignUpSelected!();
+                        //       },
+                        //       child: Row(
+                        //         children: [
+                        //           Text(
+                        //             "Sign Up",
+                        //             style: TextStyle(
+                        //               color: yellow,
+                        //               fontSize: 14,
+                        //               fontWeight: FontWeight.bold,
+                        //             ),
+                        //           ),
+                        //           SizedBox(
+                        //             width: 8,
+                        //           ),
+                        //           Icon(
+                        //             Icons.arrow_forward,
+                        //             color: yellow,
+                        //           ),
+                        //         ],
+                        //       ),
+                        //     ),
+                        //   ],
+                        // ),
                       ],
                     ),
                   ),

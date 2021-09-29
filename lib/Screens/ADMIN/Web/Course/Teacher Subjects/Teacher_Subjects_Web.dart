@@ -221,7 +221,14 @@ class _TeacherSubjectsWEBState extends State<TeacherSubjectsWEB> {
                 child: Text('EDIT')),
             ElevatedButton(
                 style: ElevatedButton.styleFrom(primary: Colors.red),
-                onPressed: () {},
+                onPressed: () {
+                  APIManager()
+                      .deleteTeacherSubject(
+                          token: widget.loginResponse!.token, id: subject.id)
+                      .then((e) {
+                    updatePage();
+                  });
+                },
                 child: Text('DELETE'))
           ],
         ),

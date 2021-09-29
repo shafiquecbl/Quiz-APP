@@ -1,7 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:quiz_app/Screens/ADMIN/Login/login.dart';
-import 'package:quiz_app/Screens/ADMIN/Main%20Page/constants.dart';
-import 'package:quiz_app/Screens/ADMIN/Signup/signup.dart';
+import 'package:quiz_app/common/app_responsive.dart';
 import 'package:quiz_app/constants.dart';
 
 class MainPage extends StatefulWidget {
@@ -10,8 +11,6 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  Option selectedOption = Option.LogIn;
-
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -49,33 +48,35 @@ class _MainPageState extends State<MainPage> {
                 ),
               ),
             ),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.all(32),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "QUIZ APP",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
+            AppResponsive.isDesktop(context)
+                ? Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: EdgeInsets.all(32),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "QUIZ APP",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            "It's easy and takes less than 30 seconds",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    Text(
-                      "It's easy and takes less than 30 seconds",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+                  )
+                : Container(),
             Align(
               alignment: Alignment.bottomRight,
               child: Padding(
@@ -103,36 +104,16 @@ class _MainPageState extends State<MainPage> {
               ),
             ),
             AnimatedSwitcher(
-              duration: Duration(milliseconds: 500),
-
-              //Animation 1
-              //transitionBuilder: (widget, animation) => RotationTransition(
-              //  turns: animation,
-              //  child: widget,
-              //),
-              //switchOutCurve: Curves.easeInOutCubic,
-              //switchInCurve: Curves.fastLinearToSlowEaseIn,
-
-              //Animation 2
-              transitionBuilder: (widget, animation) =>
-                  ScaleTransition(child: widget, scale: animation),
-
-              child: selectedOption == Option.LogIn
-                  ? LogIn(
-                      onSignUpSelected: () {
-                        setState(() {
-                          selectedOption = Option.SignUp;
-                        });
-                      },
-                    )
-                  : SignUp(
-                      onLogInSelected: () {
-                        setState(() {
-                          selectedOption = Option.LogIn;
-                        });
-                      },
-                    ),
-            ),
+                duration: Duration(milliseconds: 500),
+                transitionBuilder: (widget, animation) =>
+                    ScaleTransition(child: widget, scale: animation),
+                child: LogIn(
+                  onSignUpSelected: () {
+                    // setState(() {
+                    //   selectedOption = Option.SignUp;
+                    // });
+                  },
+                )),
           ],
         ),
       ),

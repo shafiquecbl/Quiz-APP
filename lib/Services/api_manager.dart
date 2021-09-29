@@ -407,8 +407,8 @@ class APIManager {
   /////////////////////// SUSPENDED USER ////////////////
   ///////////////////////////////////////////////////////
 
-  Future<List<User>> fetchSuspendedUserList({@required token}) async {
-    return await client.get(Uri.parse('$baseUrl/admin/manage/suspendUsers'),
+  Future<List<User>> fetchAllUsers({@required token}) async {
+    return await client.get(Uri.parse('$baseUrl/admin/manage/getAllUsers'),
         headers: {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
@@ -549,7 +549,7 @@ class APIManager {
   }
 
   deleteTeacherSubject({@required token, @required id}) async {
-    return await dio.delete('$baseUrl/admin/manage/deleteTeacher/$id',
+    return await dio.delete('$baseUrl/admin/manage/deleteTeacherSubejcts/$id',
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
@@ -604,6 +604,7 @@ class APIManager {
       'Authorization': 'Bearer $token',
       "Content-Type": "application/json"
     }).then((response) async {
+      print(response.body);
       List<Questions> jsonMap = (json.decode(response.body) as List)
           .map((e) => Questions.fromJson(e))
           .toList();

@@ -6,6 +6,7 @@ import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Screens/widget/Search_Field.dart';
 import 'package:quiz_app/Screens/widget/head_card.dart';
 import 'package:quiz_app/Services/api_manager.dart';
+import 'package:quiz_app/WIdgets/Custom_Data.dart';
 import 'package:quiz_app/WIdgets/Custom_Error.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/WIdgets/network_error.dart';
@@ -191,13 +192,56 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
             },
             mobileIsLoading: CircularProgressIndicator(),
             mobileItemBuilder: (context, index) {
-              return ExpansionTile(
-                  leading: Text('${index + 1}'),
-                  title: Text(
-                    list[index].questionStatement.toString(),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ));
+              return index == 0
+                  ? Padding(
+                      padding: const EdgeInsets.only(top: 70),
+                      child: Card(
+                        child: ExpansionTile(
+                          leading: Text('${index + 1}'),
+                          title: Text(
+                            list[index].questionStatement.toString(),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          children: [
+                            TextHead(heading: 'TYPE'),
+                            TextData(data: list[index].type.toString()),
+                            TextHead(heading: 'Level'),
+                            TextData(data: list[index].level.toString()),
+                            TextHead(heading: 'Subject'),
+                            TextData(
+                                data: list[index]
+                                    .subject!
+                                    .subjectName
+                                    .toString()),
+                            TextHead(heading: 'Course'),
+                            TextData(data: list[index].course!.name.toString()),
+                          ],
+                        ),
+                      ),
+                    )
+                  : Card(
+                      child: ExpansionTile(
+                        leading: Text('${index + 1}'),
+                        title: Text(
+                          list[index].questionStatement.toString(),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        children: [
+                          TextHead(heading: 'TYPE'),
+                          TextData(data: list[index].type.toString()),
+                          TextHead(heading: 'Level'),
+                          TextData(data: list[index].level.toString()),
+                          TextHead(heading: 'Subject'),
+                          TextData(
+                              data:
+                                  list[index].subject!.subjectName.toString()),
+                          TextHead(heading: 'Course'),
+                          TextData(data: list[index].course!.name.toString()),
+                        ],
+                      ),
+                    );
             },
             columns: [
               DataColumn(label: Text('ID')),
@@ -435,6 +479,7 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
   pickImage() async {
     await FilePicker.platform
         .pickFiles(
+      allowMultiple: true,
       withReadStream:
           true, // this will return PlatformFile object with read stream
     )

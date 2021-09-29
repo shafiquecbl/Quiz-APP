@@ -8,14 +8,14 @@ import 'package:quiz_app/WIdgets/network_error.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/size_config.dart';
 
-class SuspendedWEB extends StatefulWidget {
+class AllUsersWEB extends StatefulWidget {
   final LoginResponse? loginResponse;
-  SuspendedWEB({@required this.loginResponse});
+  AllUsersWEB({@required this.loginResponse});
   @override
-  _SuspendedWEBState createState() => _SuspendedWEBState();
+  _AllUsersWEBState createState() => _AllUsersWEBState();
 }
 
-class _SuspendedWEBState extends State<SuspendedWEB> {
+class _AllUsersWEBState extends State<AllUsersWEB> {
   int _rowsPerPage = 25;
   int _rowsOffset = 0;
   String? search = '';
@@ -24,8 +24,7 @@ class _SuspendedWEBState extends State<SuspendedWEB> {
 
   @override
   void initState() {
-    _userModel =
-        APIManager().fetchSuspendedUserList(token: widget.loginResponse!.token);
+    _userModel = APIManager().fetchAllUsers(token: widget.loginResponse!.token);
     super.initState();
   }
 
@@ -97,8 +96,8 @@ class _SuspendedWEBState extends State<SuspendedWEB> {
                 if (snapshot.data == null)
                   return NetworkError(onPressed: () {
                     setState(() {
-                      _userModel = APIManager().fetchSuspendedUserList(
-                          token: widget.loginResponse!.token);
+                      _userModel = APIManager()
+                          .fetchAllUsers(token: widget.loginResponse!.token);
                     });
                   });
                 return userList(snapshot.data!);

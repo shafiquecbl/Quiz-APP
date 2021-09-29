@@ -613,13 +613,14 @@ class _QuizWEBState extends State<QuizWEB> {
         width: SizeConfig.screenWidth! / 4,
         child: DropdownButtonFormField(
           onSaved: (value) {
+            clearThis();
             courseId = value.toString();
 
             getSubjects();
           },
           onChanged: (value) {
+            clearThis();
             courseId = value.toString();
-
             getSubjects();
           },
           decoration: InputDecoration(
@@ -634,6 +635,15 @@ class _QuizWEBState extends State<QuizWEB> {
             );
           }).toList(),
         ));
+  }
+
+  clearThis() {
+    myState!(() {
+      isLoad = false;
+      subjectId = null;
+      questionsList!.clear();
+      questionsMenu.clear();
+    });
   }
 
   Widget selectSubjectField() {

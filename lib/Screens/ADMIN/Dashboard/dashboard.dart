@@ -4,7 +4,6 @@ import 'package:quiz_app/Screens/ADMIN/Mobile/Course/Courses/Courses_Mobile.dart
 import 'package:quiz_app/Screens/ADMIN/Mobile/Course/Enroll%20Students/enroll_students_Mobile.dart';
 import 'package:quiz_app/Screens/ADMIN/Mobile/Course/Subjects/Subjects_Mobile.dart';
 import 'package:quiz_app/Screens/ADMIN/Mobile/Course/Teacher%20Subjects/Teacher_Subjects_Mobile.dart';
-import 'package:quiz_app/Screens/ADMIN/Mobile/Quiz/Questions/Questions_Mobile.dart';
 import 'package:quiz_app/Screens/ADMIN/Mobile/Quiz/Quizs/quiz_Mobile.dart';
 import 'package:quiz_app/Screens/ADMIN/Mobile/Users/Students/Students_Mobile.dart';
 import 'package:quiz_app/Screens/ADMIN/Mobile/Users/Sub%20Admin/Sub_Admin_Mobile.dart';
@@ -16,9 +15,9 @@ import 'package:quiz_app/Screens/ADMIN/Web/Course/Subjects/Subjects_Web.dart';
 import 'package:quiz_app/Screens/ADMIN/Web/Course/Teacher%20Subjects/Teacher_Subjects_Web.dart';
 import 'package:quiz_app/Screens/ADMIN/Web/Quiz/Questions/Questions_Web.dart';
 import 'package:quiz_app/Screens/ADMIN/Web/Quiz/Quizs/Quiz_Web.dart';
+import 'package:quiz_app/Screens/ADMIN/Web/Users/All%20Users/All_Users_Web.dart';
 import 'package:quiz_app/Screens/ADMIN/Web/Users/Students/Students_Web.dart';
 import 'package:quiz_app/Screens/ADMIN/Web/Users/Sub%20Admin/Sub_Admin_Web.dart';
-import 'package:quiz_app/Screens/ADMIN/Web/Users/Suspended/Suspended_Web.dart';
 import 'package:quiz_app/Screens/ADMIN/Web/Users/Teachers/Teachers_Web.dart';
 import 'package:quiz_app/common/app_responsive.dart';
 import 'package:quiz_app/controllers/page_controller.dart';
@@ -44,7 +43,7 @@ class _DashboardState extends State<Dashboard> {
             ? TeachersWEB(loginResponse: widget.loginResponse)
             : TeachersMobile(),
         AppResponsive.isDesktop(context)
-            ? SuspendedWEB(loginResponse: widget.loginResponse)
+            ? AllUsersWEB(loginResponse: widget.loginResponse)
             : SuspendedMobile(),
         AppResponsive.isDesktop(context)
             ? SubAdminWEB(loginResponse: widget.loginResponse)
