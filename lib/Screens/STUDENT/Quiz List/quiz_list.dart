@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quiz_app/Models/Student/Quiz.dart';
+import 'package:quiz_app/Models/Student/solved_quiz.dart';
 import 'package:quiz_app/Models/Student/student_subjects.dart';
 import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Provider/provider.dart';
@@ -22,6 +23,40 @@ class StudentQuizListWEB extends StatefulWidget {
 
 class _StudentQuizListWEBState extends State<StudentQuizListWEB> {
   MyPageController pageController = MyPageController();
+  late List<Quiz1> subjectQuiz;
+  List<Quiz1> quizList = [];
+  List<String> idList = [];
+  bool isLoaded = false;
+
+  @override
+  void initState() {
+    getStudentQuiz();
+    super.initState();
+  }
+
+  getStudentQuiz() {
+    APIManager()
+        .getStudentQuiz(
+            token: widget.loginResponse!.token,
+            id: widget.loginResponse!.user!.id)
+        .then((value) {
+      for (var quiz in value) {
+        idList.add(quiz.quizName!);
+      }
+      getSubjectQuiz();
+    });
+  }
+
+  getSubjectQuiz() {
+    APIManager()
+        .getSubjectQuizs(
+            token: widget.loginResponse!.token, id: widget.subject!.id)
+        .then((value) {
+      subjectQuiz = value;
+      filterList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<CustomProvier>(builder: (context, provider, child) {
@@ -32,42 +67,49 @@ class _StudentQuizListWEBState extends State<StudentQuizListWEB> {
         ),
         body: Padding(
           padding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
-          child: FutureBuilder<List<Quiz1>>(
-            future: APIManager().getSubjectQuizs(
-                token: widget.loginResponse!.token, id: widget.subject!.id),
-            builder:
-                (BuildContext context, AsyncSnapshot<List<Quiz1>> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting)
-                return MyLoading();
-              if (snapshot.data!.length == 0)
-                return Center(
-                  child: Text('No Quiz in this subject!'),
-                );
-              return GridView.count(
-                  crossAxisCount: AppResponsive.isMobile(context) ? 2 : 5,
-                  mainAxisSpacing: 20,
-                  crossAxisSpacing: 25,
-                  childAspectRatio: 1.4,
-                  children: List.generate(snapshot.data!.length, (index) {
-                    Quiz1 quiz = snapshot.data![index];
-                    return CustomCard(
-                        onPressed: () {
-                          print(quiz.quizName);
-                          print(quiz.id);
-                          // Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //         builder: (builder) => QuizPage(
-                          //               quiz: quiz,
-                          //               loginResponse: widget.loginResponse,
-                          //             )));
-                        },
-                        courseName: quiz.quizName);
-                  }));
-            },
-          ),
+          child: isLoaded == false
+              ? MyLoading()
+              : quizList.isEmpty
+                  ? Center(
+                      child: Text('No quiz available right now!'),
+                    )
+                  : GridView.count(
+                      crossAxisCount: AppResponsive.isMobile(context) ? 2 : 5,
+                      mainAxisSpacing: 20,
+                      crossAxisSpacing: 25,
+                      childAspectRatio: 1.4,
+                      children: List.generate(quizList.length, (index) {
+                        Quiz1 quiz = quizList[index];
+                        return CustomCard(
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (builder) => QuizPage(
+                                            quiz: quiz,
+                                            loginResponse: widget.loginResponse,
+                                          )));
+                            },
+                            courseName: quiz.quizName);
+                      })),
         ),
       );
+    });
+  }
+
+  filterList() {
+    subjectQuiz.forEach((quiz) {
+      print('1: ${quiz.id}');
+      if (idList.contains(quiz.id) == true) {
+        setState(() {
+          isLoaded = true;
+        });
+      } else {
+        setState(() {
+          isLoaded = true;
+          quizList.add(quiz);
+        });
+      }
     });
   }
 }

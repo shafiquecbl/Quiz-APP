@@ -11,6 +11,7 @@ import 'package:quiz_app/Models/Questions.dart';
 import 'package:quiz_app/Models/Quiz.dart';
 import 'package:quiz_app/Models/Student.dart';
 import 'package:quiz_app/Models/Student/Quiz.dart';
+import 'package:quiz_app/Models/Student/solved_quiz.dart';
 import 'package:quiz_app/Models/Student/student_courses.dart';
 import 'package:quiz_app/Models/Student/student_subjects.dart';
 import 'package:quiz_app/Models/Student/submit_quiz.dart';
@@ -942,6 +943,20 @@ class APIManager {
             }))
         .then((value) => pushAndRemoveUntil(
             context, StudentHome(loginResponse: loginResponse)));
+  }
+
+  Future<List<SolvedQuiz>> getStudentQuiz(
+      {@required token, @required String? id}) async {
+    return await client.get(
+        Uri.parse('$baseUrl/api/solvedQuizData/getQuizStudent/$id'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        }).then((response) async {
+      List<SolvedQuiz> jsonMap = (json.decode(response.body) as List)
+          .map((e) => SolvedQuiz.fromJson(e))
+          .toList();
+      return jsonMap;
+    });
   }
 
   ///////////////////////////////////////////////////////

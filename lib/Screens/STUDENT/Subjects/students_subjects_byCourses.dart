@@ -7,6 +7,7 @@ import 'package:quiz_app/Provider/provider.dart';
 import 'package:quiz_app/Screens/widget/custom_card.dart';
 import 'package:quiz_app/Services/api_manager.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
+import 'package:quiz_app/WIdgets/network_error.dart';
 import 'package:quiz_app/common/app_responsive.dart';
 import 'package:quiz_app/controllers/page_controller.dart';
 
@@ -21,6 +22,19 @@ class StudentSubjectsWEB extends StatefulWidget {
 
 class _StudentSubjectsWEBState extends State<StudentSubjectsWEB> {
   MyPageController pageController = MyPageController();
+  Future<List<StudentSubject>>? subjectModel;
+
+  @override
+  void initState() {
+    getSubjects();
+    super.initState();
+  }
+
+  getSubjects() {
+    subjectModel = APIManager().getStudentSubjects(
+        token: widget.loginResponse!.token, id: widget.course!.course!.id);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<CustomProvier>(builder: (context, provider, child) {
@@ -32,17 +46,20 @@ class _StudentSubjectsWEBState extends State<StudentSubjectsWEB> {
         body: Padding(
           padding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
           child: FutureBuilder<List<StudentSubject>>(
-            future: APIManager().getStudentSubjects(
-                token: widget.loginResponse!.token,
-                id: widget.course!.course!.id),
+            future: subjectModel,
             builder: (BuildContext context,
                 AsyncSnapshot<List<StudentSubject>> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting)
                 return MyLoading();
+              if (snapshot.data == null)
+                return NetworkError(onPressed: () {
+                  updatePage();
+                });
               if (snapshot.data!.length == 0)
                 return Center(
                   child: Text('No Subjects in this course!'),
                 );
+
               return GridView.count(
                   crossAxisCount: AppResponsive.isMobile(context) ? 2 : 5,
                   mainAxisSpacing: 20,
@@ -62,6 +79,13 @@ class _StudentSubjectsWEBState extends State<StudentSubjectsWEB> {
           ),
         ),
       );
+    });
+  }
+
+  updatePage() {
+    setState(() {
+      subjectModel = APIManager().getStudentSubjects(
+          token: widget.loginResponse!.token, id: widget.course!.course!.id);
     });
   }
 }
