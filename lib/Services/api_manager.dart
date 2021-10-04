@@ -963,6 +963,7 @@ class APIManager {
         headers: {
           'Authorization': 'Bearer $token',
         }).then((response) async {
+      print(response.body);
       List<SolvedQuiz> jsonMap = (json.decode(response.body) as List)
           .map((e) => SolvedQuiz.fromJson(e))
           .toList();

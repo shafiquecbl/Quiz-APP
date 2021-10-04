@@ -39,36 +39,36 @@ class _MyAppState extends State<MyApp> {
             primaryColor: yellow,
             textTheme:
                 GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme)),
-        home: FutureBuilder<StudentLoginResponse>(
+        home: FutureBuilder<LoginResponse>(
           future: getResponse(),
-          builder: (BuildContext context,
-              AsyncSnapshot<StudentLoginResponse> snapshot) {
+          builder:
+              (BuildContext context, AsyncSnapshot<LoginResponse> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting)
               return MyLoading();
-            return snapshot.data != null
-                ? StudentHome(loginResponse: snapshot.data!)
-                : StudentMainPage();
-            // snapshot.data != null && snapshot.data!.user!.role == 'admin'
-            //     ? HomePage(
-            //         loginResponse:
-            //             snapshot.data!) // data not null and roll is admin
+            // return snapshot.data != null
+            //     ? StudentHome(loginResponse: snapshot.data!)
+            //     : StudentMainPage();
+            return snapshot.data != null && snapshot.data!.user!.role == 'admin'
+                ? HomePage(
+                    loginResponse:
+                        snapshot.data!) // data not null and roll is admin
 
-            //     : snapshot.data != null &&
-            //             snapshot.data!.user!.role == 'teacher'
-            //         ? TeacherHomePage(
-            //             loginResponse:
-            //                 snapshot.data!) // data not null and roll is teacher
-            //         : MainPage();
+                : snapshot.data != null &&
+                        snapshot.data!.user!.role == 'teacher'
+                    ? TeacherHomePage(
+                        loginResponse:
+                            snapshot.data!) // data not null and roll is teacher
+                    : MainPage();
           },
         ),
       ),
     );
   }
 
-  Future<StudentLoginResponse> getResponse() async {
+  Future<LoginResponse> getResponse() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String userPref = pref.getString('LoginResponse').toString();
     var jsonMap = json.decode(userPref);
-    return StudentLoginResponse.fromJson(jsonMap);
+    return LoginResponse.fromJson(jsonMap);
   }
 }

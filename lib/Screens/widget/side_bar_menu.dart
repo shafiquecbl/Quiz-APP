@@ -46,6 +46,7 @@ class _SideBarState extends State<SideBar> {
                     userTile(),
                     courseTile(),
                     quizTile(),
+                    scoreBoardTile()
                   ],
                 ),
               ),
@@ -177,6 +178,24 @@ class _SideBarState extends State<SideBar> {
           },
         ),
       ],
+    );
+  }
+
+  Widget scoreBoardTile() {
+    return Container(
+      color: complexDrawerBlueGrey,
+      child: ListTile(
+          onTap: () {
+            pageController.changePage(10);
+          },
+          title: Text(
+            'SCORE BOARD',
+            style: TextStyle(color: Colors.white),
+          ),
+          leading: Icon(
+            Icons.score_outlined,
+            color: Colors.white,
+          )),
     );
   }
 }

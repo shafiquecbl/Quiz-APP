@@ -10,6 +10,7 @@ class CustomProvier extends ChangeNotifier {
   int? getRemainingTime() => remainingTime;
 
   SolvedQuiz? solvedQuiz;
+  String? studentId;
 
   saveStudentCourse({@required StudentCourse? studentCourse}) {
     course = studentCourse;
@@ -30,6 +31,11 @@ class CustomProvier extends ChangeNotifier {
 
   saveSolvedQuiz({@required SolvedQuiz? quiz}) {
     solvedQuiz = quiz;
+    notifyListeners();
+  }
+
+  saveStudentId({@required String? id}) {
+    studentId = id;
     notifyListeners();
   }
 }

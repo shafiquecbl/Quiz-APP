@@ -9,20 +9,22 @@ import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/WIdgets/network_error.dart';
 import 'package:quiz_app/controllers/page_controller.dart';
 
-class StudentScoreBoard extends StatefulWidget {
-  final StudentLoginResponse? loginResponse;
-  StudentScoreBoard({@required this.loginResponse});
+class ScoreBoardWEB extends StatefulWidget {
+  final LoginResponse? loginResponse;
+
+  ScoreBoardWEB({@required this.loginResponse});
   @override
-  _StudentScoreBoardState createState() => _StudentScoreBoardState();
+  _ScoreBoardWEBState createState() => _ScoreBoardWEBState();
 }
 
-class _StudentScoreBoardState extends State<StudentScoreBoard> {
+class _ScoreBoardWEBState extends State<ScoreBoardWEB> {
   int _rowsPerPage = 25;
   int _rowsOffset = 0;
 
   MyPageController pageController = MyPageController();
 
   Future<List<SolvedQuiz>>? solvedQuiz;
+  CustomProvier? provier;
 
   @override
   void initState() {
@@ -31,9 +33,10 @@ class _StudentScoreBoardState extends State<StudentScoreBoard> {
   }
 
   getStudentQuiz() {
-    print(widget.loginResponse!.user!.id);
+    provier = Provider.of<CustomProvier>(context, listen: false);
+    print(provier!.studentId);
     solvedQuiz = APIManager().getStudentQuiz(
-        token: widget.loginResponse!.token, id: widget.loginResponse!.user!.id);
+        token: widget.loginResponse!.token, id: provier!.studentId);
   }
 
   @override
@@ -56,8 +59,7 @@ class _StudentScoreBoardState extends State<StudentScoreBoard> {
             return NetworkError(onPressed: () {
               setState(() {
                 solvedQuiz = APIManager().getStudentQuiz(
-                    token: widget.loginResponse!.token,
-                    id: widget.loginResponse!.user!.id);
+                    token: widget.loginResponse!.token, id: provier!.studentId);
               });
             });
 
@@ -140,7 +142,7 @@ class _StudentScoreBoardState extends State<StudentScoreBoard> {
                 style: ElevatedButton.styleFrom(primary: Colors.green),
                 onPressed: () {
                   provider.saveSolvedQuiz(quiz: quiz);
-                  pageController.changePage(4);
+                  pageController.changePage(12);
                 },
                 icon: Icon(Icons.view_list_outlined),
                 label: Text('View')),

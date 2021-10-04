@@ -8,6 +8,7 @@ import 'package:quiz_app/Screens/widget/Search_Field.dart';
 import 'package:quiz_app/Screens/widget/head_card.dart';
 import 'package:quiz_app/Services/api_manager.dart';
 import 'package:quiz_app/WIdgets/Custom_Error.dart';
+import 'package:quiz_app/WIdgets/alert_dialog.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/WIdgets/network_error.dart';
 import 'package:quiz_app/constants.dart';
@@ -196,11 +197,30 @@ class _TeachersWEBState extends State<TeachersWEB> {
             ElevatedButton(
                 style: ElevatedButton.styleFrom(primary: Colors.red),
                 onPressed: () {
-                  APIManager()
-                      .deleteTeacher(
-                          token: widget.loginResponse!.token, id: teacher.id)
-                      .then((value) {
-                    updatePage();
+                  //show alert dialog
+                  customDialog(context,
+                      title: 'Delete User!',
+                      content: 'Do you want to delete ${teacher.name}?',
+                      onPressed1: () {
+                    Navigator.pop(context);
+                    // delete user permanently
+                    APIManager()
+                        .deleteTeacher(
+                            token: widget.loginResponse!.token, id: teacher.id)
+                        .then((value) {
+                      updatePage();
+                    });
+                  }, onPressed2: () {
+                    Navigator.pop(context);
+                    // suspend user
+                    APIManager()
+                        .suspendUser(
+                            token: widget.loginResponse!.token,
+                            id: teacher.id,
+                            suspend: true)
+                        .then((e) {
+                      updatePage();
+                    });
                   });
                 },
                 child: Text('DELETE'))
