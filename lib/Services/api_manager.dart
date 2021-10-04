@@ -21,13 +21,14 @@ import 'package:quiz_app/Models/Teacher_Subject.dart';
 import 'package:quiz_app/Models/Teachers.dart';
 import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Screens/STUDENT/Home/student_home.dart';
+import 'package:quiz_app/Screens/STUDENT/Score%20Board/quiz_details.dart';
 import 'package:quiz_app/Screens/widget/Navigator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class APIManager {
   var client = http.Client();
   var loginResponse;
-  String baseUrl = 'http://192.168.100.111:4000';
+  String baseUrl = 'http://192.168.100.84:4000';
   Dio dio = Dio();
 
   ///////////////////////////////////////////////////////////
@@ -941,8 +942,18 @@ class APIManager {
               'Authorization': 'Bearer $token',
               "Content-Type": "application/json"
             }))
-        .then((value) => pushAndRemoveUntil(
-            context, StudentHome(loginResponse: loginResponse)));
+        .then((value) {
+      var jsonMap = json.decode(value.data);
+      SolvedQuiz solvedQuiz = SolvedQuiz.fromJson(jsonMap);
+
+      pushAndRemoveUntil(
+          context,
+          QuizDetails(
+            solvedQuiz: solvedQuiz,
+            loginResponse: loginResponse,
+            isVisible: true,
+          ));
+    });
   }
 
   Future<List<SolvedQuiz>> getStudentQuiz(
@@ -956,6 +967,18 @@ class APIManager {
           .map((e) => SolvedQuiz.fromJson(e))
           .toList();
       return jsonMap;
+    });
+  }
+
+  Future<Quiz1> getQuizById({@required token, @required String? id}) async {
+    return await client.get(Uri.parse('$baseUrl/admin/quiz/getQuiz/$id'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          "Content-Type": "application/json"
+        }).then((response) async {
+      var jsonMap = json.decode(response.body);
+      Quiz1 quiz = Quiz1.fromJson(jsonMap);
+      return quiz;
     });
   }
 

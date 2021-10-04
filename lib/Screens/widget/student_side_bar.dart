@@ -80,9 +80,7 @@ class _StudentSideBarState extends State<StudentSideBar> {
               ),
               Expanded(
                 child: ListView(
-                  children: [
-                    homeTile(),
-                  ],
+                  children: [homeTile(), scoreTile()],
                 ),
               ),
               SizedBox(height: 20),
@@ -116,6 +114,24 @@ class _StudentSideBarState extends State<StudentSideBar> {
           ),
           leading: Icon(
             Icons.home,
+            color: yellow,
+          )),
+    );
+  }
+
+  Widget scoreTile() {
+    return Container(
+      color: complexDrawerBlueGrey,
+      child: ListTile(
+          onTap: () {
+            pageController.changePage(3);
+          },
+          title: Text(
+            'Score Board',
+            style: TextStyle(color: white),
+          ),
+          leading: Icon(
+            Icons.score_outlined,
             color: yellow,
           )),
     );

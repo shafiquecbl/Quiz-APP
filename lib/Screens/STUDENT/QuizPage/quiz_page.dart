@@ -185,9 +185,6 @@ class _QuizPageState extends State<QuizPage> {
       height: 40,
       child: ElevatedButton(
         onPressed: () {
-          print(correctAnswer);
-          print(currentQuestion!.id);
-
           ///submit whole quiz
           APIManager().submitLastQuestion(context, widget.loginResponse!,
               token: widget.loginResponse!.token,

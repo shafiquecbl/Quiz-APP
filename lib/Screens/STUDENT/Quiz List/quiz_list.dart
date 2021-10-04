@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quiz_app/Models/Student/Quiz.dart';
-import 'package:quiz_app/Models/Student/solved_quiz.dart';
 import 'package:quiz_app/Models/Student/student_subjects.dart';
 import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Provider/provider.dart';
