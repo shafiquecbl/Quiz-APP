@@ -24,7 +24,6 @@ import 'package:quiz_app/Screens/ADMIN/Web/Users/All%20Users/All_Users_Web.dart'
 import 'package:quiz_app/Screens/ADMIN/Web/Users/Students/Students_Web.dart';
 import 'package:quiz_app/Screens/ADMIN/Web/Users/Sub%20Admin/Sub_Admin_Web.dart';
 import 'package:quiz_app/Screens/ADMIN/Web/Users/Teachers/Teachers_Web.dart';
-import 'package:quiz_app/common/app_responsive.dart';
 import 'package:quiz_app/controllers/page_controller.dart';
 
 class Dashboard extends StatefulWidget {
@@ -43,39 +42,55 @@ class _DashboardState extends State<Dashboard> {
           physics: new NeverScrollableScrollPhysics(),
           controller: MyPageController.controller,
           children: [
-            AppResponsive.isDesktop(context)
-                ? StudentsWEB(loginResponse: widget.loginResponse)
-                : StudentsMobile(),
-            AppResponsive.isDesktop(context)
-                ? TeachersWEB(loginResponse: widget.loginResponse)
-                : TeachersMobile(),
-            AppResponsive.isDesktop(context)
-                ? AllUsersWEB(loginResponse: widget.loginResponse)
-                : SuspendedMobile(),
-            AppResponsive.isDesktop(context)
-                ? SubAdminWEB(loginResponse: widget.loginResponse)
-                : SubAdminMobile(),
-            AppResponsive.isDesktop(context)
-                ? CoursesWEB(
-                    loginResponse: widget.loginResponse,
-                  )
-                : CoursesMobile(),
-            AppResponsive.isDesktop(context)
-                ? SubjectsWEB(
-                    loginResponse: widget.loginResponse,
-                  )
-                : SubjectsMobile(),
-            AppResponsive.isDesktop(context)
-                ? TeacherSubjectsWEB(loginResponse: widget.loginResponse)
-                : TeacherSubjectsMobile(),
-            AppResponsive.isDesktop(context)
-                ? EnrollStudentsWEB(
-                    loginResponse: widget.loginResponse,
-                  )
-                : EnrollStudentsMobile(),
-            AppResponsive.isDesktop(context)
-                ? QuizWEB(loginResponse: widget.loginResponse)
-                : QuizMobile(),
+            // AppResponsive.isDesktop(context)
+            //     ? StudentsWEB(loginResponse: widget.loginResponse)
+            //     : StudentsMobile(),
+            // AppResponsive.isDesktop(context)
+            //     ? TeachersWEB(loginResponse: widget.loginResponse)
+            //     : TeachersMobile(),
+            // AppResponsive.isDesktop(context)
+            //     ? AllUsersWEB(loginResponse: widget.loginResponse)
+            //     : SuspendedMobile(),
+            // AppResponsive.isDesktop(context)
+            //     ? SubAdminWEB(loginResponse: widget.loginResponse)
+            //     : SubAdminMobile(),
+            // AppResponsive.isDesktop(context)
+            //     ? CoursesWEB(
+            //         loginResponse: widget.loginResponse,
+            //       )
+            //     : CoursesMobile(),
+
+            // AppResponsive.isDesktop(context)
+            //     ? SubjectsWEB(
+            //         loginResponse: widget.loginResponse,
+            //       )
+            //     : SubjectsMobile(),
+            // AppResponsive.isDesktop(context)
+            //     ? TeacherSubjectsWEB(loginResponse: widget.loginResponse)
+            //     : TeacherSubjectsMobile(),
+            // AppResponsive.isDesktop(context)
+            //     ? EnrollStudentsWEB(
+            //         loginResponse: widget.loginResponse,
+            //       )
+            //     : EnrollStudentsMobile(),
+            // AppResponsive.isDesktop(context)
+            //     ? QuizWEB(loginResponse: widget.loginResponse)
+            //     : QuizMobile(),
+            StudentsWEB(loginResponse: widget.loginResponse),
+            TeachersWEB(loginResponse: widget.loginResponse),
+            AllUsersWEB(loginResponse: widget.loginResponse),
+            SubAdminWEB(loginResponse: widget.loginResponse),
+            CoursesWEB(
+              loginResponse: widget.loginResponse,
+            ),
+            SubjectsWEB(
+              loginResponse: widget.loginResponse,
+            ),
+            TeacherSubjectsWEB(loginResponse: widget.loginResponse),
+            EnrollStudentsWEB(
+              loginResponse: widget.loginResponse,
+            ),
+            QuizWEB(loginResponse: widget.loginResponse),
             QuestionsWEB(loginResponse: widget.loginResponse),
             StudentsListWEB(loginResponse: widget.loginResponse),
             ScoreBoardWEB(loginResponse: widget.loginResponse),

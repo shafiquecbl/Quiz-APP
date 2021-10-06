@@ -44,9 +44,7 @@ class _TeacherSideBarState extends State<TeacherSideBar> {
               ),
               Expanded(
                 child: ListView(
-                  children: [
-                    quizTile(),
-                  ],
+                  children: [quizTile(), scoreBoardTile()],
                 ),
               ),
               SizedBox(height: 20),
@@ -97,6 +95,24 @@ class _TeacherSideBarState extends State<TeacherSideBar> {
           },
         ),
       ],
+    );
+  }
+
+  Widget scoreBoardTile() {
+    return Container(
+      color: complexDrawerBlack,
+      child: ListTile(
+          onTap: () {
+            pageController.changePage(2);
+          },
+          title: Text(
+            'SCORE BOARD',
+            style: TextStyle(color: Colors.white),
+          ),
+          leading: Icon(
+            Icons.score_outlined,
+            color: Colors.white,
+          )),
     );
   }
 }

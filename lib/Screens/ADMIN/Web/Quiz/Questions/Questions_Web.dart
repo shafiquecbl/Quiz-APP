@@ -61,7 +61,7 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
 
   static const typeMenu = <String>[
     'MCQ\'s',
-    'True/False',
+    // 'True/False',
   ];
   final List<DropdownMenuItem<String>> typeItem = typeMenu
       .map((String value) => DropdownMenuItem<String>(

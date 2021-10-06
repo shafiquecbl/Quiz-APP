@@ -183,7 +183,7 @@ class _SideBarState extends State<SideBar> {
 
   Widget scoreBoardTile() {
     return Container(
-      color: complexDrawerBlueGrey,
+      color: complexDrawerBlack,
       child: ListTile(
           onTap: () {
             pageController.changePage(10);

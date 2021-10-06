@@ -7,6 +7,7 @@ import 'package:quiz_app/Provider/provider.dart';
 import 'package:quiz_app/Services/api_manager.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/WIdgets/network_error.dart';
+import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/controllers/page_controller.dart';
 
 class ScoreBoardWEB extends StatefulWidget {
@@ -35,7 +36,7 @@ class _ScoreBoardWEBState extends State<ScoreBoardWEB> {
   getStudentQuiz() {
     provier = Provider.of<CustomProvier>(context, listen: false);
     print(provier!.studentId);
-    solvedQuiz = APIManager().getStudentQuiz(
+    solvedQuiz = APIManager().adminGetStudentQuiz(
         token: widget.loginResponse!.token, id: provier!.studentId);
   }
 
@@ -46,33 +47,66 @@ class _ScoreBoardWEBState extends State<ScoreBoardWEB> {
         elevation: 0,
         title: Text('Score Board'),
       ),
-      body: FutureBuilder<List<SolvedQuiz>>(
-        future: solvedQuiz,
-        builder:
-            (BuildContext context, AsyncSnapshot<List<SolvedQuiz>> snapshot) {
-          // if connection is loading show loading
-          if (snapshot.connectionState == ConnectionState.waiting)
-            return MyLoading();
-
-          //if data is null show network error
-          if (snapshot.data == null)
-            return NetworkError(onPressed: () {
-              setState(() {
-                solvedQuiz = APIManager().getStudentQuiz(
-                    token: widget.loginResponse!.token, id: provier!.studentId);
-              });
-            });
-
-          //if data length is ZERO show message
-          if (snapshot.data!.length == 0)
-            return Center(
-              child: Text('No Quiz Available'),
-            );
-
-          //else show data
-          return scoreCard(quiz: snapshot.data);
-        },
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        child: Stack(
+          children: [
+            dataTable(),
+            Container(
+              height: 80,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: Card(
+                  color: yellow,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    child: Row(
+                      children: [
+                        Text('Quizes List',
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white)),
+                        Spacer(),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  dataTable() {
+    return FutureBuilder<List<SolvedQuiz>>(
+      future: solvedQuiz,
+      builder:
+          (BuildContext context, AsyncSnapshot<List<SolvedQuiz>> snapshot) {
+        // if connection is loading show loading
+        if (snapshot.connectionState == ConnectionState.waiting)
+          return MyLoading();
+
+        //if data is null show network error
+        if (snapshot.data == null)
+          return NetworkError(onPressed: () {
+            setState(() {
+              solvedQuiz = APIManager().adminGetStudentQuiz(
+                  token: widget.loginResponse!.token, id: provier!.studentId);
+            });
+          });
+
+        //if data length is ZERO show message
+        if (snapshot.data!.length == 0)
+          return Center(
+            child: Text('No Quiz Available'),
+          );
+
+        //else show data
+        return scoreCard(quiz: snapshot.data);
+      },
     );
   }
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Screens/STUDENT/Student%20Dashboard/student_dashboard.dart';
-import 'package:quiz_app/Screens/widget/side_bar_menu.dart';
 import 'package:quiz_app/Screens/widget/student_side_bar.dart';
 import 'package:quiz_app/common/app_responsive.dart';
 import 'package:quiz_app/constants.dart';

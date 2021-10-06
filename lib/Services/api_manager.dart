@@ -20,8 +20,7 @@ import 'package:quiz_app/Models/Subjects.dart';
 import 'package:quiz_app/Models/Teacher_Subject.dart';
 import 'package:quiz_app/Models/Teachers.dart';
 import 'package:quiz_app/Models/User.dart';
-import 'package:quiz_app/Screens/STUDENT/Home/student_home.dart';
-import 'package:quiz_app/Screens/STUDENT/Score%20Board/quiz_details.dart';
+import 'package:quiz_app/Screens/STUDENT/QuizPage/components/quiz_completed.dart';
 import 'package:quiz_app/Screens/widget/Navigator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -901,6 +900,7 @@ class APIManager {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
         }).then((response) async {
+      print('RESPONSEEEE: ${response.body}');
       List<Quiz1> jsonMap = (json.decode(response.body) as List)
           .map((e) => Quiz1.fromJson(e))
           .toList();
@@ -931,6 +931,7 @@ class APIManager {
       @required String? quizId,
       @required String? questionId,
       @required String? correctAnswer}) async {
+    print('REACHED');
     return await dio
         .post('$baseUrl/api/solvedQuizData/addSolvedQuizData',
             data: SubmitQuiz(
@@ -943,16 +944,7 @@ class APIManager {
               "Content-Type": "application/json"
             }))
         .then((value) {
-      var jsonMap = json.decode(value.data);
-      SolvedQuiz solvedQuiz = SolvedQuiz.fromJson(jsonMap);
-
-      pushAndRemoveUntil(
-          context,
-          QuizDetails(
-            solvedQuiz: solvedQuiz,
-            loginResponse: loginResponse,
-            isVisible: true,
-          ));
+      pushAndRemoveUntil(context, QuizCompleted(loginResponse: loginResponse));
     });
   }
 
@@ -960,6 +952,21 @@ class APIManager {
       {@required token, @required String? id}) async {
     return await client.get(
         Uri.parse('$baseUrl/api/solvedQuizData/getQuizStudent/$id'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        }).then((response) async {
+      print(response.body);
+      List<SolvedQuiz> jsonMap = (json.decode(response.body) as List)
+          .map((e) => SolvedQuiz.fromJson(e))
+          .toList();
+      return jsonMap;
+    });
+  }
+
+  Future<List<SolvedQuiz>> adminGetStudentQuiz(
+      {@required token, @required String? id}) async {
+    return await client.get(
+        Uri.parse('$baseUrl/api/solvedQuizData/adminGetSolvedStuQuize/$id'),
         headers: {
           'Authorization': 'Bearer $token',
         }).then((response) async {

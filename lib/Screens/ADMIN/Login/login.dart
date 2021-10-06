@@ -107,6 +107,7 @@ class _LogInState extends State<LogIn> {
                           height: 32,
                         ),
                         TextFormField(
+                          obscureText: true,
                           onChanged: (value) {
                             setState(() {
                               password = value;

@@ -26,6 +26,7 @@ class _StudentQuizListWEBState extends State<StudentQuizListWEB> {
   List<Quiz1> quizList = [];
   List<String> idList = [];
   bool isLoaded = false;
+  bool isEmpty = false;
 
   @override
   void initState() {
@@ -52,7 +53,13 @@ class _StudentQuizListWEBState extends State<StudentQuizListWEB> {
             token: widget.loginResponse!.token, id: widget.subject!.id)
         .then((value) {
       subjectQuiz = value;
-      filterList();
+      if (value.isNotEmpty) {
+        filterList();
+      } else {
+        setState(() {
+          isLoaded = true;
+        });
+      }
     });
   }
 
@@ -68,7 +75,7 @@ class _StudentQuizListWEBState extends State<StudentQuizListWEB> {
           padding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
           child: isLoaded == false
               ? MyLoading()
-              : quizList.isEmpty
+              : quizList.isEmpty || subjectQuiz.isEmpty
                   ? Center(
                       child: Text('No quiz available right now!'),
                     )

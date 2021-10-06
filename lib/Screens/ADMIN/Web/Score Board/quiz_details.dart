@@ -39,7 +39,7 @@ class _QuizDetailsWEBState extends State<QuizDetailsWEB> {
 
   double calculatePercentage(
       {@required int? totalQuestions, @required int? marks}) {
-    return percentage = (marks! / 100) * totalQuestions!;
+    return percentage = (marks! / totalQuestions!) * 100;
   }
 
   @override

@@ -30,7 +30,6 @@ class _QuizWEBState extends State<QuizWEB> {
   bool isLoad = false;
   String? error, quizName, courseId, subjectId, level, attemptDate, timeType;
   int? timeInSeconds;
-  List questions = [];
 
   ////////////////////////////////////////////////////
 
@@ -363,7 +362,7 @@ class _QuizWEBState extends State<QuizWEB> {
       myState!(() {
         error = 'Please select time type';
       });
-    } else if (questionsList!.isEmpty) {
+    } else if (questionsList!.length == 0) {
       myState!(() {
         error = 'Please select questions';
       });
@@ -416,7 +415,7 @@ class _QuizWEBState extends State<QuizWEB> {
             public: checkBox,
             timeType: timeType,
             time: timeInSeconds,
-            questions: questions)
+            questions: questionsList)
         .then((value) {
       clearValues('');
     }).catchError((e) {
@@ -444,7 +443,7 @@ class _QuizWEBState extends State<QuizWEB> {
             public: checkBox,
             timeType: timeType,
             time: timeInSeconds,
-            questions: questions)
+            questions: questionsList)
         .then((value) {
       clearValues('');
     });
@@ -460,7 +459,7 @@ class _QuizWEBState extends State<QuizWEB> {
     level = null;
     timeType = null;
     timeInSeconds = null;
-    questions.clear();
+    questionsList!.clear();
     questionsMenu.clear();
 
     _formKey.currentState!.reset();
