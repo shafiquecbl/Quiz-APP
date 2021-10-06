@@ -11,7 +11,7 @@ import 'package:quiz_app/constants.dart';
 
 class QuizPage extends StatefulWidget {
   final Quiz1? quiz;
-  final StudentLoginResponse? loginResponse;
+  final LoginResponse? loginResponse;
   const QuizPage({@required this.quiz, @required this.loginResponse});
 
   @override

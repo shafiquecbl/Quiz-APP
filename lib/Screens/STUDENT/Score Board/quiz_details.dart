@@ -12,7 +12,7 @@ import 'package:quiz_app/constants.dart';
 
 class QuizDetails extends StatefulWidget {
   final SolvedQuiz? solvedQuiz;
-  final StudentLoginResponse? loginResponse;
+  final LoginResponse? loginResponse;
   final bool? isVisible;
   const QuizDetails(
       {@required this.solvedQuiz,

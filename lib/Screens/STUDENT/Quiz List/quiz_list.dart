@@ -12,7 +12,7 @@ import 'package:quiz_app/common/app_responsive.dart';
 import 'package:quiz_app/controllers/page_controller.dart';
 
 class StudentQuizListWEB extends StatefulWidget {
-  final StudentLoginResponse? loginResponse;
+  final LoginResponse? loginResponse;
   final StudentSubject? subject;
   StudentQuizListWEB({@required this.loginResponse, @required this.subject});
 

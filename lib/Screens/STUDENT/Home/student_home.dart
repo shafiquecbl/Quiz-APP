@@ -6,7 +6,7 @@ import 'package:quiz_app/common/app_responsive.dart';
 import 'package:quiz_app/constants.dart';
 
 class StudentHome extends StatefulWidget {
-  final StudentLoginResponse loginResponse;
+  final LoginResponse loginResponse;
   StudentHome({required this.loginResponse});
   @override
   _StudentHomeState createState() => _StudentHomeState();

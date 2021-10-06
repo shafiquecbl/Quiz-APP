@@ -7,7 +7,6 @@ import 'package:quiz_app/Provider/provider.dart';
 import 'package:quiz_app/Screens/ADMIN/Main%20Page/Main_Page.dart';
 import 'package:quiz_app/Screens/ADMIN/home_page.dart';
 import 'package:quiz_app/Screens/STUDENT/Home/student_home.dart';
-import 'package:quiz_app/Screens/STUDENT/Main/student_main.dart';
 import 'package:quiz_app/Screens/Teacher/teacher_main.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/constants.dart';
@@ -45,20 +44,25 @@ class _MyAppState extends State<MyApp> {
               (BuildContext context, AsyncSnapshot<LoginResponse> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting)
               return MyLoading();
-            // return snapshot.data != null
-            //     ? StudentHome(loginResponse: snapshot.data!)
-            //     : StudentMainPage();
+
             return snapshot.data != null && snapshot.data!.user!.role == 'admin'
                 ? HomePage(
                     loginResponse:
                         snapshot.data!) // data not null and roll is admin
 
                 : snapshot.data != null &&
-                        snapshot.data!.user!.role == 'teacher'
-                    ? TeacherHomePage(
+                        snapshot.data!.user!.role == 'student'
+                    ? StudentHome(
                         loginResponse:
-                            snapshot.data!) // data not null and roll is teacher
-                    : MainPage();
+                            snapshot.data!) // data not null and roll is student
+
+                    : snapshot.data != null &&
+                            snapshot.data!.user!.role == 'teacher'
+                        ? TeacherHomePage(
+                            loginResponse: snapshot
+                                .data!) // data not null and roll is teacher
+
+                        : MainPage();
           },
         ),
       ),

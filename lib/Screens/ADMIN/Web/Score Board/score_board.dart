@@ -1,6 +1,7 @@
 import 'package:data_tables/data_tables.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:quiz_app/Models/Student/Quiz.dart';
 import 'package:quiz_app/Models/Student/solved_quiz.dart';
 import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Provider/provider.dart';
@@ -27,6 +28,9 @@ class _ScoreBoardWEBState extends State<ScoreBoardWEB> {
   Future<List<SolvedQuiz>>? solvedQuiz;
   CustomProvier? provier;
 
+  bool isLoading = true;
+  List<Quiz1> quizes = [];
+
   @override
   void initState() {
     getStudentQuiz();
@@ -34,10 +38,28 @@ class _ScoreBoardWEBState extends State<ScoreBoardWEB> {
   }
 
   getStudentQuiz() {
-    provier = Provider.of<CustomProvier>(context, listen: false);
-    print(provier!.studentId);
+    CustomProvier provider = Provider.of<CustomProvier>(context, listen: false);
     solvedQuiz = APIManager().adminGetStudentQuiz(
-        token: widget.loginResponse!.token, id: provier!.studentId);
+        token: widget.loginResponse!.token, id: provider.studentId);
+    APIManager()
+        .adminGetStudentQuiz(
+            token: widget.loginResponse!.token, id: provider.studentId)
+        .then((value) {
+      for (var quiz in value) {
+        getQuiz(quiz.quizName!);
+      }
+    });
+  }
+
+  getQuiz(String id) {
+    APIManager()
+        .getQuizById(token: widget.loginResponse!.token, id: id)
+        .then((value) {
+      quizes.add(value);
+      setState(() {
+        isLoading = false;
+      });
+    });
   }
 
   @override
@@ -105,7 +127,7 @@ class _ScoreBoardWEBState extends State<ScoreBoardWEB> {
           );
 
         //else show data
-        return scoreCard(quiz: snapshot.data);
+        return isLoading == true ? MyLoading() : scoreCard(quiz: snapshot.data);
       },
     );
   }
@@ -136,17 +158,10 @@ class _ScoreBoardWEBState extends State<ScoreBoardWEB> {
               }
             },
             mobileIsLoading: CircularProgressIndicator(),
-            // mobileItemBuilder: (context, index) {
-            //   return ExpansionTile(
-            //       leading: Text('${index + 1}'),
-            //       title: Text(
-            //         'ABC',
-            //         maxLines: 3,
-            //         overflow: TextOverflow.ellipsis,
-            //       ));
-            // },
             columns: [
               DataColumn(label: Text('ID')),
+              DataColumn(label: Text('Quiz Name')),
+              DataColumn(label: Text('Total Questions')),
               DataColumn(label: Text('Solved Questions')),
               DataColumn(label: Text('Marks')),
               DataColumn(label: Text('Date')),
@@ -163,7 +178,9 @@ class _ScoreBoardWEBState extends State<ScoreBoardWEB> {
 
   score(int index, {@required SolvedQuiz? quiz}) {
     return DataRow(cells: [
-      DataCell(Text('$index')),
+      DataCell(Text('${index + 1}')),
+      DataCell(Text('${quizes[index].quizName}')),
+      DataCell(Text('${quizes[index].question!.length}')),
       DataCell(Text(quiz!.questionAttempted.toString())),
       DataCell(Text(quiz.marks.toString())),
       DataCell(Text(quiz.createdAt.toString().substring(0, 11))),

@@ -5,7 +5,7 @@ import 'package:quiz_app/Screens/widget/Navigator.dart';
 import 'package:quiz_app/constants.dart';
 
 class QuizCompleted extends StatelessWidget {
-  final StudentLoginResponse? loginResponse;
+  final LoginResponse? loginResponse;
   QuizCompleted({@required this.loginResponse});
   @override
   Widget build(BuildContext context) {

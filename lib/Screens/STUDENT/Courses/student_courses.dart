@@ -11,7 +11,7 @@ import 'package:quiz_app/common/app_responsive.dart';
 import 'package:quiz_app/controllers/page_controller.dart';
 
 class StudentCoursesWEB extends StatefulWidget {
-  final StudentLoginResponse? loginResponse;
+  final LoginResponse? loginResponse;
   StudentCoursesWEB({@required this.loginResponse});
 
   @override

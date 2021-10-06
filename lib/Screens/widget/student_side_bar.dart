@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:quiz_app/Models/User.dart';
-import 'package:quiz_app/Screens/STUDENT/Main/student_main.dart';
+import 'package:quiz_app/Screens/ADMIN/Main%20Page/Main_Page.dart';
 import 'package:quiz_app/Screens/widget/Navigator.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/controllers/page_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class StudentSideBar extends StatefulWidget {
-  final StudentLoginResponse? loginResponse;
+  final LoginResponse? loginResponse;
   StudentSideBar({@required this.loginResponse});
   @override
   _StudentSideBarState createState() => _StudentSideBarState();
@@ -96,8 +96,8 @@ class _StudentSideBarState extends State<StudentSideBar> {
                       onPressed: () async {
                         SharedPreferences pref =
                             await SharedPreferences.getInstance();
-                        pref.remove('LoginResponse').then((value) =>
-                            pushAndRemoveUntil(context, StudentMainPage()));
+                        pref.remove('LoginResponse').then(
+                            (value) => pushAndRemoveUntil(context, MainPage()));
                       },
                       icon: Icon(Icons.logout),
                       label: Text('Logout', style: TextStyle(color: white))),

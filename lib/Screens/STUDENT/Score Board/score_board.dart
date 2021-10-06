@@ -1,17 +1,17 @@
 import 'package:data_tables/data_tables.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:quiz_app/Models/Student/Quiz.dart';
 import 'package:quiz_app/Models/Student/solved_quiz.dart';
 import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Provider/provider.dart';
 import 'package:quiz_app/Services/api_manager.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
-import 'package:quiz_app/WIdgets/network_error.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/controllers/page_controller.dart';
 
 class StudentScoreBoard extends StatefulWidget {
-  final StudentLoginResponse? loginResponse;
+  final LoginResponse? loginResponse;
   StudentScoreBoard({@required this.loginResponse});
   @override
   _StudentScoreBoardState createState() => _StudentScoreBoardState();
@@ -23,7 +23,8 @@ class _StudentScoreBoardState extends State<StudentScoreBoard> {
 
   MyPageController pageController = MyPageController();
 
-  Future<List<SolvedQuiz>>? solvedQuiz;
+  bool isLoading = true;
+  List<Quiz1> quizes = [];
 
   @override
   void initState() {
@@ -32,9 +33,26 @@ class _StudentScoreBoardState extends State<StudentScoreBoard> {
   }
 
   getStudentQuiz() {
-    print(widget.loginResponse!.user!.id);
-    solvedQuiz = APIManager().getStudentQuiz(
-        token: widget.loginResponse!.token, id: widget.loginResponse!.user!.id);
+    APIManager()
+        .getStudentQuiz(
+            token: widget.loginResponse!.token,
+            id: widget.loginResponse!.user!.id)
+        .then((value) {
+      for (var quiz in value) {
+        getQuiz(quiz.quizName!);
+      }
+    });
+  }
+
+  getQuiz(String id) {
+    APIManager()
+        .getQuizById(token: widget.loginResponse!.token, id: id)
+        .then((value) {
+      quizes.add(value);
+      setState(() {
+        isLoading = false;
+      });
+    });
   }
 
   @override
@@ -79,22 +97,14 @@ class _StudentScoreBoardState extends State<StudentScoreBoard> {
 
   dataTable() {
     return FutureBuilder<List<SolvedQuiz>>(
-      future: solvedQuiz,
+      future: APIManager().getStudentQuiz(
+          token: widget.loginResponse!.token,
+          id: widget.loginResponse!.user!.id),
       builder:
           (BuildContext context, AsyncSnapshot<List<SolvedQuiz>> snapshot) {
         // if connection is loading show loading
         if (snapshot.connectionState == ConnectionState.waiting)
           return MyLoading();
-
-        //if data is null show network error
-        if (snapshot.data == null)
-          return NetworkError(onPressed: () {
-            setState(() {
-              solvedQuiz = APIManager().getStudentQuiz(
-                  token: widget.loginResponse!.token,
-                  id: widget.loginResponse!.user!.id);
-            });
-          });
 
         //if data length is ZERO show message
         if (snapshot.data!.length == 0)
@@ -103,7 +113,7 @@ class _StudentScoreBoardState extends State<StudentScoreBoard> {
           );
 
         //else show data
-        return scoreCard(quiz: snapshot.data);
+        return isLoading == true ? MyLoading() : scoreCard(quiz: snapshot.data);
       },
     );
   }
@@ -134,17 +144,10 @@ class _StudentScoreBoardState extends State<StudentScoreBoard> {
               }
             },
             mobileIsLoading: CircularProgressIndicator(),
-            // mobileItemBuilder: (context, index) {
-            //   return ExpansionTile(
-            //       leading: Text('${index + 1}'),
-            //       title: Text(
-            //         'ABC',
-            //         maxLines: 3,
-            //         overflow: TextOverflow.ellipsis,
-            //       ));
-            // },
             columns: [
               DataColumn(label: Text('ID')),
+              DataColumn(label: Text('Quiz Name')),
+              DataColumn(label: Text('Total Questions')),
               DataColumn(label: Text('Solved Questions')),
               DataColumn(label: Text('Marks')),
               DataColumn(label: Text('Date')),
@@ -161,7 +164,9 @@ class _StudentScoreBoardState extends State<StudentScoreBoard> {
 
   score(int index, {@required SolvedQuiz? quiz}) {
     return DataRow(cells: [
-      DataCell(Text('$index')),
+      DataCell(Text('${index + 1}')),
+      DataCell(Text('${quizes[index].quizName}')),
+      DataCell(Text('${quizes[index].question!.length}')),
       DataCell(Text(quiz!.questionAttempted.toString())),
       DataCell(Text(quiz.marks.toString())),
       DataCell(Text(quiz.createdAt.toString().substring(0, 11))),

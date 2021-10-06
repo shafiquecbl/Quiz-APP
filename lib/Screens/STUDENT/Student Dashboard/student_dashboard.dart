@@ -10,7 +10,7 @@ import 'package:quiz_app/Screens/STUDENT/Subjects/students_subjects_byCourses.da
 import 'package:quiz_app/controllers/page_controller.dart';
 
 class StudentDashboard extends StatefulWidget {
-  final StudentLoginResponse loginResponse;
+  final LoginResponse loginResponse;
   StudentDashboard({required this.loginResponse});
   @override
   _StudentDashboardState createState() => _StudentDashboardState();

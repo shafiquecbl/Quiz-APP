@@ -850,13 +850,12 @@ class APIManager {
   ///////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////
 
-  Future<StudentLoginResponse> studentLogin(rollNo, password) async {
+  Future<LoginResponse> studentLogin(rollNo, password) async {
     return await client.post(Uri.parse('$baseUrl/student/auth/login'),
         body: {"rollno": rollNo, "password": password}).then((response) async {
       print(response.body);
       var jsonMap = json.decode(response.body);
-      StudentLoginResponse loginResponse =
-          StudentLoginResponse.fromJson(jsonMap);
+      LoginResponse loginResponse = LoginResponse.fromJson(jsonMap);
       SharedPreferences pref = await SharedPreferences.getInstance();
       await pref.setString('LoginResponse', jsonEncode(jsonMap));
       return loginResponse;
@@ -908,7 +907,7 @@ class APIManager {
     });
   }
 
-  submitQuestion(BuildContext context, StudentLoginResponse loginResponse,
+  submitQuestion(BuildContext context, LoginResponse loginResponse,
       {@required token,
       @required String? quizId,
       @required String? questionId,
@@ -926,7 +925,7 @@ class APIManager {
         .then((value) => print(value.data));
   }
 
-  submitLastQuestion(BuildContext context, StudentLoginResponse loginResponse,
+  submitLastQuestion(BuildContext context, LoginResponse loginResponse,
       {@required token,
       @required String? quizId,
       @required String? questionId,
@@ -970,7 +969,7 @@ class APIManager {
         headers: {
           'Authorization': 'Bearer $token',
         }).then((response) async {
-      print(response.body);
+      print('RESPONSE::  ${response.body}');
       List<SolvedQuiz> jsonMap = (json.decode(response.body) as List)
           .map((e) => SolvedQuiz.fromJson(e))
           .toList();
