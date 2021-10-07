@@ -427,7 +427,7 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
                               pickImage();
                             },
                             icon: Icon(Icons.attach_file),
-                            label: Text('Choose Image')),
+                            label: Text('Choose Photo')),
                       ),
                     ),
                     SizedBox(width: 20),

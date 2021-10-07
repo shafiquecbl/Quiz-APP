@@ -193,7 +193,9 @@ class _ScoreBoardWEBState extends State<ScoreBoardWEB> {
                 style: ElevatedButton.styleFrom(primary: Colors.green),
                 onPressed: () {
                   provider.saveSolvedQuiz(quiz: quiz);
-                  pageController.changePage(12);
+                  widget.loginResponse!.user!.role == 'admin'
+                      ? pageController.changePage(12)
+                      : pageController.changePage(3);
                 },
                 icon: Icon(Icons.view_list_outlined),
                 label: Text('View')),

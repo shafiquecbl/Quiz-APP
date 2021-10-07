@@ -185,7 +185,7 @@ class _AllUsersWEBState extends State<AllUsersWEB> {
       )),
       DataCell(ElevatedButton(
           style: ElevatedButton.styleFrom(
-              primary: user.suspend == false ? Colors.red : Colors.green),
+              primary: user.suspend == false ? Colors.green : Colors.red),
           onPressed: () {
             APIManager()
                 .suspendUser(
@@ -197,7 +197,7 @@ class _AllUsersWEBState extends State<AllUsersWEB> {
               updatePage();
             });
           },
-          child: Text(user.suspend == false ? 'ACTIVATE' : 'DEACTIVATE'))),
+          child: Text(user.suspend == false ? 'DEACTIVATE' : 'ACTIVATE'))),
     ]);
   }
 }

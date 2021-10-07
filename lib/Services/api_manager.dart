@@ -27,14 +27,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 class APIManager {
   var client = http.Client();
   var loginResponse;
-  String baseUrl = 'http://192.168.100.84:4000';
+  String domain = 'http://192.168.100.84:4000';
   Dio dio = Dio();
 
   ///////////////////////////////////////////////////////////
 
   adminLogin(email, password) async {
     return await client
-        .post(Uri.parse('$baseUrl/admin/auth/login'),
+        .post(Uri.parse('$domain/admin/auth/login'),
             body: Login(email: email, password: password).toJson())
         .then((response) async {
       var jsonMap = json.decode(response.body);
@@ -47,7 +47,7 @@ class APIManager {
   }
 
   Future<List<Student>> fetchStudentsList({@required token}) async {
-    return await client.get(Uri.parse('$baseUrl/admin/manage/getAllStudents'),
+    return await client.get(Uri.parse('$domain/admin/manage/getAllStudents'),
         headers: {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
@@ -72,7 +72,7 @@ class APIManager {
       @required gender}) async {
     http.MultipartRequest request = http.MultipartRequest(
       "POST",
-      Uri.parse('$baseUrl/admin/manage/createStudent'),
+      Uri.parse('$domain/admin/manage/createStudent'),
     );
     request.headers['Authorization'] = 'Bearer $token';
 
@@ -110,7 +110,7 @@ class APIManager {
       @required gender}) async {
     http.MultipartRequest request = http.MultipartRequest(
       "PUT",
-      Uri.parse('$baseUrl/admin/manage/updateStudent/$id'),
+      Uri.parse('$domain/admin/manage/updateStudent/$id'),
     );
     request.headers['Authorization'] = 'Bearer $token';
 
@@ -140,7 +140,7 @@ class APIManager {
   }
 
   deleteStudent({@required token, @required id}) async {
-    return await dio.delete('$baseUrl/admin/manage/deleteStudent/$id',
+    return await dio.delete('$domain/admin/manage/deleteStudent/$id',
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
@@ -151,7 +151,7 @@ class APIManager {
   ///////////////////////////////////////////////////////
 
   Future<List<Course>> getCoursesList({@required token}) async {
-    return await client.get(Uri.parse('$baseUrl/admin/course/getAllCourses'),
+    return await client.get(Uri.parse('$domain/admin/course/getAllCourses'),
         headers: {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
@@ -169,7 +169,7 @@ class APIManager {
     @required token,
     @required courseName,
   }) async {
-    return await dio.post('$baseUrl/admin/course/addCourse',
+    return await dio.post('$domain/admin/course/addCourse',
         data: AddCourse(
           name: courseName,
         ).toJson(),
@@ -185,7 +185,7 @@ class APIManager {
     @required token,
     @required courseName,
   }) async {
-    return await dio.put('$baseUrl/admin/course/updateCourse/$courseId',
+    return await dio.put('$domain/admin/course/updateCourse/$courseId',
         data: AddCourse(
           name: courseName,
         ).toJson(),
@@ -195,7 +195,7 @@ class APIManager {
   }
 
   deleteCourse({@required token, @required id}) async {
-    return await dio.delete('$baseUrl/admin/course/deleteCourse/$id',
+    return await dio.delete('$domain/admin/course/deleteCourse/$id',
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
@@ -206,7 +206,7 @@ class APIManager {
   ///////////////////////////////////////////////////////
 
   Future<List<Teacher>> fetchTeachersList({@required token}) async {
-    return await client.get(Uri.parse('$baseUrl/admin/manage/getAllTeachers'),
+    return await client.get(Uri.parse('$domain/admin/manage/getAllTeachers'),
         headers: {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
@@ -230,7 +230,7 @@ class APIManager {
       @required gender}) async {
     http.MultipartRequest request = http.MultipartRequest(
       "POST",
-      Uri.parse('$baseUrl/admin/manage/createTeacher'),
+      Uri.parse('$domain/admin/manage/createTeacher'),
     );
     request.headers['Authorization'] = 'Bearer $token';
 
@@ -269,7 +269,7 @@ class APIManager {
       @required gender}) async {
     http.MultipartRequest request = http.MultipartRequest(
       "PUT",
-      Uri.parse('$baseUrl/admin/manage/updateTeacher/$id'),
+      Uri.parse('$domain/admin/manage/updateTeacher/$id'),
     );
     request.headers['Authorization'] = 'Bearer $token';
 
@@ -298,7 +298,7 @@ class APIManager {
   }
 
   deleteTeacher({@required token, @required id}) async {
-    return await dio.delete('$baseUrl/admin/manage/deleteTeacher/$id',
+    return await dio.delete('$domain/admin/manage/deleteTeacher/$id',
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
@@ -309,7 +309,7 @@ class APIManager {
   ///////////////////////////////////////////////////////
 
   Future<List<SubAdmin>> fetchSubAdminsList({@required token}) async {
-    return await client.get(Uri.parse('$baseUrl/admin/manage/getAllSubadmins'),
+    return await client.get(Uri.parse('$domain/admin/manage/getAllSubadmins'),
         headers: {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
@@ -333,7 +333,7 @@ class APIManager {
       @required gender}) async {
     http.MultipartRequest request = http.MultipartRequest(
       "POST",
-      Uri.parse('$baseUrl/admin/manage/createSubAdmin'),
+      Uri.parse('$domain/admin/manage/createSubAdmin'),
     );
     request.headers['Authorization'] = 'Bearer $token';
 
@@ -370,7 +370,7 @@ class APIManager {
       @required gender}) async {
     http.MultipartRequest request = http.MultipartRequest(
       "PUT",
-      Uri.parse('$baseUrl/admin/manage/updateSubAdmin/$id'),
+      Uri.parse('$domain/admin/manage/updateSubAdmin/$id'),
     );
     request.headers['Authorization'] = 'Bearer $token';
 
@@ -398,7 +398,7 @@ class APIManager {
   }
 
   deleteSubAdmin({@required token, @required id}) async {
-    return await dio.delete('$baseUrl/admin/manage/deleteSubAdmin/$id',
+    return await dio.delete('$domain/admin/manage/deleteSubAdmin/$id',
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
@@ -409,7 +409,7 @@ class APIManager {
   ///////////////////////////////////////////////////////
 
   Future<List<User>> fetchAllUsers({@required token}) async {
-    return await client.get(Uri.parse('$baseUrl/admin/manage/getAllUsers'),
+    return await client.get(Uri.parse('$domain/admin/manage/getAllUsers'),
         headers: {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
@@ -426,7 +426,7 @@ class APIManager {
       @required String? id,
       @required bool? suspend}) async {
     return await client
-        .put(Uri.parse('$baseUrl/admin/manage/updateUser/$id'), body: {
+        .put(Uri.parse('$domain/admin/manage/updateUser/$id'), body: {
       'suspend': '$suspend'
     }, headers: {
       'Authorization': 'Bearer $token',
@@ -451,7 +451,7 @@ class APIManager {
             image: '',
             phoneNo: phoneNo)
         .toJson());
-    return await dio.post('$baseUrl/admin/manage/createTeacher',
+    return await dio.post('$domain/admin/manage/createTeacher',
         data: formData,
         options: Options(headers: {
           'Authorization': 'Bearer $token',
@@ -463,7 +463,7 @@ class APIManager {
   ///////////////////////////////////////////////////////
 
   Future<List<Subject>> fetchSubjectsList({@required token}) async {
-    return await client.get(Uri.parse('$baseUrl/admin/subject/getAllSubjects'),
+    return await client.get(Uri.parse('$domain/admin/subject/getAllSubjects'),
         headers: {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
@@ -482,7 +482,7 @@ class APIManager {
     @required course,
     @required subjectName,
   }) async {
-    return await dio.post('$baseUrl/admin/subject/addSubject',
+    return await dio.post('$domain/admin/subject/addSubject',
         data: AddSubject(subjectName: subjectName, courseId: course).toJson(),
         options: Options(headers: {
           'Authorization': 'Bearer $token',
@@ -496,7 +496,7 @@ class APIManager {
     @required id,
     @required subjectName,
   }) async {
-    return await dio.put('$baseUrl/admin/subject/updateSubject/$id',
+    return await dio.put('$domain/admin/subject/updateSubject/$id',
         data: {"subjectName": subjectName},
         options: Options(headers: {
           'Authorization': 'Bearer $token',
@@ -504,7 +504,7 @@ class APIManager {
   }
 
   deleteSubject({@required token, @required id}) async {
-    return await dio.delete('$baseUrl/admin/subject/deleteSubject/$id',
+    return await dio.delete('$domain/admin/subject/deleteSubject/$id',
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
@@ -516,7 +516,7 @@ class APIManager {
 
   Future<List<TeacherSubject>> fetchTeacherSubjectList(
       {@required token}) async {
-    return await client.get(Uri.parse('$baseUrl/admin/manage/teacherSubjects'),
+    return await client.get(Uri.parse('$domain/admin/manage/teacherSubjects'),
         headers: {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
@@ -535,7 +535,7 @@ class APIManager {
       @required teacher,
       @required courseId,
       @required subjectId}) async {
-    return await dio.post('$baseUrl/admin/manage/addTeacherSubjects',
+    return await dio.post('$domain/admin/manage/addTeacherSubjects',
         data: AddTeacherSubject(
                 teacherId: teacher, subjectId: subjectId, courseId: courseId)
             .toJson(),
@@ -552,7 +552,7 @@ class APIManager {
       @required teacher,
       @required courseId,
       @required subjectId}) async {
-    return await dio.put('$baseUrl/admin/manage/updateTeacherSubjects/$id',
+    return await dio.put('$domain/admin/manage/updateTeacherSubjects/$id',
         data: AddTeacherSubject(
                 teacherId: teacher, subjectId: subjectId, courseId: courseId)
             .toJson(),
@@ -562,7 +562,7 @@ class APIManager {
   }
 
   deleteTeacherSubject({@required token, @required id}) async {
-    return await dio.delete('$baseUrl/admin/manage/deleteTeacherSubejcts/$id',
+    return await dio.delete('$domain/admin/manage/deleteTeacherSubejcts/$id',
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
@@ -573,7 +573,7 @@ class APIManager {
   ///////////////////////////////////////////////////////
 
   Future<List<EnrollStudent>> fetchENrollStudentList({@required token}) async {
-    return await client.get(Uri.parse('$baseUrl/api/enrollStudent'), headers: {
+    return await client.get(Uri.parse('$domain/api/enrollStudent'), headers: {
       'Authorization': 'Bearer $token',
       "Content-Type": "application/json"
     }).then((response) async {
@@ -592,7 +592,7 @@ class APIManager {
     @required studentID,
     @required courseID,
   }) async {
-    return await dio.post('$baseUrl/api/enrollStudent/enroll',
+    return await dio.post('$domain/api/enrollStudent/enroll',
         data:
             AddEnrollStudent(courseId: courseID, studentId: studentID).toJson(),
         options: Options(headers: {
@@ -601,7 +601,7 @@ class APIManager {
   }
 
   deleteENrollStudent({@required token, @required id}) async {
-    return await dio.delete('$baseUrl/api/enrollStudent/deleteEnroll/$id',
+    return await dio.delete('$domain/api/enrollStudent/deleteEnroll/$id',
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
@@ -612,11 +612,11 @@ class APIManager {
   ///////////////////////////////////////////////////////
 
   Future<List<Questions>> fetchQuestiontList({@required token}) async {
-    return await client
-        .get(Uri.parse('$baseUrl/admin/question/getAllQuestions'), headers: {
-      'Authorization': 'Bearer $token',
-      "Content-Type": "application/json"
-    }).then((response) async {
+    return await client.get(Uri.parse('$domain/admin/question/getAllQuestions'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          "Content-Type": "application/json"
+        }).then((response) async {
       print(response.body);
       List<Questions> jsonMap = (json.decode(response.body) as List)
           .map((e) => Questions.fromJson(e))
@@ -640,7 +640,7 @@ class APIManager {
     print('START');
     http.MultipartRequest request = http.MultipartRequest(
       "POST",
-      Uri.parse('$baseUrl/admin/question/addQuestion'),
+      Uri.parse('$domain/admin/question/addQuestion'),
     );
     request.headers['Authorization'] = 'Bearer $token';
 
@@ -685,7 +685,7 @@ class APIManager {
     print('START');
     http.MultipartRequest request = http.MultipartRequest(
       "PUT",
-      Uri.parse('$baseUrl/admin/question/updateQuestion/$id'),
+      Uri.parse('$domain/admin/question/updateQuestion/$id'),
     );
     request.headers['Authorization'] = 'Bearer $token';
 
@@ -717,7 +717,7 @@ class APIManager {
   }
 
   deleteQuestion({@required token, @required id}) async {
-    return await dio.delete('$baseUrl/admin/manage/deleteQuestion/$id',
+    return await dio.delete('$domain/admin/manage/deleteQuestion/$id',
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
@@ -728,7 +728,7 @@ class APIManager {
   ///////////////////////////////////////////////////////
 
   Future<List<Quiz>> fetchQUIZList({@required token}) async {
-    return await client.get(Uri.parse('$baseUrl/admin/quiz/getAllQuiz'),
+    return await client.get(Uri.parse('$domain/admin/quiz/getAllQuiz'),
         headers: {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
@@ -753,7 +753,7 @@ class APIManager {
       @required timeType,
       @required int? time,
       @required List? questions}) async {
-    return await dio.post('$baseUrl/admin/quiz/addQuiz',
+    return await dio.post('$domain/admin/quiz/addQuiz',
         data: AddQuiz(
                 quizName: quizName,
                 attemptDate: attemptDate,
@@ -785,7 +785,7 @@ class APIManager {
       @required timeType,
       @required int? time,
       @required List? questions}) async {
-    return await dio.put('$baseUrl/admin/quiz/updateQuiz/$id',
+    return await dio.put('$domain/admin/quiz/updateQuiz/$id',
         data: AddQuiz(
                 quizName: quizName,
                 attemptDate: attemptDate,
@@ -804,7 +804,7 @@ class APIManager {
   }
 
   deleteQUIZ({@required token, @required id}) async {
-    return await dio.delete('$baseUrl/admin/quiz/deleteQuiz/$id',
+    return await dio.delete('$domain/admin/quiz/deleteQuiz/$id',
         options: Options(headers: {
           'Authorization': 'Bearer $token',
         }));
@@ -817,7 +817,7 @@ class APIManager {
   Future<List<NewSubject>> getSubjectByCourseId(
       {@required token, @required courseId}) async {
     return await client
-        .get(Uri.parse('$baseUrl/admin/quiz/getSubjects/$courseId'), headers: {
+        .get(Uri.parse('$domain/admin/quiz/getSubjects/$courseId'), headers: {
       'Authorization': 'Bearer $token',
       "Content-Type": "application/json"
     }).then((response) async {
@@ -831,7 +831,7 @@ class APIManager {
   Future<List<Questions>> getQuestionsBySubjectId(
       {@required token, @required subjectId, @required level}) async {
     return await client
-        .post(Uri.parse('$baseUrl/admin/quiz/getQuestions'), headers: {
+        .post(Uri.parse('$domain/admin/quiz/getQuestions'), headers: {
       'Authorization': 'Bearer $token',
     }, body: {
       'id': subjectId,
@@ -851,7 +851,7 @@ class APIManager {
   ///////////////////////////////////////////////////////
 
   Future<LoginResponse> studentLogin(rollNo, password) async {
-    return await client.post(Uri.parse('$baseUrl/student/auth/login'),
+    return await client.post(Uri.parse('$domain/student/auth/login'),
         body: {"rollno": rollNo, "password": password}).then((response) async {
       print(response.body);
       var jsonMap = json.decode(response.body);
@@ -865,7 +865,7 @@ class APIManager {
   Future<List<StudentCourse>> getStudentCourses(
       {@required token, @required String? id}) async {
     return await client.get(
-        Uri.parse('$baseUrl/api/enrollStudent/getCourseByStdId/$id'),
+        Uri.parse('$domain/api/enrollStudent/getCourseByStdId/$id'),
         headers: {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
@@ -880,7 +880,7 @@ class APIManager {
   Future<List<StudentSubject>> getStudentSubjects(
       {@required token, @required String? id}) async {
     return await client.get(
-        Uri.parse('$baseUrl/api/enrollStudent/getSubjectsByCourseId/$id'),
+        Uri.parse('$domain/api/enrollStudent/getSubjectsByCourseId/$id'),
         headers: {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
@@ -894,7 +894,7 @@ class APIManager {
 
   Future<List<Quiz1>> getSubjectQuizs(
       {@required token, @required String? id}) async {
-    return await client.get(Uri.parse('$baseUrl/api/student/$id/quizname'),
+    return await client.get(Uri.parse('$domain/api/student/$id/quizname'),
         headers: {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
@@ -913,7 +913,7 @@ class APIManager {
       @required String? questionId,
       @required String? correctAnswer}) async {
     return await dio
-        .post('$baseUrl/api/solvedQuizData/addSolvedQuizData',
+        .post('$domain/api/solvedQuizData/addSolvedQuizData',
             data: SubmitQuiz(
                     quizId: quizId,
                     questionId: questionId,
@@ -932,7 +932,7 @@ class APIManager {
       @required String? correctAnswer}) async {
     print('REACHED');
     return await dio
-        .post('$baseUrl/api/solvedQuizData/addSolvedQuizData',
+        .post('$domain/api/solvedQuizData/addSolvedQuizData',
             data: SubmitQuiz(
                     quizId: quizId,
                     questionId: questionId,
@@ -950,7 +950,7 @@ class APIManager {
   Future<List<SolvedQuiz>> getStudentQuiz(
       {@required token, @required String? id}) async {
     return await client.get(
-        Uri.parse('$baseUrl/api/solvedQuizData/getQuizStudent/$id'),
+        Uri.parse('$domain/api/solvedQuizData/getQuizStudent/$id'),
         headers: {
           'Authorization': 'Bearer $token',
         }).then((response) async {
@@ -965,7 +965,7 @@ class APIManager {
   Future<List<SolvedQuiz>> adminGetStudentQuiz(
       {@required token, @required String? id}) async {
     return await client.get(
-        Uri.parse('$baseUrl/api/solvedQuizData/adminGetSolvedStuQuize/$id'),
+        Uri.parse('$domain/api/solvedQuizData/adminGetSolvedStuQuize/$id'),
         headers: {
           'Authorization': 'Bearer $token',
         }).then((response) async {
@@ -978,7 +978,7 @@ class APIManager {
   }
 
   Future<Quiz1> getQuizById({@required token, @required String? id}) async {
-    return await client.get(Uri.parse('$baseUrl/admin/quiz/getQuiz/$id'),
+    return await client.get(Uri.parse('$domain/admin/quiz/getQuiz/$id'),
         headers: {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
@@ -996,7 +996,7 @@ class APIManager {
   ///////////////////////////////////////////////////////
 
   Future<LoginResponse> teacherLogin(email, password) async {
-    return await client.post(Uri.parse('$baseUrl/teacher/auth/login'),
+    return await client.post(Uri.parse('$domain/teacher/auth/login'),
         body: {"email": email, "password": password}).then((response) async {
       print(response.body);
       var jsonMap = json.decode(response.body);

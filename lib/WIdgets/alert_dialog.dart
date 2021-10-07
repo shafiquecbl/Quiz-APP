@@ -13,7 +13,7 @@ customDialog(BuildContext context,
   );
 
   Widget button2 = CupertinoDialogAction(
-    child: Text('Activate'),
+    child: Text('De-Activate'),
     onPressed: onPressed2,
   );
 
@@ -22,8 +22,8 @@ customDialog(BuildContext context,
     title: Text(title.toString()),
     content: Text(content.toString()),
     actions: [
-      button1,
       button2,
+      button1,
     ],
   );
 
