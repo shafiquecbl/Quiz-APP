@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:im_stepper/stepper.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +9,7 @@ import 'package:quiz_app/Provider/provider.dart';
 import 'package:quiz_app/Screens/STUDENT/QuizPage/components/option.dart';
 import 'package:quiz_app/Services/api_manager.dart';
 import 'package:quiz_app/constants.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class QuizPage extends StatefulWidget {
   final Quiz1? quiz;
@@ -48,20 +50,14 @@ class _QuizPageState extends State<QuizPage> {
   }
 
   handleTime({@required CustomProvier? provider}) {
-    if (provider!.remainingTime == 0 &&
-        activeStep > widget.quiz!.question!.length - 1) {
-      submitEmptyQuestion();
+    if (provider!.remainingTime == 0) {
+      if (activeStep < widget.quiz!.question!.length - 1) {
+        submitEmptyQuestion();
+      }
 
       // If last question and timer runs out then end the quiz
-      if (activeStep == widget.quiz!.question!.length - 1) {
-        print('Do Nothing');
-      }
-      // if it's not last question and timer runs out then move to next question
-      else {
-        setState(() {
-          activeStep = activeStep + 1;
-          isSelected = false;
-        });
+      else if (activeStep == widget.quiz!.question!.length - 1) {
+        submitLastEmptyQuestion();
       }
 
       provider.remainingTime = widget.quiz!.time;
@@ -70,7 +66,24 @@ class _QuizPageState extends State<QuizPage> {
   }
 
   submitEmptyQuestion() {
-    return APIManager().submitQuestion(context, widget.loginResponse!,
+    print('Reached');
+    return APIManager()
+        .submitQuestion(context, widget.loginResponse!,
+            token: widget.loginResponse!.token,
+            quizId: widget.quiz!.id,
+            questionId: currentQuestion!.id,
+            correctAnswer: '')
+        .then(() {
+      setState(() {
+        activeStep = activeStep + 1;
+        isSelected = false;
+      });
+    });
+  }
+
+  submitLastEmptyQuestion() {
+    print('Reached');
+    return APIManager().submitLastQuestion(context, widget.loginResponse!,
         token: widget.loginResponse!.token,
         quizId: widget.quiz!.id,
         questionId: currentQuestion!.id,
@@ -159,24 +172,28 @@ class _QuizPageState extends State<QuizPage> {
             print(widget.quiz!.id);
             submitQuestion();
             setState(() {
-              activeStep++; //move to next question
-
-              CustomProvier? provider =
-                  Provider.of<CustomProvier>(context, listen: false);
-              provider.remainingTime =
-                  widget.quiz!.time; //update Time when new question started
-
-              option1 = false;
-              option2 = false;
-              option3 = false;
-              option4 = false;
-              isSelected = false;
+              changeState();
             });
           }
         },
         child: Text('Next'),
       ),
     );
+  }
+
+  changeState() {
+    activeStep++; //move to next question
+
+    CustomProvier? provider =
+        Provider.of<CustomProvier>(context, listen: false);
+    provider.remainingTime =
+        widget.quiz!.time; //update Time when new question started
+
+    option1 = false;
+    option2 = false;
+    option3 = false;
+    option4 = false;
+    isSelected = false;
   }
 
   Widget submitButton() {
@@ -273,8 +290,36 @@ class _QuizPageState extends State<QuizPage> {
 
             //////////////////////////////////////////////////////
 
+            CarouselSlider(
+              options: CarouselOptions(
+                viewportFraction: 0.6,
+                height: 450,
+                enableInfiniteScroll: false,
+              ),
+              items: question!.questionImage!.map((i) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return Container(
+                      width: MediaQuery.of(context).size.width,
+                      margin: EdgeInsets.symmetric(horizontal: 5.0),
+                      decoration: BoxDecoration(color: Colors.amber),
+                      child: CachedNetworkImage(imageUrl: i),
+                    );
+                  },
+                );
+              }).toList(),
+            ),
+
+            //////////////////////////////////////////////////////
+
+            SizedBox(
+              height: 10,
+            ),
+
+            //////////////////////////////////////////////////////
+
             OptionWidget(
-                text: question!.options![0].options1,
+                text: question.options![0].options1,
                 index: 1,
                 onPressed: () {
                   setState(() {

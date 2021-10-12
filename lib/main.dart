@@ -27,7 +27,7 @@ class _MyAppState extends State<MyApp> {
     return ChangeNotifierProvider<CustomProvier>(
       create: (context) => CustomProvier(),
       child: MaterialApp(
-        title: 'Quiz App',
+        title: 'QuizOn',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
             appBarTheme: AppBarTheme(

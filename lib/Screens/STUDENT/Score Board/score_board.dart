@@ -107,7 +107,7 @@ class _StudentScoreBoardState extends State<StudentScoreBoard> {
           return MyLoading();
 
         //if data length is ZERO show message
-        if (snapshot.data!.length == 0)
+        if (snapshot.data == null)
           return Center(
             child: Text('No Quiz Available'),
           );

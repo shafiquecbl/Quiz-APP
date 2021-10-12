@@ -27,7 +27,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class APIManager {
   var client = http.Client();
   var loginResponse;
-  String domain = 'http://192.168.100.84:4000';
+  String domain = 'http://192.168.100.80:4000';
   Dio dio = Dio();
 
   ///////////////////////////////////////////////////////////
