@@ -7,6 +7,7 @@ import 'package:quiz_app/Services/api_manager.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/WIdgets/network_error.dart';
 import 'package:quiz_app/constants.dart';
+import 'package:quiz_app/controllers/page_controller.dart';
 
 class QuizDetailsWEB extends StatefulWidget {
   final SolvedQuiz? solvedQuiz;
@@ -23,6 +24,7 @@ class QuizDetailsWEB extends StatefulWidget {
 
 class _QuizDetailsWEBState extends State<QuizDetailsWEB> {
   ScrollController controller = ScrollController();
+  MyPageController pageController = MyPageController();
   double? percentage;
   Future<Quiz1>? quizModel;
 
@@ -45,6 +47,15 @@ class _QuizDetailsWEBState extends State<QuizDetailsWEB> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+          leading: IconButton(
+              onPressed: () {
+                pageController.changePage(11);
+              },
+              icon: Icon(
+                Icons.arrow_back_ios,
+                color: Colors.black87,
+              ))),
       body: FutureBuilder<Quiz1>(
         future: quizModel,
         builder: (BuildContext context, AsyncSnapshot<Quiz1> snapshot) {

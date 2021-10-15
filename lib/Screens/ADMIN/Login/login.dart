@@ -246,7 +246,8 @@ class _LogInState extends State<LogIn> {
     }).catchError((e) {
       Navigator.pop(context);
       setState(() {
-        error = 'Invalid Credentials';
+        error = e.toString();
+        // 'Invalid Credentials';
       });
     });
   }

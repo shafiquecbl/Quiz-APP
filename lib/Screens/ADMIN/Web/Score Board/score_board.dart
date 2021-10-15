@@ -66,9 +66,16 @@ class _ScoreBoardWEBState extends State<ScoreBoardWEB> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
-        title: Text('Score Board'),
-      ),
+          elevation: 0,
+          title: Text('Score Board'),
+          leading: IconButton(
+              onPressed: () {
+                pageController.changePage(10);
+              },
+              icon: Icon(
+                Icons.arrow_back_ios,
+                color: Colors.black87,
+              ))),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: Stack(

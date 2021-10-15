@@ -1,3 +1,5 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:quiz_app/Models/Student/Quiz.dart';
@@ -9,6 +11,7 @@ import 'package:quiz_app/Services/api_manager.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/WIdgets/network_error.dart';
 import 'package:quiz_app/constants.dart';
+import 'package:quiz_app/controllers/page_controller.dart';
 
 class QuizDetails extends StatefulWidget {
   final SolvedQuiz? solvedQuiz;
@@ -25,6 +28,7 @@ class QuizDetails extends StatefulWidget {
 
 class _QuizDetailsState extends State<QuizDetails> {
   ScrollController controller = ScrollController();
+  MyPageController pageController = MyPageController();
   double? percentage;
   Future<Quiz1>? quizModel;
 
@@ -47,6 +51,16 @@ class _QuizDetailsState extends State<QuizDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+            onPressed: () {
+              pageController.changePage(3);
+            },
+            icon: Icon(
+              Icons.arrow_back_ios,
+              color: Colors.black87,
+            )),
+      ),
       body: FutureBuilder<Quiz1>(
         future: quizModel,
         builder: (BuildContext context, AsyncSnapshot<Quiz1> snapshot) {
@@ -271,6 +285,45 @@ class _QuizDetailsState extends State<QuizDetails> {
         ),
         SizedBox(
           height: 20,
+        ),
+        question.questionImage!.length != 0
+            ? Container(
+                width: MediaQuery.of(context).size.width / 1.5,
+                height: MediaQuery.of(context).size.height / 5,
+                child: CarouselSlider(
+                  options: CarouselOptions(
+                    viewportFraction: 2.0,
+                    height: 450,
+                    enableInfiniteScroll: false,
+                  ),
+                  items: question.questionImage!.map((i) {
+                    return Builder(
+                      builder: (BuildContext context) {
+                        return Container(
+                          width: MediaQuery.of(context).size.width,
+                          child: CachedNetworkImage(
+                            imageUrl: i,
+                            placeholder: (context, string) {
+                              return Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            },
+                            errorWidget: (context, string, dynamic) {
+                              return Icon(Icons.image);
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  }).toList(),
+                ),
+              )
+            : Container(),
+
+        //////////////////////////////////////////////////////
+
+        SizedBox(
+          height: 10,
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30),

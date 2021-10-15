@@ -27,15 +27,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 class APIManager {
   var client = http.Client();
   var loginResponse;
-  String domain = 'http://ec2-65-1-70-237.ap-south-1.compute.amazonaws.com:4000';
+  String domain =
+      'http://ec2-65-1-70-237.ap-south-1.compute.amazonaws.com:4000';
   Dio dio = Dio();
 
   ///////////////////////////////////////////////////////////
 
   adminLogin(email, password) async {
+    print('Reached');
     return await client
-        .post(Uri.parse('$domain/admin/auth/login'),
-            body: Login(email: email, password: password).toJson())
+        .post(
+      Uri.parse('$domain/admin/auth/login'),
+      body: Login(email: email, password: password).toJson(),
+    )
         .then((response) async {
       var jsonMap = json.decode(response.body);
       print(jsonMap);
