@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Screens/ADMIN/Main%20Page/Main_Page.dart';
@@ -46,13 +47,18 @@ class _StudentSideBarState extends State<StudentSideBar> {
               CircleAvatar(
                 radius: 50,
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(50),
-                  child: Image.network(
-                    widget.loginResponse!.user!.image.toString(),
-                    width: 120,
-                    height: 120,
-                  ),
-                ),
+                    borderRadius: BorderRadius.circular(50),
+                    child: CachedNetworkImage(
+                      imageUrl: widget.loginResponse!.user!.image.toString(),
+                      width: 120,
+                      height: 120,
+                      placeholder: (context, string) {
+                        return Icon(Icons.image);
+                      },
+                      errorWidget: (context, string, dynamic) {
+                        return Icon(Icons.image);
+                      },
+                    )),
               ),
               SizedBox(
                 height: 30,

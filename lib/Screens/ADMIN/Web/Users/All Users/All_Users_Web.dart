@@ -181,6 +181,9 @@ class _AllUsersWEBState extends State<AllUsersWEB> {
           placeholder: (context, string) {
             return Icon(Icons.image);
           },
+          errorWidget: (context, string, dynamic) {
+            return Icon(Icons.image);
+          },
         ),
       )),
       DataCell(ElevatedButton(

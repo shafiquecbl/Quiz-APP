@@ -202,6 +202,9 @@ class _StudentsWEBState extends State<StudentsWEB> {
           placeholder: (context, string) {
             return Icon(Icons.image);
           },
+          errorWidget: (context, string, dynamic) {
+            return Icon(Icons.image);
+          },
         ),
       )),
       DataCell(Container(

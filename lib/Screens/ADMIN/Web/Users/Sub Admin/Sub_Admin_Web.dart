@@ -180,6 +180,9 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
           placeholder: (context, string) {
             return Icon(Icons.image);
           },
+          errorWidget: (context, string, dynamic) {
+            return Icon(Icons.image);
+          },
         ),
       )),
       DataCell(Container(

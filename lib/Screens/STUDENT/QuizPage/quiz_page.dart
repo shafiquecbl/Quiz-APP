@@ -301,9 +301,17 @@ class _QuizPageState extends State<QuizPage> {
                   builder: (BuildContext context) {
                     return Container(
                       width: MediaQuery.of(context).size.width,
-                      margin: EdgeInsets.symmetric(horizontal: 5.0),
-                      decoration: BoxDecoration(color: Colors.amber),
-                      child: CachedNetworkImage(imageUrl: i),
+                      child: CachedNetworkImage(
+                        imageUrl: i,
+                        placeholder: (context, string) {
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        },
+                        errorWidget: (context, string, dynamic) {
+                          return Icon(Icons.image);
+                        },
+                      ),
                     );
                   },
                 );
