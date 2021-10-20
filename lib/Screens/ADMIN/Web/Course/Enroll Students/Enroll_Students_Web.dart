@@ -147,67 +147,63 @@ class _EnrollStudentsWEBState extends State<EnrollStudentsWEB> {
   }
 
   enrollStudents(AsyncSnapshot<List<EnrollStudent>> snapshot) {
-    return Expanded(
-        child: Container(
-      height: MediaQuery.of(context).size.height / 1.1,
-      child: NativeDataTable(
-        rowsPerPage: _rowsPerPage,
-        firstRowIndex: _rowsOffset,
-        handleNext: () {
-          if (_rowsOffset + 25 < snapshot.data!.length) {
-            setState(() {
-              _rowsOffset += _rowsPerPage;
-              print(_rowsOffset.toString());
-            });
-          }
-        },
-        handlePrevious: () {
-          if (_rowsOffset > 0) {
-            setState(() {
-              _rowsOffset -= _rowsPerPage;
-              print(_rowsOffset.toString());
-            });
-          }
-        },
-        mobileIsLoading: CircularProgressIndicator(),
-        mobileItemBuilder: (context, index) {
-          return ExpansionTile(
-              leading: Text('${index + 1}'),
-              title: Text(
-                'ABC',
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ));
-        },
-        columns: [
-          DataColumn(label: Text('ID')),
-          DataColumn(label: Text('Name')),
-          DataColumn(label: Text('Course')),
-          DataColumn(label: Text('Action')),
-        ],
-        rows: List.generate(snapshot.data!.length, (index) {
-          EnrollStudent std = snapshot.data![index];
-          return DataRow(cells: [
-            DataCell(Text('$index')),
-            DataCell(Text(std.student!.name.toString())),
-            DataCell(Text(std.course!.name.toString())),
-            DataCell(Container(
-              child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(primary: Colors.red),
-                  onPressed: () {
-                    APIManager()
-                        .deleteENrollStudent(
-                            token: widget.loginResponse!.token, id: std.id)
-                        .then((value) {
-                      updatePage();
-                    });
-                  },
-                  child: Text('DELETE')),
-            )),
-          ]);
-        }),
-      ),
-    ));
+    return NativeDataTable(
+      rowsPerPage: _rowsPerPage,
+      firstRowIndex: _rowsOffset,
+      handleNext: () {
+        if (_rowsOffset + 25 < snapshot.data!.length) {
+          setState(() {
+            _rowsOffset += _rowsPerPage;
+            print(_rowsOffset.toString());
+          });
+        }
+      },
+      handlePrevious: () {
+        if (_rowsOffset > 0) {
+          setState(() {
+            _rowsOffset -= _rowsPerPage;
+            print(_rowsOffset.toString());
+          });
+        }
+      },
+      mobileIsLoading: CircularProgressIndicator(),
+      mobileItemBuilder: (context, index) {
+        return ExpansionTile(
+            leading: Text('${index + 1}'),
+            title: Text(
+              'ABC',
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ));
+      },
+      columns: [
+        DataColumn(label: Text('ID')),
+        DataColumn(label: Text('Name')),
+        DataColumn(label: Text('Course')),
+        DataColumn(label: Text('Action')),
+      ],
+      rows: List.generate(snapshot.data!.length, (index) {
+        EnrollStudent std = snapshot.data![index];
+        return DataRow(cells: [
+          DataCell(Text('$index')),
+          DataCell(Text(std.student!.name.toString())),
+          DataCell(Text(std.course!.name.toString())),
+          DataCell(Container(
+            child: ElevatedButton(
+                style: ElevatedButton.styleFrom(primary: Colors.red),
+                onPressed: () {
+                  APIManager()
+                      .deleteENrollStudent(
+                          token: widget.loginResponse!.token, id: std.id)
+                      .then((value) {
+                    updatePage();
+                  });
+                },
+                child: Text('DELETE')),
+          )),
+        ]);
+      }),
+    );
   }
 
   ////////////////////// FORM //////////////////////

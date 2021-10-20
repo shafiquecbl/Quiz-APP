@@ -113,52 +113,48 @@ class _StudentsListWEBState extends State<StudentsListWEB> {
   }
 
   studentsData(AsyncSnapshot<List<Student>> snapshot) {
-    return Expanded(
-        child: Container(
-      height: MediaQuery.of(context).size.height / 1.1,
-      child: NativeDataTable(
-        rowsPerPage: _rowsPerPage,
-        firstRowIndex: _rowsOffset,
-        handleNext: () {
-          if (_rowsOffset + 25 < snapshot.data!.length) {
-            setState(() {
-              _rowsOffset += _rowsPerPage;
-              print(_rowsOffset.toString());
-            });
-          }
-        },
-        handlePrevious: () {
-          if (_rowsOffset > 0) {
-            setState(() {
-              _rowsOffset -= _rowsPerPage;
-              print(_rowsOffset.toString());
-            });
-          }
-        },
-        mobileIsLoading: CircularProgressIndicator(),
-        mobileItemBuilder: (context, index) {
-          return ExpansionTile(
-              leading: Text('${index + 1}'),
-              title: Text(
-                'ABC',
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ));
-        },
-        columns: [
-          DataColumn(label: Text('ID')),
-          DataColumn(label: Text('Name')),
-          DataColumn(label: Text('Email')),
-          DataColumn(label: Text('Phone #')),
-          DataColumn(label: Text('Roll #')),
-          DataColumn(label: Text('Action')),
-        ],
-        rows: List.generate(snapshot.data!.length, (index) {
-          Student? student = snapshot.data![index];
-          return students(student, index);
-        }),
-      ),
-    ));
+    return NativeDataTable(
+      rowsPerPage: _rowsPerPage,
+      firstRowIndex: _rowsOffset,
+      handleNext: () {
+        if (_rowsOffset + 25 < snapshot.data!.length) {
+          setState(() {
+            _rowsOffset += _rowsPerPage;
+            print(_rowsOffset.toString());
+          });
+        }
+      },
+      handlePrevious: () {
+        if (_rowsOffset > 0) {
+          setState(() {
+            _rowsOffset -= _rowsPerPage;
+            print(_rowsOffset.toString());
+          });
+        }
+      },
+      mobileIsLoading: CircularProgressIndicator(),
+      mobileItemBuilder: (context, index) {
+        return ExpansionTile(
+            leading: Text('${index + 1}'),
+            title: Text(
+              'ABC',
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ));
+      },
+      columns: [
+        DataColumn(label: Text('ID')),
+        DataColumn(label: Text('Name')),
+        DataColumn(label: Text('Email')),
+        DataColumn(label: Text('Phone #')),
+        DataColumn(label: Text('Roll #')),
+        DataColumn(label: Text('Action')),
+      ],
+      rows: List.generate(snapshot.data!.length, (index) {
+        Student? student = snapshot.data![index];
+        return students(student, index);
+      }),
+    );
   }
 
   students(Student? student, index) {

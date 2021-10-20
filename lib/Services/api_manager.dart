@@ -28,7 +28,7 @@ class APIManager {
   var client = http.Client();
   var loginResponse;
   String domain =
-      'http://ec2-65-1-70-237.ap-south-1.compute.amazonaws.com:4000';
+      'http://ec2-13-232-217-249.ap-south-1.compute.amazonaws.com:4000';
   Dio dio = Dio();
 
   ///////////////////////////////////////////////////////////

@@ -168,94 +168,85 @@ class _QuestionsWEBState extends State<QuestionsWEB> {
   }
 
   questionsList(List<Questions> list) {
-    return Expanded(
-      child: Container(
-        height: MediaQuery.of(context).size.height / 1.1,
-        child: NativeDataTable(
-            rowsPerPage: _rowsPerPage,
-            firstRowIndex: _rowsOffset,
-            handleNext: () {
-              if (_rowsOffset + 25 < list.length) {
-                setState(() {
-                  _rowsOffset += _rowsPerPage;
-                  print(_rowsOffset.toString());
-                });
-              }
-            },
-            handlePrevious: () {
-              if (_rowsOffset > 0) {
-                setState(() {
-                  _rowsOffset -= _rowsPerPage;
-                  print(_rowsOffset.toString());
-                });
-              }
-            },
-            mobileIsLoading: CircularProgressIndicator(),
-            mobileItemBuilder: (context, index) {
-              return index == 0
-                  ? Padding(
-                      padding: const EdgeInsets.only(top: 70),
-                      child: Card(
-                        child: ExpansionTile(
-                          leading: Text('${index + 1}'),
-                          title: Text(
-                            list[index].questionStatement.toString(),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          children: [
-                            TextHead(heading: 'TYPE'),
-                            TextData(data: list[index].type.toString()),
-                            TextHead(heading: 'Level'),
-                            TextData(data: list[index].level.toString()),
-                            TextHead(heading: 'Subject'),
-                            TextData(
-                                data: list[index]
-                                    .subject!
-                                    .subjectName
-                                    .toString()),
-                            TextHead(heading: 'Course'),
-                            TextData(data: list[index].course!.name.toString()),
-                          ],
-                        ),
+    return NativeDataTable(
+        rowsPerPage: _rowsPerPage,
+        firstRowIndex: _rowsOffset,
+        handleNext: () {
+          if (_rowsOffset + 25 < list.length) {
+            setState(() {
+              _rowsOffset += _rowsPerPage;
+              print(_rowsOffset.toString());
+            });
+          }
+        },
+        handlePrevious: () {
+          if (_rowsOffset > 0) {
+            setState(() {
+              _rowsOffset -= _rowsPerPage;
+              print(_rowsOffset.toString());
+            });
+          }
+        },
+        mobileIsLoading: CircularProgressIndicator(),
+        mobileItemBuilder: (context, index) {
+          return index == 0
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 70),
+                  child: Card(
+                    child: ExpansionTile(
+                      leading: Text('${index + 1}'),
+                      title: Text(
+                        list[index].questionStatement.toString(),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    )
-                  : Card(
-                      child: ExpansionTile(
-                        leading: Text('${index + 1}'),
-                        title: Text(
-                          list[index].questionStatement.toString(),
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        children: [
-                          TextHead(heading: 'TYPE'),
-                          TextData(data: list[index].type.toString()),
-                          TextHead(heading: 'Level'),
-                          TextData(data: list[index].level.toString()),
-                          TextHead(heading: 'Subject'),
-                          TextData(
-                              data:
-                                  list[index].subject!.subjectName.toString()),
-                          TextHead(heading: 'Course'),
-                          TextData(data: list[index].course!.name.toString()),
-                        ],
-                      ),
-                    );
-            },
-            columns: [
-              DataColumn(label: Text('ID')),
-              DataColumn(label: Text('Question Statement')),
-              DataColumn(label: Text('Type')),
-              DataColumn(label: Text('Level')),
-              DataColumn(label: Text('Subjects')),
-              DataColumn(label: Text('Course')),
-              DataColumn(label: Text('Action')),
-            ],
-            rows: List.generate(
-                list.length, (index) => questions(list[index], index))),
-      ),
-    );
+                      children: [
+                        TextHead(heading: 'TYPE'),
+                        TextData(data: list[index].type.toString()),
+                        TextHead(heading: 'Level'),
+                        TextData(data: list[index].level.toString()),
+                        TextHead(heading: 'Subject'),
+                        TextData(
+                            data: list[index].subject!.subjectName.toString()),
+                        TextHead(heading: 'Course'),
+                        TextData(data: list[index].course!.name.toString()),
+                      ],
+                    ),
+                  ),
+                )
+              : Card(
+                  child: ExpansionTile(
+                    leading: Text('${index + 1}'),
+                    title: Text(
+                      list[index].questionStatement.toString(),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    children: [
+                      TextHead(heading: 'TYPE'),
+                      TextData(data: list[index].type.toString()),
+                      TextHead(heading: 'Level'),
+                      TextData(data: list[index].level.toString()),
+                      TextHead(heading: 'Subject'),
+                      TextData(
+                          data: list[index].subject!.subjectName.toString()),
+                      TextHead(heading: 'Course'),
+                      TextData(data: list[index].course!.name.toString()),
+                    ],
+                  ),
+                );
+        },
+        columns: [
+          DataColumn(label: Text('ID')),
+          DataColumn(label: Text('Question Statement')),
+          DataColumn(label: Text('Type')),
+          DataColumn(label: Text('Level')),
+          DataColumn(label: Text('Subjects')),
+          DataColumn(label: Text('Course')),
+          DataColumn(label: Text('Action')),
+        ],
+        rows: List.generate(
+            list.length, (index) => questions(list[index], index)));
   }
 
   questions(Questions? question, index) {

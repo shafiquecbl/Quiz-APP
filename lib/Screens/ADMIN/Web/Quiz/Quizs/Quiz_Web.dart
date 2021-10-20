@@ -188,49 +188,45 @@ class _QuizWEBState extends State<QuizWEB> {
   }
 
   quizList(List<Quiz> list) {
-    return Expanded(
-        child: Container(
-      height: MediaQuery.of(context).size.height / 1.1,
-      child: NativeDataTable(
-        rowsPerPage: _rowsPerPage,
-        firstRowIndex: _rowsOffset,
-        handleNext: () {
-          if (_rowsOffset + 25 < list.length) {
-            setState(() {
-              _rowsOffset += _rowsPerPage;
-              print(_rowsOffset.toString());
-            });
-          }
-        },
-        handlePrevious: () {
-          if (_rowsOffset > 0) {
-            setState(() {
-              _rowsOffset -= _rowsPerPage;
-              print(_rowsOffset.toString());
-            });
-          }
-        },
-        mobileIsLoading: CircularProgressIndicator(),
-        mobileItemBuilder: (context, index) {
-          return ExpansionTile(
-              leading: Text('${index + 1}'),
-              title: Text(
-                'ABC',
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ));
-        },
-        columns: [
-          DataColumn(label: Text('ID')),
-          DataColumn(label: Text('Name')),
-          DataColumn(label: Text('Attempt Date')),
-          DataColumn(label: Text('Subjects')),
-          DataColumn(label: Text('Course')),
-          DataColumn(label: Text('Action')),
-        ],
-        rows: List.generate(list.length, (index) => quiz(list[index], index)),
-      ),
-    ));
+    return NativeDataTable(
+      rowsPerPage: _rowsPerPage,
+      firstRowIndex: _rowsOffset,
+      handleNext: () {
+        if (_rowsOffset + 25 < list.length) {
+          setState(() {
+            _rowsOffset += _rowsPerPage;
+            print(_rowsOffset.toString());
+          });
+        }
+      },
+      handlePrevious: () {
+        if (_rowsOffset > 0) {
+          setState(() {
+            _rowsOffset -= _rowsPerPage;
+            print(_rowsOffset.toString());
+          });
+        }
+      },
+      mobileIsLoading: CircularProgressIndicator(),
+      mobileItemBuilder: (context, index) {
+        return ExpansionTile(
+            leading: Text('${index + 1}'),
+            title: Text(
+              'ABC',
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ));
+      },
+      columns: [
+        DataColumn(label: Text('ID')),
+        DataColumn(label: Text('Name')),
+        DataColumn(label: Text('Attempt Date')),
+        DataColumn(label: Text('Subjects')),
+        DataColumn(label: Text('Course')),
+        DataColumn(label: Text('Action')),
+      ],
+      rows: List.generate(list.length, (index) => quiz(list[index], index)),
+    );
   }
 
   quiz(Quiz? quiz, index) {
