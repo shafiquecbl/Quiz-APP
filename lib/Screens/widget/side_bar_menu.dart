@@ -31,7 +31,7 @@ class _SideBarState extends State<SideBar> {
                 child: Container(
                   margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                   child: Text(
-                    "QUIZ APP",
+                    "QUIZON",
                     style: TextStyle(
                       color: yellow,
                       fontSize: 25,

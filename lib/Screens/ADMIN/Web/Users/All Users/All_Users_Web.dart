@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Screens/widget/Search_Field.dart';
 import 'package:quiz_app/Services/api_manager.dart';
+import 'package:quiz_app/WIdgets/ImageView.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/WIdgets/network_error.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/size_config.dart';
+import 'dart:ui' as ui;
 
 class AllUsersWEB extends StatefulWidget {
   final LoginResponse? loginResponse;
@@ -167,21 +169,7 @@ class _AllUsersWEBState extends State<AllUsersWEB> {
       DataCell(Text(user.role.toString())),
       DataCell(Text(user.email.toString())),
       DataCell(Text(user.phoneNumber.toString())),
-      DataCell(Container(
-        margin: EdgeInsets.all(5),
-        width: 50,
-        height: 50,
-        child: CachedNetworkImage(
-          imageUrl: user.image.toString(),
-          fit: BoxFit.cover,
-          placeholder: (context, string) {
-            return Icon(Icons.image);
-          },
-          errorWidget: (context, string, dynamic) {
-            return Icon(Icons.image);
-          },
-        ),
-      )),
+      DataCell(ImageView(image: user.image)),
       DataCell(ElevatedButton(
           style: ElevatedButton.styleFrom(
               primary: user.suspend == false ? Colors.green : Colors.red),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Screens/ADMIN/Main%20Page/Main_Page.dart';
 import 'package:quiz_app/Screens/widget/Navigator.dart';
+import 'package:quiz_app/WIdgets/ImageView.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/controllers/page_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -48,16 +49,10 @@ class _StudentSideBarState extends State<StudentSideBar> {
                 radius: 50,
                 child: ClipRRect(
                     borderRadius: BorderRadius.circular(50),
-                    child: CachedNetworkImage(
-                      imageUrl: widget.loginResponse!.user!.image.toString(),
+                    child: CustomImageView(
+                      image: widget.loginResponse!.user!.image,
                       width: 120,
                       height: 120,
-                      placeholder: (context, string) {
-                        return Icon(Icons.image);
-                      },
-                      errorWidget: (context, string, dynamic) {
-                        return Icon(Icons.image);
-                      },
                     )),
               ),
               SizedBox(

@@ -8,6 +8,7 @@ import 'package:quiz_app/Screens/widget/Search_Field.dart';
 import 'package:quiz_app/Screens/widget/head_card.dart';
 import 'package:quiz_app/Services/api_manager.dart';
 import 'package:quiz_app/WIdgets/Custom_Error.dart';
+import 'package:quiz_app/WIdgets/ImageView.dart';
 import 'package:quiz_app/WIdgets/alert_dialog.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/WIdgets/network_error.dart';
@@ -164,21 +165,7 @@ class _TeachersWEBState extends State<TeachersWEB> {
       DataCell(Text(teacher!.name.toString())),
       DataCell(Text(teacher.email.toString())),
       DataCell(Text(teacher.phoneNumber.toString())),
-      DataCell(Container(
-        margin: EdgeInsets.all(5),
-        width: 50,
-        height: 50,
-        child: CachedNetworkImage(
-          imageUrl: teacher.image.toString(),
-          fit: BoxFit.cover,
-          placeholder: (context, string) {
-            return Icon(Icons.image);
-          },
-          errorWidget: (context, string, dynamic) {
-            return Icon(Icons.image);
-          },
-        ),
-      )),
+      DataCell(ImageView(image: teacher.image)),
       DataCell(Container(
         width: 125,
         height: 60,

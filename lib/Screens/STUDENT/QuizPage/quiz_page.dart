@@ -402,7 +402,7 @@ class _QuizPageState extends State<QuizPage> {
           question!.questionStatement.toString(),
           style: TextStyle(
             color: Colors.black,
-            fontSize: 20,
+            fontSize: 16,
           ),
         ),
       ),

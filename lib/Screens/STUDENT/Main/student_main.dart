@@ -57,7 +57,7 @@ class _StudentMainPageState extends State<StudentMainPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "QUIZ APP",
+                      "QUIZON",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 28,

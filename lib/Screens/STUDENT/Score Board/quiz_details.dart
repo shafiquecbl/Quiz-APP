@@ -80,61 +80,48 @@ class _QuizDetailsState extends State<QuizDetails> {
               totalQuestions: snapshot.data!.question!.length);
           return Padding(
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-            child: Column(
-              children: [
-                widget.isVisible == true
-                    ? Row(
-                        children: [
-                          Container(
-                            width: 120,
-                            decoration: BoxDecoration(
-                                color: Colors.blue.withOpacity(0.3),
-                                borderRadius: BorderRadius.circular(30)),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: TextButton.icon(
-                                  onPressed: () {
-                                    pushAndRemoveUntil(
-                                        context,
-                                        StudentHome(
-                                            loginResponse:
-                                                widget.loginResponse!));
-                                  },
-                                  icon: Icon(Icons.arrow_back_ios),
-                                  label: Text('Home')),
-                            ),
-                          ),
-                          Spacer()
-                        ],
-                      )
-                    : Container(),
-                scoreDetails(quiz: snapshot.data),
-                Expanded(
-                    child: Scrollbar(
-                  showTrackOnHover: true,
-                  isAlwaysShown: true,
-                  interactive: true,
-                  controller: controller,
-                  child: ListView.separated(
-                      controller: controller,
-                      separatorBuilder: (context, index) {
-                        return Divider();
-                      },
-                      itemCount: snapshot.data!.question!.length,
-                      itemBuilder: (context, index) {
-                        Question1 question = snapshot.data!.question![index];
-                        return questionData(question: question);
-                      }),
-                ))
-              ],
-            ),
+            child: SingleChildScrollView(
+                controller: controller,
+                child: Column(
+                  children: [
+                    widget.isVisible == true
+                        ? Row(
+                            children: [
+                              Container(
+                                width: 120,
+                                decoration: BoxDecoration(
+                                    color: Colors.blue.withOpacity(0.3),
+                                    borderRadius: BorderRadius.circular(30)),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: TextButton.icon(
+                                      onPressed: () {
+                                        pushAndRemoveUntil(
+                                            context,
+                                            StudentHome(
+                                                loginResponse:
+                                                    widget.loginResponse!));
+                                      },
+                                      icon: Icon(Icons.arrow_back_ios),
+                                      label: Text('Home')),
+                                ),
+                              ),
+                              Spacer()
+                            ],
+                          )
+                        : Container(),
+                    scoreDetails(quiz: snapshot.data),
+                    for (var question in snapshot.data!.question!)
+                      questionData(question: question)
+                  ],
+                )),
           );
         },
       ),
     );
   }
 
-  scoreDetails({@required Quiz1? quiz}) {
+  Widget scoreDetails({@required Quiz1? quiz}) {
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
       child: Padding(
@@ -278,7 +265,7 @@ class _QuizDetailsState extends State<QuizDetails> {
               question!.questionStatement.toString(),
               style: TextStyle(
                 color: Colors.black,
-                fontSize: 20,
+                fontSize: 16,
               ),
             ),
           ),
@@ -351,6 +338,13 @@ class _QuizDetailsState extends State<QuizDetails> {
                 ),
               )),
         ),
+        SizedBox(
+          height: 10,
+        ),
+        Container(
+            width: MediaQuery.of(context).size.width,
+            height: 0.8,
+            color: Colors.grey[300]),
       ],
     );
   }

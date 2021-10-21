@@ -74,30 +74,17 @@ class _QuizDetailsWEBState extends State<QuizDetailsWEB> {
               marks: widget.solvedQuiz!.marks,
               totalQuestions: snapshot.data!.question!.length);
           return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-            child: Column(
-              children: [
-                scoreDetails(quiz: snapshot.data),
-                Expanded(
-                    child: Scrollbar(
-                  showTrackOnHover: true,
-                  isAlwaysShown: true,
-                  interactive: true,
-                  controller: controller,
-                  child: ListView.separated(
-                      controller: controller,
-                      separatorBuilder: (context, index) {
-                        return Divider();
-                      },
-                      itemCount: snapshot.data!.question!.length,
-                      itemBuilder: (context, index) {
-                        Question1 question = snapshot.data!.question![index];
-                        return questionData(question: question);
-                      }),
-                ))
-              ],
-            ),
-          );
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              child: SingleChildScrollView(
+                controller: controller,
+                child: Column(
+                  children: [
+                    scoreDetails(quiz: snapshot.data),
+                    for (var question in snapshot.data!.question!)
+                      questionData(question: question)
+                  ],
+                ),
+              ));
         },
       ),
     );
@@ -247,7 +234,7 @@ class _QuizDetailsWEBState extends State<QuizDetailsWEB> {
               question!.questionStatement.toString(),
               style: TextStyle(
                 color: Colors.black,
-                fontSize: 20,
+                fontSize: 16,
               ),
             ),
           ),
@@ -281,6 +268,13 @@ class _QuizDetailsWEBState extends State<QuizDetailsWEB> {
                 ),
               )),
         ),
+        SizedBox(
+          height: 10,
+        ),
+        Container(
+            width: MediaQuery.of(context).size.width,
+            height: 0.8,
+            color: Colors.grey[300]),
       ],
     );
   }

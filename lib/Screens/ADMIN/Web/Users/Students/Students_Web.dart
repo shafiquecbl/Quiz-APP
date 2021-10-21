@@ -8,6 +8,7 @@ import 'package:quiz_app/Screens/widget/Search_Field.dart';
 import 'package:quiz_app/Screens/widget/head_card.dart';
 import 'package:quiz_app/Services/api_manager.dart';
 import 'package:quiz_app/WIdgets/Custom_Error.dart';
+import 'package:quiz_app/WIdgets/ImageView.dart';
 import 'package:quiz_app/WIdgets/alert_dialog.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/WIdgets/network_error.dart';
@@ -188,21 +189,7 @@ class _StudentsWEBState extends State<StudentsWEB> {
         width: 50,
         child: Text(student.rollNo.toString()),
       )),
-      DataCell(Container(
-        margin: EdgeInsets.all(5),
-        width: 50,
-        height: 50,
-        child: CachedNetworkImage(
-          imageUrl: student.image.toString(),
-          fit: BoxFit.cover,
-          placeholder: (context, string) {
-            return Icon(Icons.image);
-          },
-          errorWidget: (context, string, dynamic) {
-            return Icon(Icons.image);
-          },
-        ),
-      )),
+      DataCell(ImageView(image: student.image)),
       DataCell(Container(
         width: 125,
         height: 60,

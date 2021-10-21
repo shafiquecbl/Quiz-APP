@@ -581,6 +581,7 @@ class APIManager {
       'Authorization': 'Bearer $token',
       "Content-Type": "application/json"
     }).then((response) async {
+      print(response.body);
       List<EnrollStudent> jsonMap = (json.decode(response.body) as List)
           .map((e) => EnrollStudent.fromJson(e))
           .toList();
