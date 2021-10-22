@@ -86,18 +86,6 @@ class _SideBarState extends State<SideBar> {
       leading: Icon(Icons.person),
       children: [
         DrawerListTile(
-          title: 'Students',
-          onPressed: () {
-            pageController.changePage(0);
-          },
-        ),
-        DrawerListTile(
-          title: 'Teachers',
-          onPressed: () {
-            pageController.changePage(1);
-          },
-        ),
-        DrawerListTile(
           title: 'All Users',
           onPressed: () {
             pageController.changePage(2);
@@ -107,6 +95,18 @@ class _SideBarState extends State<SideBar> {
           title: 'SubAdmin',
           onPressed: () {
             pageController.changePage(3);
+          },
+        ),
+        DrawerListTile(
+          title: 'Teachers',
+          onPressed: () {
+            pageController.changePage(1);
+          },
+        ),
+        DrawerListTile(
+          title: 'Students',
+          onPressed: () {
+            pageController.changePage(0);
           },
         ),
       ],

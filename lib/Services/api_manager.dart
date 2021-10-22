@@ -34,7 +34,6 @@ class APIManager {
   ///////////////////////////////////////////////////////////
 
   adminLogin(email, password) async {
-    print('Reached');
     return await client
         .post(
       Uri.parse('$domain/admin/auth/login'),
@@ -107,7 +106,6 @@ class APIManager {
       @required token,
       @required name,
       @required email,
-      @required password,
       @required rollNo,
       @required phoneNo,
       @required PlatformFile? image,
@@ -120,9 +118,6 @@ class APIManager {
 
     request.fields['name'] = name;
     request.fields['email'] = email;
-    if (password != null) {
-      request.fields['password'] = password;
-    }
     request.fields['gender'] = gender;
     request.fields['rollno'] = rollNo;
     request.fields['phoneNumber'] = phoneNo;
@@ -935,7 +930,6 @@ class APIManager {
       @required String? quizId,
       @required String? questionId,
       @required String? correctAnswer}) async {
-    print('REACHED');
     return await dio
         .post('$domain/api/solvedQuizData/addSolvedQuizData',
             data: SubmitQuiz(

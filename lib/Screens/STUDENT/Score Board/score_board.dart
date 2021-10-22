@@ -37,8 +37,8 @@ class _StudentScoreBoardState extends State<StudentScoreBoard> {
         .getStudentQuiz(
             token: widget.loginResponse!.token,
             id: widget.loginResponse!.user!.id)
-        .then((value) {
-      for (var quiz in value) {
+        .then((quizList) {
+      for (var quiz in quizList) {
         getQuiz(quiz.quizName!);
       }
     });
@@ -47,8 +47,8 @@ class _StudentScoreBoardState extends State<StudentScoreBoard> {
   getQuiz(String id) {
     APIManager()
         .getQuizById(token: widget.loginResponse!.token, id: id)
-        .then((value) {
-      quizes.add(value);
+        .then((quiz) {
+      quizes.add(quiz);
       setState(() {
         isLoading = false;
       });
@@ -111,7 +111,6 @@ class _StudentScoreBoardState extends State<StudentScoreBoard> {
           return Center(
             child: Text('No Quiz Available'),
           );
-
         //else show data
         return isLoading == true ? MyLoading() : scoreCard(quiz: snapshot.data);
       },

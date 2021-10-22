@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:data_tables/data_tables.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -25,9 +24,16 @@ class StudentsWEB extends StatefulWidget {
 class _StudentsWEBState extends State<StudentsWEB> {
   int _rowsPerPage = 25;
   int _rowsOffset = 0;
-  //////////////////////////////////////////////////////////
 
-  String? name, email, phoneNo, password, gender, rollNo;
+  ///////////////////// CONTROLLER ////////////////////////
+  TextEditingController name = TextEditingController();
+  TextEditingController email = TextEditingController();
+  TextEditingController phoneNo = TextEditingController();
+  TextEditingController password = TextEditingController();
+  TextEditingController rollNo = TextEditingController();
+  /////////////////////////////////////////////////////////
+
+  String? gender;
   PlatformFile? image;
 
   bool isLoading = false;
@@ -37,6 +43,7 @@ class _StudentsWEBState extends State<StudentsWEB> {
 
   final _formKey = GlobalKey<FormState>();
   Future<List<Student>>? _studentModel;
+  Function(void Function())? myState;
 
   static const menuItems = <String>[
     'Male',
@@ -92,7 +99,7 @@ class _StudentsWEBState extends State<StudentsWEB> {
             dataTable(),
             HeadCard(
               onPressed: () {
-                showAddStudentForm();
+                showAddStudentForm(title: 'ADD STUDENT');
               },
               title: 'ADD STUDENT',
             ),
@@ -200,7 +207,7 @@ class _StudentsWEBState extends State<StudentsWEB> {
                 style: ElevatedButton.styleFrom(primary: Colors.green),
                 onPressed: () {
                   updateStudent = student;
-                  showUpdateStudentForm();
+                  showAddStudentForm(title: 'UPDATE STUDENT');
                 },
                 child: Text('EDIT')),
             ElevatedButton(
@@ -246,14 +253,15 @@ class _StudentsWEBState extends State<StudentsWEB> {
   ////////////////////// ADD STUENT FORM //////////////////////
   ////////////////////////////////////////////////////////////
 
-  showAddStudentForm() {
+  showAddStudentForm({@required String? title}) {
     return showDialog(
         context: context,
         builder: (context) {
-          return StatefulBuilder(builder: (context, myState) {
+          return StatefulBuilder(builder: (context, state) {
+            myState = state;
             return AlertDialog(
-              content: content(myState, title: 'ADD STUDENT'),
-              actions: [cancelButton(), createButton(myState)],
+              content: content(title: title),
+              actions: [cancelButton(), createButton(title)],
             );
           });
         });
@@ -266,55 +274,32 @@ class _StudentsWEBState extends State<StudentsWEB> {
         child: ElevatedButton(
             style: ElevatedButton.styleFrom(primary: Colors.red),
             onPressed: () {
+              _formKey.currentState!.reset();
               Navigator.pop(context);
             },
             child: Text('CANCEL')));
   }
 
-  Widget createButton(Function(void Function()) myState) {
+  Widget createButton(String? title) {
     return Container(
         width: 120,
         height: 40,
         child: ElevatedButton(
             style: ElevatedButton.styleFrom(primary: yellow),
             onPressed: () {
-              if (name == null) {
-                myState(() {
-                  error = 'Please enter name';
-                });
-              } else if (email == null) {
-                myState(() {
-                  error = 'Please enter email';
-                });
-              } else if (password == null) {
-                myState(() {
-                  error = 'Please enter password';
-                });
-              } else if (rollNo == null) {
-                myState(() {
-                  error = 'Please enter roll number';
-                });
-              } else if (phoneNo == null) {
-                myState(() {
-                  error = 'Please enter phone number';
-                });
-              } else if (gender == null) {
-                myState(() {
-                  error = 'Please select gender';
-                });
-              } else if (image == null) {
-                myState(() {
-                  error = 'Please select image';
-                });
-              } else {
-                addStudent(myState);
-              }
+              title == 'ADD STUDENT' ? checkAdd() : checkUpdate();
             },
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(isLoading ? 'CREATING' : 'CREATE'),
+                Text(isLoading && title == 'ADD STUDENT'
+                    ? 'CREATING'
+                    : isLoading && title == 'UPDATE STUDENT'
+                        ? 'UPDATING'
+                        : title == 'ADD STUDENT'
+                            ? 'CREATE'
+                            : 'UPDATE'),
                 SizedBox(
                   width: 10,
                 ),
@@ -330,59 +315,29 @@ class _StudentsWEBState extends State<StudentsWEB> {
             )));
   }
 
-  Widget updateButton(Function(void Function()) myState) {
-    return Container(
-        width: 120,
-        height: 40,
-        child: ElevatedButton(
-            style: ElevatedButton.styleFrom(primary: yellow),
-            onPressed: () {
-              if (password == null) {
-                myState(() {
-                  error = 'Please enter password';
-                });
-              } else {
-                if (name == null) {
-                  name = updateStudent!.name;
-                }
-                if (email == null) {
-                  email = updateStudent!.email;
-                }
-
-                if (rollNo == null) {
-                  rollNo = updateStudent!.rollNo;
-                }
-                if (phoneNo == null) {
-                  phoneNo = updateStudent!.phoneNumber;
-                }
-                if (gender == null) {
-                  gender = updateStudent!.gender;
-                }
-                updateStudentt(myState);
-              }
-            },
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(isLoading ? 'UPDATING' : 'UPDATE'),
-                SizedBox(
-                  width: 10,
-                ),
-                isLoading
-                    ? Center(
-                        child: SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator()),
-                      )
-                    : Container()
-              ],
-            )));
+  checkAdd() {
+    if (_formKey.currentState!.validate()) {
+      if (image == null) {
+        myState!(() {
+          error = 'Please select image';
+        });
+      } else {
+        addStudent();
+      }
+    }
   }
 
-  addStudent(Function(void Function()) myState) {
-    myState(() {
+  checkUpdate() {
+    if (_formKey.currentState!.validate()) {
+      if (gender == null) {
+        gender = updateStudent!.gender;
+      }
+      updateStudentt();
+    }
+  }
+
+  addStudent() {
+    myState!(() {
       error = null;
       isLoading = true;
     });
@@ -390,28 +345,27 @@ class _StudentsWEBState extends State<StudentsWEB> {
     return APIManager()
         .addStudent(
             token: widget.loginResponse.token,
-            name: name,
-            email: email,
-            password: password,
-            rollNo: rollNo,
-            phoneNo: phoneNo,
+            name: name.text,
+            email: email.text,
+            password: password.text,
+            rollNo: rollNo.text,
+            phoneNo: phoneNo.text,
             image: image,
             gender: gender)
         .then((value) {
       isLoading = false;
-      _formKey.currentState!.reset();
       Navigator.of(context, rootNavigator: true).pop();
       updatePage();
     }).catchError((e) {
-      myState(() {
+      myState!(() {
         isLoading = false;
         error = 'Create Failed';
       });
     });
   }
 
-  updateStudentt(Function(void Function()) myState) {
-    myState(() {
+  updateStudentt() {
+    myState!(() {
       error = null;
       isLoading = true;
     });
@@ -419,11 +373,10 @@ class _StudentsWEBState extends State<StudentsWEB> {
         .updateStudent(
             id: updateStudent!.id,
             token: widget.loginResponse.token,
-            name: name,
-            email: email,
-            password: password,
-            rollNo: rollNo,
-            phoneNo: phoneNo,
+            name: name.text,
+            email: email.text,
+            rollNo: rollNo.text,
+            phoneNo: phoneNo.text,
             image: image,
             gender: gender)
         .then((value) {
@@ -434,7 +387,7 @@ class _StudentsWEBState extends State<StudentsWEB> {
     });
   }
 
-  Widget content(Function(void Function()) myState, {@required String? title}) {
+  Widget content({@required String? title}) {
     return Container(
       width: SizeConfig.screenWidth! / 1.8,
       height: SizeConfig.screenHeight! / 1.5,
@@ -462,15 +415,22 @@ class _StudentsWEBState extends State<StudentsWEB> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   phoneNoField(),
-                  passwordField(),
+                  genderField(),
                 ],
               ),
               SizedBox(height: 30),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: title == 'ADD STUDENT'
+                    ? MainAxisAlignment.spaceEvenly
+                    : MainAxisAlignment.start,
                 children: [
-                  rollNoField(),
-                  genderField(),
+                  title != 'ADD STUDENT'
+                      ? Padding(
+                          padding: const EdgeInsets.only(left: 25),
+                          child: rollNoField(),
+                        )
+                      : rollNoField(),
+                  title == 'ADD STUDENT' ? passwordField() : Container(),
                 ],
               ),
               SizedBox(height: 30),
@@ -484,7 +444,7 @@ class _StudentsWEBState extends State<StudentsWEB> {
                       color: Colors.grey[300],
                       child: ElevatedButton.icon(
                           onPressed: () {
-                            pickImage(myState);
+                            pickImage();
                           },
                           icon: Icon(Icons.attach_file),
                           label: Text('Choose Photo')),
@@ -516,14 +476,14 @@ class _StudentsWEBState extends State<StudentsWEB> {
     );
   }
 
-  pickImage(Function(void Function()) myState) async {
+  pickImage() async {
     await FilePicker.platform
         .pickFiles(
       withReadStream:
           true, // this will return PlatformFile object with read stream
     )
         .then((value) {
-      myState(() {
+      myState!(() {
         image = value!.files.single;
       });
     });
@@ -535,16 +495,14 @@ class _StudentsWEBState extends State<StudentsWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
-          onChanged: (value) {
-            name = value;
-          },
-          onFieldSubmitted: (value) {
-            setState(() {
-              name = value;
-            });
-          },
-          onSaved: (value) {
-            name = value;
+          controller: name
+            ..text = updateStudent != null ? updateStudent!.name! : '',
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter name';
+            }
+
+            return null;
           },
           decoration:
               InputDecoration(hintText: 'Enter name', labelText: 'NAME'),
@@ -556,14 +514,16 @@ class _StudentsWEBState extends State<StudentsWEB> {
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
           keyboardType: TextInputType.emailAddress,
-          onChanged: (value) {
-            email = value;
-          },
-          onFieldSubmitted: (value) {
-            email = value;
-          },
-          onSaved: (value) {
-            email = value;
+          controller: email
+            ..text = updateStudent != null ? updateStudent!.email! : '',
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter email';
+            } else if (!isEmail(value)) {
+              return 'Email format is not correcct';
+            }
+
+            return null;
           },
           decoration:
               InputDecoration(hintText: 'Enter email', labelText: 'EMAIL'),
@@ -575,14 +535,16 @@ class _StudentsWEBState extends State<StudentsWEB> {
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
           keyboardType: TextInputType.phone,
-          onChanged: (value) {
-            phoneNo = value;
-          },
-          onFieldSubmitted: (value) {
-            phoneNo = value;
-          },
-          onSaved: (value) {
-            phoneNo = value;
+          controller: phoneNo
+            ..text = updateStudent != null ? updateStudent!.phoneNumber! : '',
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter phone no';
+            } else if (value.length != 11) {
+              return 'Please enter 11 digit phone number';
+            }
+
+            return null;
           },
           decoration:
               InputDecoration(hintText: 'Enter phone #', labelText: 'PHONE #'),
@@ -593,14 +555,15 @@ class _StudentsWEBState extends State<StudentsWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
-          onChanged: (value) {
-            password = value;
-          },
-          onFieldSubmitted: (value) {
-            password = value;
-          },
-          onSaved: (value) {
-            password = value;
+          controller: password,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter password';
+            } else if (value.length < 8) {
+              return 'Password length must be 8';
+            }
+
+            return null;
           },
           obscureText: true,
           decoration: InputDecoration(
@@ -612,14 +575,14 @@ class _StudentsWEBState extends State<StudentsWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
-          onChanged: (value) {
-            rollNo = value;
-          },
-          onFieldSubmitted: (value) {
-            rollNo = value;
-          },
-          onSaved: (value) {
-            rollNo = value;
+          controller: rollNo
+            ..text = updateStudent != null ? updateStudent!.rollNo! : '',
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter roll no';
+            }
+
+            return null;
           },
           keyboardType: TextInputType.number,
           decoration:
@@ -631,233 +594,30 @@ class _StudentsWEBState extends State<StudentsWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: DropdownButtonFormField(
+          validator: (value) {
+            if (updateStudent!.gender == null) {
+              if (value == null) {
+                return 'Please select gender';
+              }
+            }
+
+            return null;
+          },
           onChanged: (value) => gender = value.toString(),
           onSaved: (value) => gender = value.toString(),
           decoration: InputDecoration(
             labelText: "GENDER",
-            hintText: "Select gender",
+            hintText:
+                updateStudent == null ? "Select gender" : updateStudent!.gender,
             floatingLabelBehavior: FloatingLabelBehavior.always,
           ),
           items: popUpMenuItem,
         ));
   }
 
-  /////////////////////////////////////////////////////////////
-  ////////////////////// UPDATE STUENT FORM //////////////////////
-  ////////////////////////////////////////////////////////////
-
-  showUpdateStudentForm() {
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return StatefulBuilder(builder: (context, myState) {
-            return AlertDialog(
-              content: updateContet(myState, title: 'UPDATE STUDENT'),
-              actions: [cancelButton(), updateButton(myState)],
-            );
-          });
-        });
-  }
-
-  updateContet(Function(void Function()) myState, {@required String? title}) {
-    return Container(
-      width: SizeConfig.screenWidth! / 1.8,
-      height: SizeConfig.screenHeight! / 1.5,
-      child: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              ///////////////////// TITLE /////////////////////
-
-              Text(title.toString(),
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              SizedBox(
-                height: 40,
-              ),
-
-              /////////////////////////////////////////////////
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ////// NAME FIELD /////
-                  Container(
-                      width: SizeConfig.screenWidth! / 4,
-                      child: TextFormField(
-                        initialValue:
-                            updateStudent != null ? updateStudent!.name : null,
-                        onChanged: (value) {
-                          name = value;
-                        },
-                        onFieldSubmitted: (value) {
-                          name = value;
-                        },
-                        onSaved: (value) {
-                          name = value;
-                        },
-                        decoration: InputDecoration(
-                            hintText: 'Enter name', labelText: 'NAME'),
-                      )),
-
-                  ////// EMAIL FIELD //////
-
-                  Container(
-                      width: SizeConfig.screenWidth! / 4,
-                      child: TextFormField(
-                        initialValue:
-                            updateStudent != null ? updateStudent!.email : null,
-                        keyboardType: TextInputType.emailAddress,
-                        onChanged: (value) {
-                          email = value;
-                        },
-                        onFieldSubmitted: (value) {
-                          email = value;
-                        },
-                        onSaved: (value) {
-                          email = value;
-                        },
-                        decoration: InputDecoration(
-                            hintText: 'Enter email', labelText: 'EMAIL'),
-                      ))
-                ],
-              ),
-              SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ////// PHONE No ///////
-
-                  Container(
-                      width: SizeConfig.screenWidth! / 4,
-                      child: TextFormField(
-                        initialValue: updateStudent != null
-                            ? updateStudent!.phoneNumber
-                            : null,
-                        keyboardType: TextInputType.phone,
-                        onChanged: (value) {
-                          phoneNo = value;
-                        },
-                        onFieldSubmitted: (value) {
-                          phoneNo = value;
-                        },
-                        onSaved: (value) {
-                          phoneNo = value;
-                        },
-                        decoration: InputDecoration(
-                            hintText: 'Enter phone #', labelText: 'PHONE #'),
-                      )),
-
-                  ////// PASSWORD FIELD ///////
-
-                  Container(
-                      width: SizeConfig.screenWidth! / 4,
-                      child: TextFormField(
-                        onChanged: (value) {
-                          password = value;
-                        },
-                        onFieldSubmitted: (value) {
-                          password = value;
-                        },
-                        onSaved: (value) {
-                          password = value;
-                        },
-                        obscureText: true,
-                        decoration: InputDecoration(
-                            hintText: 'Enter password', labelText: 'PASSWORD'),
-                      )),
-                ],
-              ),
-              SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ///// ROLL NO /////
-                  Container(
-                      width: SizeConfig.screenWidth! / 4,
-                      child: TextFormField(
-                        initialValue: updateStudent != null
-                            ? updateStudent!.rollNo
-                            : null,
-                        onChanged: (value) {
-                          rollNo = value;
-                        },
-                        onFieldSubmitted: (value) {
-                          rollNo = value;
-                        },
-                        onSaved: (value) {
-                          rollNo = value;
-                        },
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                            hintText: 'Enter Roll #', labelText: 'ROLL #'),
-                      )),
-
-                  ///// GENDER  /////
-
-                  Container(
-                      width: SizeConfig.screenWidth! / 4,
-                      child: DropdownButtonFormField(
-                        onChanged: (value) => gender = value.toString(),
-                        onSaved: (value) => gender = value.toString(),
-                        decoration: InputDecoration(
-                          labelText: "GENDER",
-                          hintText: "Select gender",
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                        ),
-                        items: popUpMenuItem,
-                      )),
-                ],
-              ),
-              SizedBox(height: 30),
-
-              Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 25),
-                    child: Container(
-                      height: 35,
-                      color: Colors.grey[300],
-                      child: ElevatedButton.icon(
-                          onPressed: () {
-                            pickImage(myState);
-                          },
-                          icon: Icon(Icons.attach_file),
-                          label: Text('Choos File')),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  image != null ? Text('Image Selected') : Container()
-                ],
-              ),
-              SizedBox(height: 20),
-              Padding(
-                padding: EdgeInsets.only(left: 25),
-                child: Row(
-                  children: [
-                    error != null
-                        ? Row(
-                            children: [
-                              Icon(Icons.error, color: Colors.red),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text(
-                                '$error',
-                                style: TextStyle(color: Colors.red),
-                              )
-                            ],
-                          )
-                        : Container(),
-                  ],
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
+  clearController() {
+    name.clear();
+    email.clear();
+    password.clear();
   }
 }

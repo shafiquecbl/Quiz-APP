@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:data_tables/data_tables.dart';
 import 'package:flutter/material.dart';
 import 'package:quiz_app/Models/User.dart';
@@ -9,7 +8,6 @@ import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/WIdgets/network_error.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/size_config.dart';
-import 'dart:ui' as ui;
 
 class AllUsersWEB extends StatefulWidget {
   final LoginResponse? loginResponse;
