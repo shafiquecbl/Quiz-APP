@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:quiz_app/Models/Student/Quiz.dart';
-import 'package:quiz_app/Models/Student/solved_quiz.dart';
+import 'package:quiz_app/Models/Student/student_solved_quiz.dart';
 import 'package:quiz_app/Models/User.dart';
-import 'package:quiz_app/Services/api_manager.dart';
-import 'package:quiz_app/WIdgets/loading.dart';
-import 'package:quiz_app/WIdgets/network_error.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/controllers/page_controller.dart';
 
 class QuizDetailsWEB extends StatefulWidget {
-  final SolvedQuiz? solvedQuiz;
+  final StudentQuiz? studentQuiz;
   final LoginResponse? loginResponse;
   final bool? isVisible;
   const QuizDetailsWEB(
-      {@required this.solvedQuiz,
+      {@required this.studentQuiz,
       @required this.loginResponse,
       @required this.isVisible});
 
@@ -26,18 +23,6 @@ class _QuizDetailsWEBState extends State<QuizDetailsWEB> {
   ScrollController controller = ScrollController();
   MyPageController pageController = MyPageController();
   double? percentage;
-  Future<Quiz1>? quizModel;
-
-  @override
-  void initState() {
-    fetchQuizData();
-    super.initState();
-  }
-
-  fetchQuizData() {
-    quizModel = APIManager().getQuizById(
-        token: widget.loginResponse!.token, id: widget.solvedQuiz!.quizName);
-  }
 
   double calculatePercentage(
       {@required int? totalQuestions, @required int? marks}) {
@@ -46,51 +31,36 @@ class _QuizDetailsWEBState extends State<QuizDetailsWEB> {
 
   @override
   Widget build(BuildContext context) {
+    percentage = calculatePercentage(
+        marks: widget.studentQuiz!.solvedQuiz!.marks,
+        totalQuestions: widget.studentQuiz!.quiz!.question!.length);
     return Scaffold(
       appBar: AppBar(
           leading: IconButton(
               onPressed: () {
-                pageController.changePage(11);
+                pageController.changePage(
+                    widget.loginResponse!.user!.role == 'admin' ? 11 : 3);
               },
               icon: Icon(
                 Icons.arrow_back_ios,
                 color: Colors.black87,
               ))),
-      body: FutureBuilder<Quiz1>(
-        future: quizModel,
-        builder: (BuildContext context, AsyncSnapshot<Quiz1> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
-            return MyLoading();
-          if (snapshot.data == null)
-            return NetworkError(onPressed: () {
-              print(widget.solvedQuiz!.quizName);
-              setState(() {
-                quizModel = APIManager().getQuizById(
-                    token: widget.loginResponse!.token,
-                    id: widget.solvedQuiz!.quizName);
-              });
-            });
-          percentage = calculatePercentage(
-              marks: widget.solvedQuiz!.marks,
-              totalQuestions: snapshot.data!.question!.length);
-          return Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              child: SingleChildScrollView(
-                controller: controller,
-                child: Column(
-                  children: [
-                    scoreDetails(quiz: snapshot.data),
-                    for (var question in snapshot.data!.question!)
-                      questionData(question: question)
-                  ],
-                ),
-              ));
-        },
-      ),
+      body: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          child: SingleChildScrollView(
+            controller: controller,
+            child: Column(
+              children: [
+                scoreDetails(sQuiz: widget.studentQuiz),
+                for (var question in widget.studentQuiz!.quiz!.question!)
+                  questionData(question: question)
+              ],
+            ),
+          )),
     );
   }
 
-  scoreDetails({@required Quiz1? quiz}) {
+  scoreDetails({@required StudentQuiz? sQuiz}) {
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
       child: Padding(
@@ -113,7 +83,7 @@ class _QuizDetailsWEBState extends State<QuizDetailsWEB> {
                     height: 7,
                   ),
                   Text(
-                    quiz!.question!.length.toString(),
+                    sQuiz!.quiz!.question!.length.toString(),
                     style: TextStyle(
                         color: Colors.black,
                         fontSize: 22.0,
@@ -138,7 +108,7 @@ class _QuizDetailsWEBState extends State<QuizDetailsWEB> {
                     height: 7,
                   ),
                   Text(
-                    widget.solvedQuiz!.questionAttempted.toString(),
+                    sQuiz.solvedQuiz!.questionAttempted.toString(),
                     style: TextStyle(
                         color: Colors.black,
                         fontSize: 22.0,
@@ -163,7 +133,7 @@ class _QuizDetailsWEBState extends State<QuizDetailsWEB> {
                     height: 7,
                   ),
                   Text(
-                    widget.solvedQuiz!.marks.toString(),
+                    sQuiz.solvedQuiz!.marks.toString(),
                     style: TextStyle(
                         color: Colors.black,
                         fontSize: 22.0,

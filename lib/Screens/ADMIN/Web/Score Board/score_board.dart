@@ -1,8 +1,7 @@
 import 'package:data_tables/data_tables.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:quiz_app/Models/Student/Quiz.dart';
-import 'package:quiz_app/Models/Student/solved_quiz.dart';
+import 'package:quiz_app/Models/Student/student_solved_quiz.dart';
 import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Provider/provider.dart';
 import 'package:quiz_app/Services/api_manager.dart';
@@ -25,11 +24,8 @@ class _ScoreBoardWEBState extends State<ScoreBoardWEB> {
 
   MyPageController pageController = MyPageController();
 
-  Future<List<SolvedQuiz>>? solvedQuiz;
+  Future<List<StudentQuiz>>? solvedQuiz;
   CustomProvier? provier;
-
-  bool isLoading = true;
-  List<Quiz1> quizes = [];
 
   @override
   void initState() {
@@ -41,25 +37,6 @@ class _ScoreBoardWEBState extends State<ScoreBoardWEB> {
     CustomProvier provider = Provider.of<CustomProvier>(context, listen: false);
     solvedQuiz = APIManager().adminGetStudentQuiz(
         token: widget.loginResponse!.token, id: provider.studentId);
-    APIManager()
-        .adminGetStudentQuiz(
-            token: widget.loginResponse!.token, id: provider.studentId)
-        .then((value) {
-      for (var quiz in value) {
-        getQuiz(quiz.quizName!);
-      }
-    });
-  }
-
-  getQuiz(String id) {
-    APIManager()
-        .getQuizById(token: widget.loginResponse!.token, id: id)
-        .then((value) {
-      quizes.add(value);
-      setState(() {
-        isLoading = false;
-      });
-    });
   }
 
   @override
@@ -70,7 +47,8 @@ class _ScoreBoardWEBState extends State<ScoreBoardWEB> {
           title: Text('Score Board'),
           leading: IconButton(
               onPressed: () {
-                pageController.changePage(10);
+                pageController.changePage(
+                    widget.loginResponse!.user!.role == 'admin' ? 10 : 2);
               },
               icon: Icon(
                 Icons.arrow_back_ios,
@@ -110,10 +88,10 @@ class _ScoreBoardWEBState extends State<ScoreBoardWEB> {
   }
 
   dataTable() {
-    return FutureBuilder<List<SolvedQuiz>>(
+    return FutureBuilder<List<StudentQuiz>>(
       future: solvedQuiz,
       builder:
-          (BuildContext context, AsyncSnapshot<List<SolvedQuiz>> snapshot) {
+          (BuildContext context, AsyncSnapshot<List<StudentQuiz>> snapshot) {
         // if connection is loading show loading
         if (snapshot.connectionState == ConnectionState.waiting)
           return MyLoading();
@@ -122,7 +100,7 @@ class _ScoreBoardWEBState extends State<ScoreBoardWEB> {
         if (snapshot.data == null)
           return NetworkError(onPressed: () {
             setState(() {
-              solvedQuiz = APIManager().adminGetStudentQuiz(
+              solvedQuiz = APIManager().getStudentScore(
                   token: widget.loginResponse!.token, id: provier!.studentId);
             });
           });
@@ -134,12 +112,12 @@ class _ScoreBoardWEBState extends State<ScoreBoardWEB> {
           );
 
         //else show data
-        return isLoading == true ? MyLoading() : scoreCard(quiz: snapshot.data);
+        return scoreCard(quiz: snapshot.data);
       },
     );
   }
 
-  scoreCard({@required List<SolvedQuiz>? quiz}) {
+  scoreCard({@required List<StudentQuiz>? quiz}) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       child: Card(
@@ -175,7 +153,7 @@ class _ScoreBoardWEBState extends State<ScoreBoardWEB> {
               DataColumn(label: Text('Action')),
             ],
             rows: List.generate(quiz!.length, (index) {
-              return score(index, quiz: quiz[index]);
+              return score(index, sQuiz: quiz[index]);
             }),
           ),
         ),
@@ -183,14 +161,14 @@ class _ScoreBoardWEBState extends State<ScoreBoardWEB> {
     );
   }
 
-  score(int index, {@required SolvedQuiz? quiz}) {
+  score(int index, {@required StudentQuiz? sQuiz}) {
     return DataRow(cells: [
       DataCell(Text('${index + 1}')),
-      DataCell(Text('${quizes[index].quizName}')),
-      DataCell(Text('${quizes[index].question!.length}')),
-      DataCell(Text(quiz!.questionAttempted.toString())),
-      DataCell(Text(quiz.marks.toString())),
-      DataCell(Text(quiz.createdAt.toString().substring(0, 11))),
+      DataCell(Text('${sQuiz!.quiz!.quizName}')),
+      DataCell(Text('${sQuiz.quiz!.question!.length}')),
+      DataCell(Text(sQuiz.solvedQuiz!.questionAttempted.toString())),
+      DataCell(Text(sQuiz.solvedQuiz!.marks.toString())),
+      DataCell(Text(sQuiz.solvedQuiz!.createdAt.toString().substring(0, 11))),
       DataCell(Consumer<CustomProvier>(
         builder: (context, provider, child) {
           return Container(
@@ -199,10 +177,10 @@ class _ScoreBoardWEBState extends State<ScoreBoardWEB> {
             child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(primary: Colors.green),
                 onPressed: () {
-                  provider.saveSolvedQuiz(quiz: quiz);
+                  provider.saveStudentQuiz(quiz: sQuiz);
                   widget.loginResponse!.user!.role == 'admin'
                       ? pageController.changePage(12)
-                      : pageController.changePage(3);
+                      : pageController.changePage(4);
                 },
                 icon: Icon(Icons.view_list_outlined),
                 label: Text('View')),

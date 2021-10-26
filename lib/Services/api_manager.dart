@@ -13,6 +13,7 @@ import 'package:quiz_app/Models/Student.dart';
 import 'package:quiz_app/Models/Student/Quiz.dart';
 import 'package:quiz_app/Models/Student/solved_quiz.dart';
 import 'package:quiz_app/Models/Student/student_courses.dart';
+import 'package:quiz_app/Models/Student/student_solved_quiz.dart';
 import 'package:quiz_app/Models/Student/student_subjects.dart';
 import 'package:quiz_app/Models/Student/submit_quiz.dart';
 import 'package:quiz_app/Models/SubAdmin.dart';
@@ -27,8 +28,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class APIManager {
   var client = http.Client();
   var loginResponse;
-  String domain =
-      'http://ec2-13-232-217-249.ap-south-1.compute.amazonaws.com:4000';
+  String domain = 'http://192.168.100.70:4000';
   Dio dio = Dio();
 
   ///////////////////////////////////////////////////////////
@@ -262,7 +262,6 @@ class APIManager {
       @required token,
       @required name,
       @required email,
-      @required password,
       @required phoneNo,
       @required PlatformFile? image,
       @required gender}) async {
@@ -274,9 +273,6 @@ class APIManager {
 
     request.fields['name'] = name;
     request.fields['email'] = email;
-    if (password != null) {
-      request.fields['password'] = password;
-    }
     request.fields['gender'] = gender;
     request.fields['phoneNumber'] = phoneNo;
     if (image != null) {
@@ -363,7 +359,6 @@ class APIManager {
       @required token,
       @required name,
       @required email,
-      @required password,
       @required phoneNo,
       @required PlatformFile? image,
       @required gender}) async {
@@ -375,9 +370,7 @@ class APIManager {
 
     request.fields['name'] = name;
     request.fields['email'] = email;
-    if (password != null) {
-      request.fields['password'] = password;
-    }
+
     request.fields['gender'] = gender;
     request.fields['phoneNumber'] = phoneNo;
     if (image != null) {
@@ -585,7 +578,7 @@ class APIManager {
     });
   }
 
-  ///////////////// ADD ENROLL STUDENT ///////////////
+  ///////////////// ENROLL STUDENT ///////////////
 
   addENrollStudent({
     @required token,
@@ -911,13 +904,13 @@ class APIManager {
       {@required token,
       @required String? quizId,
       @required String? questionId,
-      @required String? correctAnswer}) async {
+      @required String? studentAnswer}) async {
     return await dio
         .post('$domain/api/solvedQuizData/addSolvedQuizData',
             data: SubmitQuiz(
                     quizId: quizId,
                     questionId: questionId,
-                    correctAnswer: correctAnswer)
+                    correctAnswer: studentAnswer)
                 .toJson(),
             options: Options(headers: {
               'Authorization': 'Bearer $token',
@@ -953,7 +946,7 @@ class APIManager {
         headers: {
           'Authorization': 'Bearer $token',
         }).then((response) async {
-      print(response.body);
+      // print(response.body);
       List<SolvedQuiz> jsonMap = (json.decode(response.body) as List)
           .map((e) => SolvedQuiz.fromJson(e))
           .toList();
@@ -961,7 +954,21 @@ class APIManager {
     });
   }
 
-  Future<List<SolvedQuiz>> adminGetStudentQuiz(
+  Future<List<StudentQuiz>> getStudentScore(
+      {@required token, @required String? id}) async {
+    return await client.get(
+        Uri.parse('$domain/api/solvedQuizData/getStudentScore/$id'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        }).then((response) async {
+      List<StudentQuiz> jsonMap = (json.decode(response.body) as List)
+          .map((e) => StudentQuiz.fromJson(e))
+          .toList();
+      return jsonMap;
+    });
+  }
+
+  Future<List<StudentQuiz>> adminGetStudentQuiz(
       {@required token, @required String? id}) async {
     return await client.get(
         Uri.parse('$domain/api/solvedQuizData/adminGetSolvedStuQuize/$id'),
@@ -969,8 +976,8 @@ class APIManager {
           'Authorization': 'Bearer $token',
         }).then((response) async {
       print('RESPONSE::  ${response.body}');
-      List<SolvedQuiz> jsonMap = (json.decode(response.body) as List)
-          .map((e) => SolvedQuiz.fromJson(e))
+      List<StudentQuiz> jsonMap = (json.decode(response.body) as List)
+          .map((e) => StudentQuiz.fromJson(e))
           .toList();
       return jsonMap;
     });

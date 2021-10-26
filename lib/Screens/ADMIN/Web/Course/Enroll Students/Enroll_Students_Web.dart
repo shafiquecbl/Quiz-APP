@@ -103,7 +103,7 @@ class _EnrollStudentsWEBState extends State<EnrollStudentsWEB> {
             HeadCard(
                 title: 'Enroll Students List',
                 onPressed: () {
-                  showForm(title: 'ADD ENROLL STUDENT');
+                  showForm(title: 'ENROLL STUDENT');
                 }),
           ],
         ),
@@ -247,7 +247,7 @@ class _EnrollStudentsWEBState extends State<EnrollStudentsWEB> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(isLoading && title == 'ADD ENROLL STUDENT'
+                Text(isLoading && title == 'ENROLL STUDENT'
                     ? 'CREATING'
                     : 'CREATE'),
                 SizedBox(

@@ -40,7 +40,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
               loginResponse: widget.loginResponse,
             ),
             QuizDetails(
-              solvedQuiz: provider.solvedQuiz,
+              studentQuiz: provider.studentQuiz,
               loginResponse: widget.loginResponse,
               isVisible: false,
             )

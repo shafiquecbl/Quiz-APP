@@ -32,7 +32,7 @@ class _QuizPageState extends State<QuizPage> {
   int activeStep = 0;
 
   Question1? currentQuestion;
-  String? correctAnswer;
+  String? studentAnswer;
 
   @override
   void initState() {
@@ -72,7 +72,7 @@ class _QuizPageState extends State<QuizPage> {
             token: widget.loginResponse!.token,
             quizId: widget.quiz!.id,
             questionId: currentQuestion!.id,
-            correctAnswer: '')
+            studentAnswer: '')
         .then(() {
       setState(() {
         activeStep = activeStep + 1;
@@ -207,7 +207,7 @@ class _QuizPageState extends State<QuizPage> {
               token: widget.loginResponse!.token,
               quizId: widget.quiz!.id,
               questionId: currentQuestion!.id,
-              correctAnswer: correctAnswer);
+              correctAnswer: studentAnswer);
         },
         child: Text('SUBMIT'),
       ),
@@ -253,7 +253,7 @@ class _QuizPageState extends State<QuizPage> {
         token: widget.loginResponse!.token,
         quizId: widget.quiz!.id,
         questionId: currentQuestion!.id,
-        correctAnswer: correctAnswer);
+        studentAnswer: studentAnswer);
   }
 
   /////////////////////////////////////////////////////////
@@ -336,7 +336,7 @@ class _QuizPageState extends State<QuizPage> {
                     option3 = false;
                     option4 = false;
                     isSelected = true;
-                    correctAnswer = question.options![0].options1;
+                    studentAnswer = question.options![0].options1;
                   });
                 },
                 isSelected: option1),
@@ -350,7 +350,7 @@ class _QuizPageState extends State<QuizPage> {
                     option3 = false;
                     option4 = false;
                     isSelected = true;
-                    correctAnswer = question.options![0].options2;
+                    studentAnswer = question.options![0].options2;
                   });
                 },
                 isSelected: option2),
@@ -364,7 +364,7 @@ class _QuizPageState extends State<QuizPage> {
                     option3 = true;
                     option4 = false;
                     isSelected = true;
-                    correctAnswer = question.options![0].options3;
+                    studentAnswer = question.options![0].options3;
                   });
                 },
                 isSelected: option3),
@@ -378,7 +378,7 @@ class _QuizPageState extends State<QuizPage> {
                     option3 = false;
                     option4 = true;
                     isSelected = true;
-                    correctAnswer = question.options![0].options4;
+                    studentAnswer = question.options![0].options4;
                   });
                 },
                 isSelected: option4)

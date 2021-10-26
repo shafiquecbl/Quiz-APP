@@ -3,22 +3,19 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:quiz_app/Models/Student/Quiz.dart';
-import 'package:quiz_app/Models/Student/solved_quiz.dart';
+import 'package:quiz_app/Models/Student/student_solved_quiz.dart';
 import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Screens/STUDENT/Home/student_home.dart';
 import 'package:quiz_app/Screens/widget/Navigator.dart';
-import 'package:quiz_app/Services/api_manager.dart';
-import 'package:quiz_app/WIdgets/loading.dart';
-import 'package:quiz_app/WIdgets/network_error.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/controllers/page_controller.dart';
 
 class QuizDetails extends StatefulWidget {
-  final SolvedQuiz? solvedQuiz;
+  final StudentQuiz? studentQuiz;
   final LoginResponse? loginResponse;
   final bool? isVisible;
   const QuizDetails(
-      {@required this.solvedQuiz,
+      {@required this.studentQuiz,
       @required this.loginResponse,
       @required this.isVisible});
 
@@ -32,17 +29,6 @@ class _QuizDetailsState extends State<QuizDetails> {
   double? percentage;
   Future<Quiz1>? quizModel;
 
-  @override
-  void initState() {
-    fetchQuizData();
-    super.initState();
-  }
-
-  fetchQuizData() {
-    quizModel = APIManager().getQuizById(
-        token: widget.loginResponse!.token, id: widget.solvedQuiz!.quizName);
-  }
-
   double calculatePercentage(
       {@required int? totalQuestions, @required int? marks}) {
     return percentage = (marks! / totalQuestions!) * 100;
@@ -50,6 +36,9 @@ class _QuizDetailsState extends State<QuizDetails> {
 
   @override
   Widget build(BuildContext context) {
+    percentage = calculatePercentage(
+        marks: widget.studentQuiz!.solvedQuiz!.marks,
+        totalQuestions: widget.studentQuiz!.quiz!.question!.length);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -61,67 +50,48 @@ class _QuizDetailsState extends State<QuizDetails> {
               color: Colors.black87,
             )),
       ),
-      body: FutureBuilder<Quiz1>(
-        future: quizModel,
-        builder: (BuildContext context, AsyncSnapshot<Quiz1> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
-            return MyLoading();
-          if (snapshot.data == null)
-            return NetworkError(onPressed: () {
-              print(widget.solvedQuiz!.quizName);
-              setState(() {
-                quizModel = APIManager().getQuizById(
-                    token: widget.loginResponse!.token,
-                    id: widget.solvedQuiz!.quizName);
-              });
-            });
-          percentage = calculatePercentage(
-              marks: widget.solvedQuiz!.marks,
-              totalQuestions: snapshot.data!.question!.length);
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-            child: SingleChildScrollView(
-                controller: controller,
-                child: Column(
-                  children: [
-                    widget.isVisible == true
-                        ? Row(
-                            children: [
-                              Container(
-                                width: 120,
-                                decoration: BoxDecoration(
-                                    color: Colors.blue.withOpacity(0.3),
-                                    borderRadius: BorderRadius.circular(30)),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: TextButton.icon(
-                                      onPressed: () {
-                                        pushAndRemoveUntil(
-                                            context,
-                                            StudentHome(
-                                                loginResponse:
-                                                    widget.loginResponse!));
-                                      },
-                                      icon: Icon(Icons.arrow_back_ios),
-                                      label: Text('Home')),
-                                ),
-                              ),
-                              Spacer()
-                            ],
-                          )
-                        : Container(),
-                    scoreDetails(quiz: snapshot.data),
-                    for (var question in snapshot.data!.question!)
-                      questionData(question: question)
-                  ],
-                )),
-          );
-        },
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        child: SingleChildScrollView(
+            controller: controller,
+            child: Column(
+              children: [
+                widget.isVisible == true
+                    ? Row(
+                        children: [
+                          Container(
+                            width: 120,
+                            decoration: BoxDecoration(
+                                color: Colors.blue.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(30)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: TextButton.icon(
+                                  onPressed: () {
+                                    pushAndRemoveUntil(
+                                        context,
+                                        StudentHome(
+                                            loginResponse:
+                                                widget.loginResponse!));
+                                  },
+                                  icon: Icon(Icons.arrow_back_ios),
+                                  label: Text('Home')),
+                            ),
+                          ),
+                          Spacer()
+                        ],
+                      )
+                    : Container(),
+                scoreDetails(quiz: widget.studentQuiz!.quiz!),
+                for (var question in widget.studentQuiz!.quiz!.question!)
+                  questionData(question: question)
+              ],
+            )),
       ),
     );
   }
 
-  Widget scoreDetails({@required Quiz1? quiz}) {
+  Widget scoreDetails({@required Quizz? quiz}) {
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
       child: Padding(
@@ -169,7 +139,8 @@ class _QuizDetailsState extends State<QuizDetails> {
                     height: 7,
                   ),
                   Text(
-                    widget.solvedQuiz!.questionAttempted.toString(),
+                    widget.studentQuiz!.solvedQuiz!.questionAttempted
+                        .toString(),
                     style: TextStyle(
                         color: Colors.black,
                         fontSize: 22.0,
@@ -194,7 +165,7 @@ class _QuizDetailsState extends State<QuizDetails> {
                     height: 7,
                   ),
                   Text(
-                    widget.solvedQuiz!.marks.toString(),
+                    widget.studentQuiz!.solvedQuiz!.marks.toString(),
                     style: TextStyle(
                         color: Colors.black,
                         fontSize: 22.0,

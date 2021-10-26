@@ -25,7 +25,15 @@ class _TeachersWEBState extends State<TeachersWEB> {
   int _rowsPerPage = 25;
   int _rowsOffset = 0;
   String? search = '';
-  String? name, email, phoneNo, password, gender;
+
+///////////////////// CONTROLLER ////////////////////////
+  TextEditingController name = TextEditingController();
+  TextEditingController email = TextEditingController();
+  TextEditingController phoneNo = TextEditingController();
+  TextEditingController password = TextEditingController();
+  /////////////////////////////////////////////////////////
+
+  String? gender;
   PlatformFile? image;
 
   bool isLoading = false;
@@ -237,6 +245,7 @@ class _TeachersWEBState extends State<TeachersWEB> {
         child: ElevatedButton(
             style: ElevatedButton.styleFrom(primary: Colors.red),
             onPressed: () {
+              clearController();
               Navigator.pop(context);
             },
             child: Text('CANCEL')));
@@ -278,32 +287,14 @@ class _TeachersWEBState extends State<TeachersWEB> {
   }
 
   checkAdd() {
-    if (name == null) {
-      myState!(() {
-        error = 'Please provide name';
-      });
-    } else if (email == null) {
-      myState!(() {
-        error = 'Please provide email';
-      });
-    } else if (password == null) {
-      myState!(() {
-        error = 'Please provide password';
-      });
-    } else if (phoneNo == null) {
-      myState!(() {
-        error = 'Please provide phone no.';
-      });
-    } else if (image == null) {
-      myState!(() {
-        error = 'Please select image';
-      });
-    } else if (gender == null) {
-      myState!(() {
-        error = 'Please select gender';
-      });
-    } else {
-      addTeacher();
+    if (_formKey.currentState!.validate()) {
+      if (image == null) {
+        myState!(() {
+          error = 'Please select image';
+        });
+      } else {
+        addTeacher();
+      }
     }
   }
 
@@ -316,10 +307,10 @@ class _TeachersWEBState extends State<TeachersWEB> {
     APIManager()
         .addTeacher(
             token: widget.loginResponse!.token,
-            name: name,
-            email: email,
-            password: password,
-            phoneNo: phoneNo,
+            name: name.text,
+            email: email.text,
+            password: password.text,
+            phoneNo: phoneNo.text,
             image: image,
             gender: gender)
         .then((value) {
@@ -328,19 +319,12 @@ class _TeachersWEBState extends State<TeachersWEB> {
   }
 
   checkUpdate() {
-    if (name == null) {
-      name = editTeacher!.name;
+    if (_formKey.currentState!.validate()) {
+      if (gender == null) {
+        gender = editTeacher!.gender;
+      }
+      updateTeacher();
     }
-    if (email == null) {
-      email = editTeacher!.email;
-    }
-    if (phoneNo == null) {
-      phoneNo = editTeacher!.phoneNumber;
-    }
-    if (gender == null) {
-      gender = editTeacher!.gender;
-    }
-    updateTeacher();
   }
 
   updateTeacher() {
@@ -352,33 +336,37 @@ class _TeachersWEBState extends State<TeachersWEB> {
         .updateTeacher(
             id: editTeacher!.id,
             token: widget.loginResponse!.token,
-            name: name,
-            email: email,
-            password: password,
-            phoneNo: phoneNo,
+            name: name.text,
+            email: email.text,
+            phoneNo: phoneNo.text,
             image: image,
             gender: gender)
         .then((value) {
       clearValues();
     }).catchError((e) {
       myState!(() {
-        error = '${e.message}';
+        error = '${e}';
       });
     });
   }
 
   clearValues() {
     isLoading = false;
-    name = null;
-    email = null;
-    password = null;
-    phoneNo = null;
-    image = null;
-    gender = null;
     error = null;
     _formKey.currentState!.reset();
-    Navigator.of(context, rootNavigator: true).pop();
+    Navigator.of(context).pop();
+    clearController();
     updatePage();
+  }
+
+  clearController() {
+    editTeacher = null;
+    name.clear();
+    email.clear();
+    password.clear();
+    phoneNo.clear();
+    gender = null;
+    image = null;
   }
 
   updatePage() {
@@ -394,78 +382,83 @@ class _TeachersWEBState extends State<TeachersWEB> {
       height: SizeConfig.screenHeight! / 1.5,
       child: Form(
           key: _formKey,
-          child: Column(
-            children: [
-              ///////////////////// TITLE /////////////////////
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                ///////////////////// TITLE /////////////////////
 
-              Text(title.toString(),
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              SizedBox(
-                height: 40,
-              ),
+                Text(title.toString(),
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                SizedBox(
+                  height: 40,
+                ),
 
-              /////////////////////////////////////////////////
+                /////////////////////////////////////////////////
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [nameField(), emailField()],
-              ),
-              SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  phoneNoField(),
-                  passwordField(),
-                ],
-              ),
-              SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 25),
-                    child: genderField(),
-                  ),
-                ],
-              ),
-              SizedBox(height: 30),
-
-              Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 25),
-                    child: Container(
-                      height: 35,
-                      color: Colors.grey[300],
-                      child: ElevatedButton.icon(
-                          onPressed: () {
-                            pickImage();
-                          },
-                          icon: Icon(Icons.attach_file),
-                          label: Text('Choose Photo')),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  image != null ? Text('Image Selected') : Container()
-                ],
-              ),
-
-              SizedBox(height: 20),
-              Padding(
-                padding: EdgeInsets.only(left: 25),
-                child: Row(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [nameField(), emailField()],
+                ),
+                SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    error != null
-                        ? MyError(
-                            error: error,
-                          )
-                        : Container(),
+                    phoneNoField(),
+                    genderField(),
                   ],
                 ),
-              )
-            ],
+                SizedBox(height: 30),
+                title == 'ADD TEACHER'
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 25),
+                            child: passwordField(),
+                          ),
+                        ],
+                      )
+                    : Container(),
+                SizedBox(height: 30),
+
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 25),
+                      child: Container(
+                        height: 35,
+                        color: Colors.grey[300],
+                        child: ElevatedButton.icon(
+                            onPressed: () {
+                              pickImage();
+                            },
+                            icon: Icon(Icons.attach_file),
+                            label: Text('Choose Photo')),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    image != null ? Text('Image Selected') : Container()
+                  ],
+                ),
+
+                SizedBox(height: 20),
+                Padding(
+                  padding: EdgeInsets.only(left: 25),
+                  child: Row(
+                    children: [
+                      error != null
+                          ? MyError(
+                              error: error,
+                            )
+                          : Container(),
+                    ],
+                  ),
+                )
+              ],
+            ),
           )),
     );
   }
@@ -489,15 +482,14 @@ class _TeachersWEBState extends State<TeachersWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
-          initialValue: editTeacher != null ? editTeacher!.name : null,
-          onChanged: (value) {
-            name = value;
-          },
-          onSaved: (value) {
-            name = value;
-          },
-          onFieldSubmitted: (value) {
-            name = value;
+          controller: name
+            ..text = editTeacher != null ? editTeacher!.name! : '',
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter name';
+            }
+
+            return null;
           },
           decoration:
               InputDecoration(hintText: 'Enter name', labelText: 'NAME'),
@@ -508,15 +500,15 @@ class _TeachersWEBState extends State<TeachersWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
-          initialValue: editTeacher != null ? editTeacher!.email : null,
-          onChanged: (value) {
-            email = value;
-          },
-          onSaved: (value) {
-            email = value;
-          },
-          onFieldSubmitted: (value) {
-            email = value;
+          controller: email
+            ..text = editTeacher != null ? editTeacher!.email! : '',
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter email';
+            } else if (!isEmail(value)) {
+              return 'Email format is not correcct';
+            }
+            return null;
           },
           keyboardType: TextInputType.emailAddress,
           decoration:
@@ -528,15 +520,16 @@ class _TeachersWEBState extends State<TeachersWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
-          initialValue: editTeacher != null ? editTeacher!.phoneNumber : null,
-          onChanged: (value) {
-            phoneNo = value;
-          },
-          onSaved: (value) {
-            phoneNo = value;
-          },
-          onFieldSubmitted: (value) {
-            phoneNo = value;
+          controller: phoneNo
+            ..text = editTeacher != null ? editTeacher!.phoneNumber! : '',
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter phone no';
+            } else if (value.length != 11) {
+              return 'Please enter 11 digit phone number';
+            }
+
+            return null;
           },
           decoration:
               InputDecoration(hintText: 'Enter phone #', labelText: 'PHONE #'),
@@ -547,14 +540,14 @@ class _TeachersWEBState extends State<TeachersWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
-          onChanged: (value) {
-            password = value;
-          },
-          onSaved: (value) {
-            password = value;
-          },
-          onFieldSubmitted: (value) {
-            password = value;
+          controller: password,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter password';
+            } else if (value.length < 8) {
+              return 'Password length must be 8';
+            }
+            return null;
           },
           obscureText: true,
           decoration: InputDecoration(
@@ -566,13 +559,22 @@ class _TeachersWEBState extends State<TeachersWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: DropdownButtonFormField(
+          validator: (value) {
+            if (editTeacher == null) {
+              if (value == null) {
+                return 'Please select gender';
+              }
+            }
+            return null;
+          },
           onSaved: (newValue) => {gender = newValue.toString()},
           onChanged: (value) {
             gender = value.toString();
           },
           decoration: InputDecoration(
             labelText: "GENDER",
-            hintText: "Select gender",
+            hintText:
+                editTeacher == null ? "Select gender" : editTeacher!.gender,
             floatingLabelBehavior: FloatingLabelBehavior.always,
           ),
           items: popUpMenuItem,

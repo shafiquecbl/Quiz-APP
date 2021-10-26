@@ -95,7 +95,7 @@ class _DashboardState extends State<Dashboard> {
             StudentsListWEB(loginResponse: widget.loginResponse),
             ScoreBoardWEB(loginResponse: widget.loginResponse),
             QuizDetailsWEB(
-              solvedQuiz: provider.solvedQuiz,
+              studentQuiz: provider.studentQuiz,
               loginResponse: widget.loginResponse,
               isVisible: false,
             )

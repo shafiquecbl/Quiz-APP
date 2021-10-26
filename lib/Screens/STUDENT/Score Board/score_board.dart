@@ -1,8 +1,7 @@
 import 'package:data_tables/data_tables.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:quiz_app/Models/Student/Quiz.dart';
-import 'package:quiz_app/Models/Student/solved_quiz.dart';
+import 'package:quiz_app/Models/Student/student_solved_quiz.dart';
 import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Provider/provider.dart';
 import 'package:quiz_app/Services/api_manager.dart';
@@ -22,9 +21,7 @@ class _StudentScoreBoardState extends State<StudentScoreBoard> {
   int _rowsOffset = 0;
 
   MyPageController pageController = MyPageController();
-
-  bool isLoading = true;
-  List<Quiz1> quizes = [];
+  Future<List<StudentQuiz>>? studentQuiz;
 
   @override
   void initState() {
@@ -33,26 +30,8 @@ class _StudentScoreBoardState extends State<StudentScoreBoard> {
   }
 
   getStudentQuiz() {
-    APIManager()
-        .getStudentQuiz(
-            token: widget.loginResponse!.token,
-            id: widget.loginResponse!.user!.id)
-        .then((quizList) {
-      for (var quiz in quizList) {
-        getQuiz(quiz.quizName!);
-      }
-    });
-  }
-
-  getQuiz(String id) {
-    APIManager()
-        .getQuizById(token: widget.loginResponse!.token, id: id)
-        .then((quiz) {
-      quizes.add(quiz);
-      setState(() {
-        isLoading = false;
-      });
-    });
+    studentQuiz = APIManager().getStudentScore(
+        token: widget.loginResponse!.token, id: widget.loginResponse!.user!.id);
   }
 
   @override
@@ -96,12 +75,10 @@ class _StudentScoreBoardState extends State<StudentScoreBoard> {
   }
 
   dataTable() {
-    return FutureBuilder<List<SolvedQuiz>>(
-      future: APIManager().getStudentQuiz(
-          token: widget.loginResponse!.token,
-          id: widget.loginResponse!.user!.id),
+    return FutureBuilder<List<StudentQuiz>>(
+      future: studentQuiz,
       builder:
-          (BuildContext context, AsyncSnapshot<List<SolvedQuiz>> snapshot) {
+          (BuildContext context, AsyncSnapshot<List<StudentQuiz>> snapshot) {
         // if connection is loading show loading
         if (snapshot.connectionState == ConnectionState.waiting)
           return MyLoading();
@@ -112,12 +89,12 @@ class _StudentScoreBoardState extends State<StudentScoreBoard> {
             child: Text('No Quiz Available'),
           );
         //else show data
-        return isLoading == true ? MyLoading() : scoreCard(quiz: snapshot.data);
+        return scoreCard(quiz: snapshot.data);
       },
     );
   }
 
-  scoreCard({@required List<SolvedQuiz>? quiz}) {
+  scoreCard({@required List<StudentQuiz>? quiz}) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       child: Card(
@@ -153,7 +130,7 @@ class _StudentScoreBoardState extends State<StudentScoreBoard> {
               DataColumn(label: Text('Action')),
             ],
             rows: List.generate(quiz!.length, (index) {
-              return score(index, quiz: quiz[index]);
+              return score(index, sQuiz: quiz[index]);
             }),
           ),
         ),
@@ -161,14 +138,14 @@ class _StudentScoreBoardState extends State<StudentScoreBoard> {
     );
   }
 
-  score(int index, {@required SolvedQuiz? quiz}) {
+  score(int index, {@required StudentQuiz? sQuiz}) {
     return DataRow(cells: [
       DataCell(Text('${index + 1}')),
-      DataCell(Text('${quizes[index].quizName}')),
-      DataCell(Text('${quizes[index].question!.length}')),
-      DataCell(Text(quiz!.questionAttempted.toString())),
-      DataCell(Text(quiz.marks.toString())),
-      DataCell(Text(quiz.createdAt.toString().substring(0, 11))),
+      DataCell(Text('${sQuiz!.quiz!.quizName}')),
+      DataCell(Text('${sQuiz.quiz!.question!.length}')),
+      DataCell(Text(sQuiz.solvedQuiz!.questionAttempted.toString())),
+      DataCell(Text(sQuiz.solvedQuiz!.marks.toString())),
+      DataCell(Text(sQuiz.solvedQuiz!.createdAt.toString().substring(0, 11))),
       DataCell(Consumer<CustomProvier>(
         builder: (context, provider, child) {
           return Container(
@@ -177,7 +154,7 @@ class _StudentScoreBoardState extends State<StudentScoreBoard> {
             child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(primary: Colors.green),
                 onPressed: () {
-                  provider.saveSolvedQuiz(quiz: quiz);
+                  provider.saveStudentQuiz(quiz: sQuiz);
                   pageController.changePage(4);
                 },
                 icon: Icon(Icons.view_list_outlined),

@@ -274,8 +274,7 @@ class _StudentsWEBState extends State<StudentsWEB> {
         child: ElevatedButton(
             style: ElevatedButton.styleFrom(primary: Colors.red),
             onPressed: () {
-              _formKey.currentState!.reset();
-              Navigator.pop(context);
+              clearValues();
             },
             child: Text('CANCEL')));
   }
@@ -353,8 +352,9 @@ class _StudentsWEBState extends State<StudentsWEB> {
             image: image,
             gender: gender)
         .then((value) {
-      isLoading = false;
-      Navigator.of(context, rootNavigator: true).pop();
+      myState!(() {
+        isLoading = false;
+      });
       updatePage();
     }).catchError((e) {
       myState!(() {
@@ -380,11 +380,16 @@ class _StudentsWEBState extends State<StudentsWEB> {
             image: image,
             gender: gender)
         .then((value) {
-      _formKey.currentState!.reset();
-      isLoading = false;
-      Navigator.of(context, rootNavigator: true).pop();
+      clearValues();
       updatePage();
     });
+  }
+
+  clearValues() {
+    _formKey.currentState!.reset();
+    isLoading = false;
+    Navigator.of(context, rootNavigator: true).pop();
+    clearController();
   }
 
   Widget content({@required String? title}) {
@@ -562,7 +567,6 @@ class _StudentsWEBState extends State<StudentsWEB> {
             } else if (value.length < 8) {
               return 'Password length must be 8';
             }
-
             return null;
           },
           obscureText: true,
@@ -595,7 +599,7 @@ class _StudentsWEBState extends State<StudentsWEB> {
         width: SizeConfig.screenWidth! / 4,
         child: DropdownButtonFormField(
           validator: (value) {
-            if (updateStudent!.gender == null) {
+            if (updateStudent == null) {
               if (value == null) {
                 return 'Please select gender';
               }
@@ -616,8 +620,13 @@ class _StudentsWEBState extends State<StudentsWEB> {
   }
 
   clearController() {
+    updateStudent = null;
     name.clear();
     email.clear();
     password.clear();
+    phoneNo.clear();
+    rollNo.clear();
+    gender = null;
+    image = null;
   }
 }

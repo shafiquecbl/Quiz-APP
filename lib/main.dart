@@ -45,6 +45,12 @@ class _MyAppState extends State<MyApp> {
             if (snapshot.connectionState == ConnectionState.waiting)
               return MyLoading();
 
+            if (snapshot.data != null) {
+              CustomProvier provider =
+                  Provider.of<CustomProvier>(context, listen: false);
+              provider.saveLoginResponse(response: snapshot.data);
+            }
+
             return snapshot.data != null && snapshot.data!.user!.role == 'admin'
                 ? HomePage(
                     loginResponse:

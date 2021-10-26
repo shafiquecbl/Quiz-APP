@@ -179,7 +179,9 @@ class _StudentsListWEBState extends State<StudentsListWEB> {
                     style: ElevatedButton.styleFrom(primary: Colors.green),
                     onPressed: () {
                       provider.saveStudentId(id: student.id);
-                      pageController.changePage(11);
+
+                      pageController.changePage(
+                          widget.loginResponse.user!.role == 'admin' ? 11 : 3);
                     },
                     child: Text('View Score'));
               },

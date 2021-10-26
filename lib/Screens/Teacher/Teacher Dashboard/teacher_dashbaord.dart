@@ -6,6 +6,7 @@ import 'package:quiz_app/Screens/ADMIN/Web/Quiz/Questions/Questions_Web.dart';
 import 'package:quiz_app/Screens/ADMIN/Web/Quiz/Quizs/Quiz_Web.dart';
 import 'package:quiz_app/Screens/ADMIN/Web/Score%20Board/quiz_details.dart';
 import 'package:quiz_app/Screens/ADMIN/Web/Score%20Board/score_board.dart';
+import 'package:quiz_app/Screens/ADMIN/Web/Score%20Board/student_list.dart';
 import 'package:quiz_app/controllers/page_controller.dart';
 
 class TeacherDashboard extends StatefulWidget {
@@ -32,9 +33,10 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
             //     : QuestionsMobile(),
             QuizWEB(loginResponse: widget.loginResponse),
             QuestionsWEB(loginResponse: widget.loginResponse),
+            StudentsListWEB(loginResponse: widget.loginResponse),
             ScoreBoardWEB(loginResponse: widget.loginResponse),
             QuizDetailsWEB(
-              solvedQuiz: provider.solvedQuiz,
+              studentQuiz: provider.studentQuiz,
               loginResponse: widget.loginResponse,
               isVisible: false,
             )

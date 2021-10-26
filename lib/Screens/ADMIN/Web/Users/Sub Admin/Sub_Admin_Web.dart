@@ -24,7 +24,15 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
   int _rowsPerPage = 25;
   int _rowsOffset = 0;
   String? search = '';
-  String? name, email, phoneNo, password, gender;
+
+///////////////////// CONTROLLER ////////////////////////
+  TextEditingController name = TextEditingController();
+  TextEditingController email = TextEditingController();
+  TextEditingController phoneNo = TextEditingController();
+  TextEditingController password = TextEditingController();
+  /////////////////////////////////////////////////////////
+
+  String? gender;
   PlatformFile? image;
 
   bool isLoading = false;
@@ -238,7 +246,7 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
         child: ElevatedButton(
             style: ElevatedButton.styleFrom(primary: Colors.red),
             onPressed: () {
-              editSubAdmin = null;
+              clearController();
               Navigator.pop(context);
             },
             child: Text('CANCEL')));
@@ -280,32 +288,14 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
   }
 
   checkAdd() {
-    if (name == null) {
-      myState!(() {
-        error = 'Please provide name';
-      });
-    } else if (email == null) {
-      myState!(() {
-        error = 'Please provide email';
-      });
-    } else if (password == null) {
-      myState!(() {
-        error = 'Please provide password';
-      });
-    } else if (phoneNo == null) {
-      myState!(() {
-        error = 'Please provide phone no.';
-      });
-    } else if (image == null) {
-      myState!(() {
-        error = 'Please select image';
-      });
-    } else if (gender == null) {
-      myState!(() {
-        error = 'Please select gender';
-      });
-    } else {
-      addSubAdmin();
+    if (_formKey.currentState!.validate()) {
+      if (image == null) {
+        myState!(() {
+          error = 'Please select image';
+        });
+      } else {
+        addSubAdmin();
+      }
     }
   }
 
@@ -317,10 +307,10 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
     APIManager()
         .addSubAdmin(
             token: widget.loginResponse!.token,
-            name: name,
-            email: email,
-            password: password,
-            phoneNo: phoneNo,
+            name: name.text,
+            email: email.text,
+            password: password.text,
+            phoneNo: phoneNo.text,
             image: image,
             gender: gender)
         .then((value) {
@@ -329,19 +319,12 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
   }
 
   checkUpdate() {
-    if (name == null) {
-      name = editSubAdmin!.name;
+    if (_formKey.currentState!.validate()) {
+      if (gender == null) {
+        gender = editSubAdmin!.gender;
+      }
+      updateSubAdmin();
     }
-    if (email == null) {
-      email = editSubAdmin!.email;
-    }
-    if (phoneNo == null) {
-      phoneNo = editSubAdmin!.phoneNumber;
-    }
-    if (gender == null) {
-      gender = editSubAdmin!.gender;
-    }
-    updateSubAdmin();
   }
 
   updateSubAdmin() {
@@ -353,10 +336,9 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
         .updateSubAdmin(
             id: editSubAdmin!.id,
             token: widget.loginResponse!.token,
-            name: name,
-            email: email,
-            password: password,
-            phoneNo: phoneNo,
+            name: name.text,
+            email: email.text,
+            phoneNo: phoneNo.text,
             image: image,
             gender: gender)
         .then((value) {
@@ -366,16 +348,21 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
 
   clearValues() {
     isLoading = false;
-    name = null;
-    email = null;
-    password = null;
-    phoneNo = null;
-    image = null;
-    gender = null;
     error = null;
     _formKey.currentState!.reset();
     Navigator.of(context, rootNavigator: true).pop();
+    clearController();
     updatePage();
+  }
+
+  clearController() {
+    editSubAdmin = null;
+    name.clear();
+    email.clear();
+    password.clear();
+    phoneNo.clear();
+    gender = null;
+    image = null;
   }
 
   updatePage() {
@@ -391,64 +378,69 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
       height: SizeConfig.screenHeight! / 1.8,
       child: Form(
           key: _formKey,
-          child: Column(
-            children: [
-              ///////////////////// TITLE /////////////////////
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                ///////////////////// TITLE /////////////////////
 
-              Text(title.toString(),
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              SizedBox(
-                height: 40,
-              ),
+                Text(title.toString(),
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                SizedBox(
+                  height: 40,
+                ),
 
-              /////////////////////////////////////////////////
+                /////////////////////////////////////////////////
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [nameField(), emailField()],
-              ),
-              SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  phoneNoField(),
-                  passwordField(),
-                ],
-              ),
-              SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 25),
-                    child: genderField(),
-                  ),
-                ],
-              ),
-              SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [nameField(), emailField()],
+                ),
+                SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    phoneNoField(),
+                    genderField(),
+                  ],
+                ),
+                SizedBox(height: 30),
+                title == 'ADD SUB ADMIN'
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 25),
+                            child: passwordField(),
+                          ),
+                        ],
+                      )
+                    : Container(),
+                SizedBox(height: 30),
 
-              Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 25),
-                    child: Container(
-                      height: 35,
-                      color: Colors.grey[300],
-                      child: ElevatedButton.icon(
-                          onPressed: () {
-                            pickImage();
-                          },
-                          icon: Icon(Icons.attach_file),
-                          label: Text('Choose Photo')),
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 25),
+                      child: Container(
+                        height: 35,
+                        color: Colors.grey[300],
+                        child: ElevatedButton.icon(
+                            onPressed: () {
+                              pickImage();
+                            },
+                            icon: Icon(Icons.attach_file),
+                            label: Text('Choose Photo')),
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  image != null ? Text('Image Selected') : Container()
-                ],
-              )
-            ],
+                    SizedBox(
+                      width: 20,
+                    ),
+                    image != null ? Text('Image Selected') : Container()
+                  ],
+                )
+              ],
+            ),
           )),
     );
   }
@@ -472,15 +464,13 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
-          initialValue: editSubAdmin != null ? editSubAdmin!.name : null,
-          onChanged: (value) {
-            name = value;
-          },
-          onSaved: (value) {
-            name = value;
-          },
-          onFieldSubmitted: (value) {
-            name = value;
+          controller: name
+            ..text = editSubAdmin != null ? editSubAdmin!.name! : '',
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter name';
+            }
+            return null;
           },
           decoration:
               InputDecoration(hintText: 'Enter name', labelText: 'NAME'),
@@ -491,15 +481,15 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
-          initialValue: editSubAdmin != null ? editSubAdmin!.email : null,
-          onChanged: (value) {
-            email = value;
-          },
-          onSaved: (value) {
-            email = value;
-          },
-          onFieldSubmitted: (value) {
-            email = value;
+          controller: email
+            ..text = editSubAdmin != null ? editSubAdmin!.email! : '',
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter email';
+            } else if (!isEmail(value)) {
+              return 'Email format is not correcct';
+            }
+            return null;
           },
           decoration:
               InputDecoration(hintText: 'Enter email', labelText: 'EMAIL'),
@@ -510,15 +500,16 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
-          initialValue: editSubAdmin != null ? editSubAdmin!.phoneNumber : null,
-          onChanged: (value) {
-            phoneNo = value;
-          },
-          onSaved: (value) {
-            phoneNo = value;
-          },
-          onFieldSubmitted: (value) {
-            phoneNo = value;
+          controller: phoneNo
+            ..text = editSubAdmin != null ? editSubAdmin!.phoneNumber! : '',
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter phone no';
+            } else if (value.length != 11) {
+              return 'Please enter 11 digit phone number';
+            }
+
+            return null;
           },
           decoration:
               InputDecoration(hintText: 'Enter phone #', labelText: 'PHONE #'),
@@ -529,14 +520,14 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
-          onChanged: (value) {
-            password = value;
-          },
-          onSaved: (value) {
-            password = value;
-          },
-          onFieldSubmitted: (value) {
-            password = value;
+          controller: password,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter password';
+            } else if (value.length < 8) {
+              return 'Password length must be 8';
+            }
+            return null;
           },
           obscureText: true,
           decoration: InputDecoration(
@@ -548,13 +539,22 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: DropdownButtonFormField(
+          validator: (value) {
+            if (editSubAdmin == null) {
+              if (value == null) {
+                return 'Please select gender';
+              }
+            }
+            return null;
+          },
           onSaved: (newValue) => {gender = newValue.toString()},
           onChanged: (value) {
             gender = value.toString();
           },
           decoration: InputDecoration(
             labelText: "GENDER",
-            hintText: "Select gender",
+            hintText:
+                editSubAdmin == null ? "Select gender" : editSubAdmin!.gender,
             floatingLabelBehavior: FloatingLabelBehavior.always,
           ),
           items: popUpMenuItem,

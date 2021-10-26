@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:quiz_app/Provider/provider.dart';
 import 'package:quiz_app/Screens/ADMIN/Main%20Page/action_button.dart';
 import 'package:quiz_app/Screens/ADMIN/home_page.dart';
 import 'package:quiz_app/Screens/STUDENT/Home/student_home.dart';
@@ -236,6 +238,10 @@ class _LogInState extends State<LogIn> {
           error = 'User Suspended';
         });
       } else {
+        CustomProvier provider =
+            Provider.of<CustomProvier>(context, listen: false);
+        provider.saveLoginResponse(response: value);
+
         value.user!.role == 'admin'
             ? pushAndRemoveUntil(context, HomePage(loginResponse: value))
             : value.user!.role == 'student'
@@ -246,8 +252,7 @@ class _LogInState extends State<LogIn> {
     }).catchError((e) {
       Navigator.pop(context);
       setState(() {
-        error = e.toString();
-        // 'Invalid Credentials';
+        error = 'Invalid Credentials';
       });
     });
   }

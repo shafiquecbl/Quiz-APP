@@ -46,4 +46,18 @@ class User {
       image: json['image'],
       suspend: json['suspend'],
       gender: json['gender']);
+
+  Map<String, dynamic> toJson() => {
+        "_id": id,
+        "role": role,
+        "rollno": rollNo,
+        "createdAt": createdAt,
+        "updatedAt": updatedAt,
+        "phoneNumber": phoneNumber,
+        "email": email,
+        "name": name,
+        "image": image,
+        "suspend": suspend,
+        "gender": gender,
+      };
 }
