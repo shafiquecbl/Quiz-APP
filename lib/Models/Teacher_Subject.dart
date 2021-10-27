@@ -6,21 +6,24 @@ class TeacherSubject {
   TeacherSubject({this.id, this.course, this.teacher, this.subject});
 
   String? id, name;
-  Course? course;
+  List<Course>? course;
   Teacher? teacher;
-  Subject? subject;
+  List<Subject>? subject;
 
   factory TeacherSubject.fromJson(Map<String, dynamic> json) => TeacherSubject(
         id: json['_id'],
         teacher: Teacher.fromJson(json['teacher']),
-        course: Course.fromJson(json['course'][0]),
-        subject: Subject.fromJson(json['subject'][0]),
+        course:
+            List<Course>.from(json["course"].map((x) => Course.fromJson(x))),
+        subject:
+            List<Subject>.from(json["subject"].map((x) => Subject.fromJson(x))),
       );
 }
 
 class AddTeacherSubject {
   AddTeacherSubject({this.teacherId, this.courseId, this.subjectId});
-  String? courseId, subjectId, teacherId;
+  String? courseId, teacherId;
+  List<String>? subjectId;
 
   Map<String, dynamic> toJson() => {
         "subjects": subjectId,

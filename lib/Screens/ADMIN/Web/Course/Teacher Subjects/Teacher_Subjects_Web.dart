@@ -1,5 +1,6 @@
 import 'package:data_tables/data_tables.dart';
 import 'package:flutter/material.dart';
+import 'package:quiz_app/Models/Subjects.dart';
 import 'package:quiz_app/Models/Teacher_Subject.dart';
 import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Screens/widget/Search_Field.dart';
@@ -24,6 +25,7 @@ class _TeacherSubjectsWEBState extends State<TeacherSubjectsWEB> {
   String? search = '';
   String? error;
   bool isLoading = false;
+  bool isLoad = false;
 
   Future<List<TeacherSubject>>? _teacherSubjectModel;
   final _formKey = GlobalKey<FormState>();
@@ -34,7 +36,8 @@ class _TeacherSubjectsWEBState extends State<TeacherSubjectsWEB> {
 
   static List menuItems = [];
   static List menuItems1 = [];
-  static List menuItems2 = [];
+  static List<String> subjectsList = [];
+  static List<NewSubject> subjectMenu = [];
 
   getTeachers() {
     APIManager()
@@ -63,15 +66,19 @@ class _TeacherSubjectsWEBState extends State<TeacherSubjectsWEB> {
   }
 
   getSubjects() {
-    APIManager()
-        .fetchSubjectsList(token: widget.loginResponse!.token)
+    myState!(() {
+      isLoad = true;
+    });
+    return APIManager()
+        .getSubjectByCourseId(
+            token: widget.loginResponse!.token, courseId: course)
         .then((value) {
-      setState(() {
-        menuItems2 = value;
-      });
-      myState!(() {
-        menuItems2 = value;
-      });
+      if (this.mounted) {
+        myState!(() {
+          isLoad = false;
+          subjectMenu = value;
+        });
+      }
     });
   }
 
@@ -81,8 +88,6 @@ class _TeacherSubjectsWEBState extends State<TeacherSubjectsWEB> {
         .fetchTeacherSubjectList(token: widget.loginResponse!.token);
     getTeachers();
     getCourses();
-    getSubjects();
-
     super.initState();
   }
 
@@ -198,23 +203,37 @@ class _TeacherSubjectsWEBState extends State<TeacherSubjectsWEB> {
 
   teacherSubjects(TeacherSubject? subject, index) {
     return DataRow(cells: [
-      DataCell(Text('$index')),
+      DataCell(Text('${index + 1}')),
       DataCell(Text(subject!.teacher!.name.toString())),
-      DataCell(Text(subject.course!.name.toString())),
-      DataCell(Text(subject.subject!.subjectName.toString())),
+      DataCell(Text(subject.course![0].name!)),
+      DataCell(SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: List.generate(
+                subject.subject!.length,
+                (index) => Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: Text('${subject.subject![index].subjectName!}'),
+                    )),
+          ),
+        ),
+      )),
       DataCell(Container(
         width: 125,
         height: 60,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            ElevatedButton(
-                style: ElevatedButton.styleFrom(primary: Colors.green),
-                onPressed: () {
-                  editTeacherSubject = subject;
-                  showForm(title: 'UPDATE TEACHER SUBJECT');
-                },
-                child: Text('EDIT')),
+            // ElevatedButton(
+            //     style: ElevatedButton.styleFrom(primary: Colors.green),
+            //     onPressed: () {
+            //       editTeacherSubject = subject;
+            //       showForm(title: 'UPDATE TEACHER SUBJECT');
+            //     },
+            //     child: Text('EDIT')),
             ElevatedButton(
                 style: ElevatedButton.styleFrom(primary: Colors.red),
                 onPressed: () {
@@ -255,6 +274,7 @@ class _TeacherSubjectsWEBState extends State<TeacherSubjectsWEB> {
         child: ElevatedButton(
             style: ElevatedButton.styleFrom(primary: Colors.red),
             onPressed: () {
+              clearValues();
               Navigator.pop(context);
             },
             child: Text('CANCEL')));
@@ -301,46 +321,66 @@ class _TeacherSubjectsWEBState extends State<TeacherSubjectsWEB> {
       height: SizeConfig.screenHeight! / 1.8,
       child: Form(
           key: _formKey,
-          child: Column(
-            children: [
-              ///////////////////// TITLE /////////////////////
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                ///////////////////// TITLE /////////////////////
 
-              Text(title.toString(),
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              SizedBox(
-                height: 40,
-              ),
-
-              /////////////////////////////////////////////////
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [teacherField(), courseField()],
-              ),
-              SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 25),
-                    child: subjectField(),
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
-              Padding(
-                padding: EdgeInsets.only(left: 25),
-                child: Row(
-                  children: [
-                    error != null
-                        ? MyError(
-                            error: error,
-                          )
-                        : Container(),
-                  ],
+                Text(title.toString(),
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                SizedBox(
+                  height: 40,
                 ),
-              )
-            ],
+
+                /////////////////////////////////////////////////
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [teacherField(), courseField()],
+                ),
+                SizedBox(height: 30),
+                isLoad
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 25),
+                            child: SizedBox(
+                                width: 30,
+                                height: 30,
+                                child: CircularProgressIndicator()),
+                          )
+                        ],
+                      )
+                    : Container(),
+                subjectMenu.isNotEmpty
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 25),
+                            child: selectSubjectsField(),
+                          ),
+                        ],
+                      )
+                    : Container(),
+                SizedBox(height: 20),
+                Padding(
+                  padding: EdgeInsets.only(left: 25),
+                  child: Row(
+                    children: [
+                      error != null
+                          ? MyError(
+                              error: error,
+                            )
+                          : Container(),
+                    ],
+                  ),
+                )
+              ],
+            ),
           )),
     );
   }
@@ -349,9 +389,15 @@ class _TeacherSubjectsWEBState extends State<TeacherSubjectsWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: DropdownButtonFormField(
-          onSaved: (newValue) => {teacherId = newValue.toString()},
+          onSaved: (value) {
+            myState!(() {
+              teacherId = value.toString();
+            });
+          },
           onChanged: (value) {
-            teacherId = value.toString();
+            myState!(() {
+              teacherId = value.toString();
+            });
           },
           decoration: InputDecoration(
             labelText: "TEACHERS",
@@ -371,10 +417,18 @@ class _TeacherSubjectsWEBState extends State<TeacherSubjectsWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: DropdownButtonFormField(
-          onSaved: (newValue) => {course = newValue.toString()},
-          onChanged: (value) {
+          onSaved: (value) {
             course = value.toString();
+            clearList();
+            getSubjects();
           },
+          onChanged: teacherId != null
+              ? (value) {
+                  course = value.toString();
+                  clearList();
+                  getSubjects();
+                }
+              : null,
           decoration: InputDecoration(
             labelText: "COURSE",
             hintText: "Select course",
@@ -389,26 +443,56 @@ class _TeacherSubjectsWEBState extends State<TeacherSubjectsWEB> {
         ));
   }
 
-  Widget subjectField() {
+  Widget selectSubjectsField() {
     return Container(
         width: SizeConfig.screenWidth! / 4,
-        child: DropdownButtonFormField(
-          onSaved: (newValue) => {subject = newValue.toString()},
-          onChanged: (value) {
-            subject = value.toString();
-          },
-          decoration: InputDecoration(
-            labelText: "SUBJECT",
-            hintText: "Select subject",
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-          ),
-          items: menuItems2.map((e) {
-            return DropdownMenuItem(
-              child: Text(e.subjectName.toString()),
-              value: e.id,
-            );
-          }).toList(),
+        height: 200,
+        color: Colors.grey[50],
+        child: ListView(
+          children: List.generate(subjectMenu.length, (index) {
+            return subjectText(subjectMenu[index]);
+          }),
         ));
+  }
+
+  subjectText(NewSubject? subject) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Container(
+        width: MediaQuery.of(context).size.width / 4.2,
+        child: Chip(
+            deleteButtonTooltipMessage: 'SELECT / UN-SELECT',
+            deleteIcon: subjectsList.contains(subject!.id)
+                ? Icon(Icons.delete)
+                : Icon(Icons.add),
+            onDeleted: () {
+              if (subjectsList.contains(subject.id)) {
+                myState!(() {
+                  subjectsList.remove(subject.id);
+                });
+              } else {
+                myState!(() {
+                  subjectsList.add(subject.id!);
+                  print(subjectsList);
+                });
+              }
+            },
+            backgroundColor: subjectsList.contains(subject.id)
+                ? Colors.grey[200]
+                : Colors.grey[50],
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.zero)),
+            label: Container(
+              width: MediaQuery.of(context).size.width / 4.5,
+              child: Text(
+                subject.subjectName.toString(),
+                textAlign: TextAlign.start,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            )),
+      ),
+    );
   }
 
   /////////////////////////////////////////////
@@ -424,7 +508,7 @@ class _TeacherSubjectsWEBState extends State<TeacherSubjectsWEB> {
       myState!(() {
         error = 'Please select course';
       });
-    } else if (subject == null) {
+    } else if (subjectsList.isEmpty) {
       myState!(() {
         error = 'Please select subject';
       });
@@ -438,10 +522,10 @@ class _TeacherSubjectsWEBState extends State<TeacherSubjectsWEB> {
       teacherId = editTeacherSubject!.teacher!.id;
     }
     if (course == null) {
-      course = editTeacherSubject!.course!.id;
+      // course = editTeacherSubject!.course!.id;
     }
-    if (subject == null) {
-      subject = editTeacherSubject!.subject!.id;
+    if (subjectsList.isEmpty) {
+      // subject = editTeacherSubject!.subject!.id;
     }
     updateCourse();
   }
@@ -456,7 +540,7 @@ class _TeacherSubjectsWEBState extends State<TeacherSubjectsWEB> {
             token: widget.loginResponse!.token,
             teacher: teacherId,
             courseId: course,
-            subjectId: subject)
+            subjectId: subjectsList)
         .then((value) {
       clearValues();
     }).catchError((e) {
@@ -478,7 +562,7 @@ class _TeacherSubjectsWEBState extends State<TeacherSubjectsWEB> {
             token: widget.loginResponse!.token,
             teacher: teacherId,
             courseId: course,
-            subjectId: subject)
+            subjectId: subjectsList)
         .then((value) {
       clearValues();
     }).catchError((e) {
@@ -492,7 +576,7 @@ class _TeacherSubjectsWEBState extends State<TeacherSubjectsWEB> {
   clearValues() {
     isLoading = false;
     error = null;
-
+    clearList();
     course = null;
     subject = null;
     teacherId = null;
@@ -507,5 +591,10 @@ class _TeacherSubjectsWEBState extends State<TeacherSubjectsWEB> {
       _teacherSubjectModel = APIManager()
           .fetchTeacherSubjectList(token: widget.loginResponse!.token);
     });
+  }
+
+  clearList() {
+    subjectsList.clear();
+    subjectMenu.clear();
   }
 }

@@ -155,6 +155,8 @@ class APIManager {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
         }).then((response) async {
+      print(2);
+      print(response.body);
       List<Course> jsonMap = (json.decode(response.body) as List)
           .map((e) => Course.fromJson(e))
           .toList();
@@ -210,6 +212,8 @@ class APIManager {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
         }).then((response) async {
+      print(1);
+      print(response.body);
       List<Teacher> jsonMap = (json.decode(response.body) as List)
           .map((e) => Teacher.fromJson(e))
           .toList();
@@ -513,6 +517,7 @@ class APIManager {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
         }).then((response) async {
+      print(response.body);
       List<TeacherSubject> jsonMap = (json.decode(response.body) as List)
           .map((e) => TeacherSubject.fromJson(e))
           .toList();
@@ -526,7 +531,7 @@ class APIManager {
       {@required token,
       @required teacher,
       @required courseId,
-      @required subjectId}) async {
+      @required List<String>? subjectId}) async {
     return await dio.post('$domain/admin/manage/addTeacherSubjects',
         data: AddTeacherSubject(
                 teacherId: teacher, subjectId: subjectId, courseId: courseId)
@@ -814,6 +819,8 @@ class APIManager {
       'Authorization': 'Bearer $token',
       "Content-Type": "application/json"
     }).then((response) async {
+      print(3);
+      print(response.body);
       List<NewSubject> jsonMap = (json.decode(response.body) as List)
           .map((e) => NewSubject.fromJson(e))
           .toList();

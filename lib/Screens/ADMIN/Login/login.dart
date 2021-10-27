@@ -23,7 +23,9 @@ class LogIn extends StatefulWidget {
 class _LogInState extends State<LogIn> {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   String? error;
-  String? email, password;
+
+  TextEditingController email = TextEditingController();
+  TextEditingController password = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -83,20 +85,15 @@ class _LogInState extends State<LogIn> {
                           height: 32,
                         ),
                         TextFormField(
-                          onChanged: (value) {
-                            setState(() {
-                              email = value;
-                            });
-                          },
-                          onSaved: (value) {
-                            setState(() {
-                              email = value;
-                            });
-                          },
+                          controller: email,
                           onFieldSubmitted: (value) {
-                            setState(() {
-                              email = value;
-                            });
+                            checkValidation();
+                          },
+                          validator: (value) {
+                            if (value!.isEmpty || value == '') {
+                              return 'Please enter email';
+                            }
+                            return null;
                           },
                           decoration: InputDecoration(
                             hintText: 'Email',
@@ -111,20 +108,15 @@ class _LogInState extends State<LogIn> {
                         ),
                         TextFormField(
                           obscureText: true,
-                          onChanged: (value) {
-                            setState(() {
-                              password = value;
-                            });
-                          },
-                          onSaved: (value) {
-                            setState(() {
-                              password = value;
-                            });
-                          },
+                          controller: password,
                           onFieldSubmitted: (value) {
-                            setState(() {
-                              password = value;
-                            });
+                            checkValidation();
+                          },
+                          validator: (value) {
+                            if (value!.isEmpty || value == '') {
+                              return 'Please enter password';
+                            }
+                            return null;
                           },
                           decoration: InputDecoration(
                             hintText: 'Password',
@@ -140,17 +132,7 @@ class _LogInState extends State<LogIn> {
                         ActionButton(
                           text: "Log In",
                           onPressed: () {
-                            if (email == null) {
-                              setState(() {
-                                error = 'Please provide email';
-                              });
-                            } else if (password == null) {
-                              setState(() {
-                                error = 'Please provide password';
-                              });
-                            } else {
-                              login();
-                            }
+                            checkValidation();
                           },
                         ),
                         SizedBox(
@@ -173,45 +155,6 @@ class _LogInState extends State<LogIn> {
                         SizedBox(
                           height: 20,
                         ),
-                        // Row(
-                        //   mainAxisAlignment: MainAxisAlignment.center,
-                        //   children: [
-                        //     Text(
-                        //       "You do not have an account?",
-                        //       style: TextStyle(
-                        //         color: Colors.grey,
-                        //         fontSize: 14,
-                        //       ),
-                        //     ),
-                        //     SizedBox(
-                        //       width: 8,
-                        //     ),
-                        //     GestureDetector(
-                        //       onTap: () {
-                        //         widget.onSignUpSelected!();
-                        //       },
-                        //       child: Row(
-                        //         children: [
-                        //           Text(
-                        //             "Sign Up",
-                        //             style: TextStyle(
-                        //               color: yellow,
-                        //               fontSize: 14,
-                        //               fontWeight: FontWeight.bold,
-                        //             ),
-                        //           ),
-                        //           SizedBox(
-                        //             width: 8,
-                        //           ),
-                        //           Icon(
-                        //             Icons.arrow_forward,
-                        //             color: yellow,
-                        //           ),
-                        //         ],
-                        //       ),
-                        //     ),
-                        //   ],
-                        // ),
                       ],
                     ),
                   ),
@@ -224,12 +167,18 @@ class _LogInState extends State<LogIn> {
     );
   }
 
+  checkValidation() {
+    if (formKey.currentState!.validate()) {
+      login();
+    }
+  }
+
   login() {
     setState(() {
       error = null;
     });
     showLoadingDialog(context);
-    APIManager().adminLogin(email, password).then((value) async {
+    APIManager().adminLogin(email.text, password.text).then((value) async {
       SharedPreferences pref = await SharedPreferences.getInstance();
       Navigator.pop(context);
       if (value.user!.suspend == true) {
