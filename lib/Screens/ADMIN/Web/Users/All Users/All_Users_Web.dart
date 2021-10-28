@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Screens/widget/Search_Field.dart';
 import 'package:quiz_app/Services/api_manager.dart';
-import 'package:quiz_app/WIdgets/ImageView.dart';
 import 'package:quiz_app/WIdgets/loading.dart';
 import 'package:quiz_app/WIdgets/network_error.dart';
 import 'package:quiz_app/constants.dart';
