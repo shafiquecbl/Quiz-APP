@@ -3,12 +3,16 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:quiz_app/Models/Student/Quiz.dart';
+import 'package:quiz_app/Models/Student/solved_quiz.dart';
 import 'package:quiz_app/Models/Student/student_solved_quiz.dart';
 import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Screens/STUDENT/Home/student_home.dart';
 import 'package:quiz_app/Screens/widget/Navigator.dart';
+import 'package:quiz_app/WIdgets/ImageView.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/controllers/page_controller.dart';
+
+import 'components/option.dart';
 
 class QuizDetails extends StatefulWidget {
   final StudentQuiz? studentQuiz;
@@ -83,8 +87,13 @@ class _QuizDetailsState extends State<QuizDetails> {
                       )
                     : Container(),
                 scoreDetails(quiz: widget.studentQuiz!.quiz!),
-                for (var question in widget.studentQuiz!.quiz!.question!)
-                  questionData(question: question)
+                for (int index = 0;
+                    index <= widget.studentQuiz!.quiz!.question!.length - 1;
+                    index++)
+                  questionData(
+                      question: widget.studentQuiz!.quiz!.question![index],
+                      submittedAnswer: widget
+                          .studentQuiz!.solvedQuiz!.submittedAnswer![index])
               ],
             )),
       ),
@@ -217,7 +226,9 @@ class _QuizDetailsState extends State<QuizDetails> {
     );
   }
 
-  questionData({@required Question1? question}) {
+  questionData(
+      {@required Question1? question,
+      @required SubmittedAnswer? submittedAnswer}) {
     return Wrap(
       direction: Axis.vertical,
       children: [
@@ -246,8 +257,7 @@ class _QuizDetailsState extends State<QuizDetails> {
         ),
         question.questionImage!.length != 0
             ? Container(
-                width: MediaQuery.of(context).size.width / 1.5,
-                height: MediaQuery.of(context).size.height / 5,
+                width: MediaQuery.of(context).size.width / 1.3,
                 child: CarouselSlider(
                   options: CarouselOptions(
                     viewportFraction: 2.0,
@@ -259,16 +269,8 @@ class _QuizDetailsState extends State<QuizDetails> {
                       builder: (BuildContext context) {
                         return Container(
                           width: MediaQuery.of(context).size.width,
-                          child: CachedNetworkImage(
-                            imageUrl: i,
-                            placeholder: (context, string) {
-                              return Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            },
-                            errorWidget: (context, string, dynamic) {
-                              return Icon(Icons.image);
-                            },
+                          child: CustomImageView(
+                            image: i,
                           ),
                         );
                       },
@@ -283,32 +285,23 @@ class _QuizDetailsState extends State<QuizDetails> {
         SizedBox(
           height: 10,
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Container(
-              width: MediaQuery.of(context).size.width / 1.5,
-              margin: EdgeInsets.only(top: 10),
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                border: Border.all(),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: ListTile(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 0, horizontal: 5),
-                leading: Text(
-                  'Answer.',
-                  style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.blue,
-                      fontWeight: FontWeight.w600),
-                ),
-                title: Text(
-                  question.answer.toString(),
-                  style: TextStyle(fontSize: 16),
-                ),
-              )),
+
+        submittedAnswer!.answer != question.answer
+            ? OptionWidgett(
+                text: submittedAnswer.answer.toString(),
+                isTrue: false,
+              )
+            : Container(),
+
+        SizedBox(
+          height: 10,
         ),
+
+        OptionWidgett(
+          text: question.answer.toString(),
+          isTrue: true,
+        ),
+
         SizedBox(
           height: 10,
         ),

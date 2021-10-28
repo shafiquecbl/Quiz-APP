@@ -8,6 +8,7 @@ import 'package:quiz_app/Models/User.dart';
 import 'package:quiz_app/Provider/provider.dart';
 import 'package:quiz_app/Screens/STUDENT/QuizPage/components/option.dart';
 import 'package:quiz_app/Services/api_manager.dart';
+import 'package:quiz_app/WIdgets/ImageView.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
@@ -290,33 +291,33 @@ class _QuizPageState extends State<QuizPage> {
 
             //////////////////////////////////////////////////////
 
-            CarouselSlider(
-              options: CarouselOptions(
-                viewportFraction: 0.6,
-                height: 450,
-                enableInfiniteScroll: false,
-              ),
-              items: question!.questionImage!.map((i) {
-                return Builder(
-                  builder: (BuildContext context) {
-                    return Container(
-                      width: MediaQuery.of(context).size.width,
-                      child: CachedNetworkImage(
-                        imageUrl: i,
-                        placeholder: (context, string) {
-                          return Center(
-                            child: CircularProgressIndicator(),
+            question!.questionImage!.length != 0
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width / 1,
+                      child: CarouselSlider(
+                        options: CarouselOptions(
+                          viewportFraction: 2.0,
+                          height: 450,
+                          enableInfiniteScroll: false,
+                        ),
+                        items: question.questionImage!.map((i) {
+                          return Builder(
+                            builder: (BuildContext context) {
+                              return Container(
+                                width: MediaQuery.of(context).size.width,
+                                child: CustomImageView(
+                                  image: i,
+                                ),
+                              );
+                            },
                           );
-                        },
-                        errorWidget: (context, string, dynamic) {
-                          return Icon(Icons.image);
-                        },
+                        }).toList(),
                       ),
-                    );
-                  },
-                );
-              }).toList(),
-            ),
+                    ),
+                  )
+                : Container(),
 
             //////////////////////////////////////////////////////
 

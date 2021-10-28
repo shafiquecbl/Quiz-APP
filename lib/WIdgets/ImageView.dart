@@ -30,15 +30,11 @@ class ImageView extends StatelessWidget {
 
 class CustomImageView extends StatelessWidget {
   final String? image;
-  final int? width, height;
-  CustomImageView(
-      {@required this.image, @required this.height, @required this.width}) {
+  CustomImageView({@required this.image}) {
     String imageUrl = image.toString();
 
     ui.platformViewRegistry.registerViewFactory(
-        imageUrl,
-        (int _) =>
-            html.ImageElement(src: imageUrl, width: width, height: height));
+        imageUrl, (int _) => html.ImageElement(src: imageUrl));
   }
   @override
   Widget build(BuildContext context) {

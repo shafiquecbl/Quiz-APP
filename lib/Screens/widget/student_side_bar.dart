@@ -35,7 +35,7 @@ class _StudentSideBarState extends State<StudentSideBar> {
                 child: Container(
                   margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                   child: Text(
-                    "QUIZACCPT",
+                    "QuizOn",
                     style: TextStyle(
                       color: yellow,
                       fontSize: 25,
@@ -50,8 +50,6 @@ class _StudentSideBarState extends State<StudentSideBar> {
                     borderRadius: BorderRadius.circular(50),
                     child: CustomImageView(
                       image: widget.loginResponse!.user!.image,
-                      width: 120,
-                      height: 120,
                     )),
               ),
               SizedBox(
