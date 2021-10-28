@@ -28,7 +28,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class APIManager {
   var client = http.Client();
   var loginResponse;
-  String domain = 'http://192.168.100.70:4000';
+  String domain = 'http://13.232.217.249:4000';
   Dio dio = Dio();
 
   ///////////////////////////////////////////////////////////
@@ -982,7 +982,6 @@ class APIManager {
         headers: {
           'Authorization': 'Bearer $token',
         }).then((response) async {
-      print('RESPONSE::  ${response.body}');
       List<StudentQuiz> jsonMap = (json.decode(response.body) as List)
           .map((e) => StudentQuiz.fromJson(e))
           .toList();

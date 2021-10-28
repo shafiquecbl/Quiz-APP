@@ -90,8 +90,8 @@ class _AllUsersWEBState extends State<AllUsersWEB> {
     return Padding(
       padding: const EdgeInsets.only(top: 12, bottom: 20),
       child: Container(
-        width: SizeConfig.screenWidth,
-        height: SizeConfig.screenHeight,
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
         child: Card(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 10),
@@ -99,15 +99,17 @@ class _AllUsersWEBState extends State<AllUsersWEB> {
               future: _userModel,
               builder:
                   (BuildContext context, AsyncSnapshot<List<User>> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting)
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return MyLoading();
-                if (snapshot.data == null)
+                }
+                if (snapshot.data == null) {
                   return NetworkError(onPressed: () {
                     setState(() {
                       _userModel = APIManager()
                           .fetchAllUsers(token: widget.loginResponse!.token);
                     });
                   });
+                }
                 return userList(snapshot.data!);
               },
             ),
@@ -153,7 +155,6 @@ class _AllUsersWEBState extends State<AllUsersWEB> {
         DataColumn(label: Text('Role')),
         DataColumn(label: Text('Email')),
         DataColumn(label: Text('Phone #')),
-        DataColumn(label: Text('Image')),
         DataColumn(label: Text('Action')),
       ],
       rows: List.generate(list.length, (index) => user(list[index], index)),
@@ -167,7 +168,6 @@ class _AllUsersWEBState extends State<AllUsersWEB> {
       DataCell(Text(user.role.toString())),
       DataCell(Text(user.email.toString())),
       DataCell(Text(user.phoneNumber.toString())),
-      DataCell(ImageView(image: user.image)),
       DataCell(ElevatedButton(
           style: ElevatedButton.styleFrom(
               primary: user.suspend == false ? Colors.green : Colors.red),

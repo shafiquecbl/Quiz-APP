@@ -1,8 +1,12 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:quiz_app/Models/Student/Quiz.dart';
+import 'package:quiz_app/Models/Student/solved_quiz.dart';
 import 'package:quiz_app/Models/Student/student_solved_quiz.dart';
 import 'package:quiz_app/Models/User.dart';
+import 'package:quiz_app/Screens/STUDENT/Score%20Board/components/option.dart';
+import 'package:quiz_app/WIdgets/ImageView.dart';
 import 'package:quiz_app/constants.dart';
 import 'package:quiz_app/controllers/page_controller.dart';
 
@@ -24,6 +28,14 @@ class _QuizDetailsWEBState extends State<QuizDetailsWEB> {
   MyPageController pageController = MyPageController();
   double? percentage;
 
+  @override
+  void initState() {
+    percentage = calculatePercentage(
+        marks: widget.studentQuiz!.solvedQuiz!.marks,
+        totalQuestions: widget.studentQuiz!.quiz!.question!.length);
+    super.initState();
+  }
+
   double calculatePercentage(
       {@required int? totalQuestions, @required int? marks}) {
     return percentage = (marks! / totalQuestions!) * 100;
@@ -31,9 +43,6 @@ class _QuizDetailsWEBState extends State<QuizDetailsWEB> {
 
   @override
   Widget build(BuildContext context) {
-    percentage = calculatePercentage(
-        marks: widget.studentQuiz!.solvedQuiz!.marks,
-        totalQuestions: widget.studentQuiz!.quiz!.question!.length);
     return Scaffold(
       appBar: AppBar(
           leading: IconButton(
@@ -52,8 +61,13 @@ class _QuizDetailsWEBState extends State<QuizDetailsWEB> {
             child: Column(
               children: [
                 scoreDetails(sQuiz: widget.studentQuiz),
-                for (var question in widget.studentQuiz!.quiz!.question!)
-                  questionData(question: question)
+                for (int index = 0;
+                    index <= widget.studentQuiz!.quiz!.question!.length - 1;
+                    index++)
+                  questionData(
+                      question: widget.studentQuiz!.quiz!.question![index],
+                      submittedAnswer: widget
+                          .studentQuiz!.solvedQuiz!.submittedAnswer![index])
               ],
             ),
           )),
@@ -185,7 +199,9 @@ class _QuizDetailsWEBState extends State<QuizDetailsWEB> {
     );
   }
 
-  questionData({@required Question1? question}) {
+  questionData(
+      {@required Question1? question,
+      @required SubmittedAnswer? submittedAnswer}) {
     return Wrap(
       direction: Axis.vertical,
       children: [
@@ -212,32 +228,53 @@ class _QuizDetailsWEBState extends State<QuizDetailsWEB> {
         SizedBox(
           height: 20,
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Container(
-              width: MediaQuery.of(context).size.width / 1.5,
-              margin: EdgeInsets.only(top: 10),
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                border: Border.all(),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: ListTile(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 0, horizontal: 5),
-                leading: Text(
-                  'Answer.',
-                  style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.blue,
-                      fontWeight: FontWeight.w600),
+        question.questionImage!.length != 0
+            ? Container(
+                width: MediaQuery.of(context).size.width / 1.3,
+                child: CarouselSlider(
+                  options: CarouselOptions(
+                    viewportFraction: 2.0,
+                    height: 450,
+                    enableInfiniteScroll: false,
+                  ),
+                  items: question.questionImage!.map((i) {
+                    return Builder(
+                      builder: (BuildContext context) {
+                        return Container(
+                          width: MediaQuery.of(context).size.width,
+                          child: CustomImageView(
+                            image: i,
+                          ),
+                        );
+                      },
+                    );
+                  }).toList(),
                 ),
-                title: Text(
-                  question.answer.toString(),
-                  style: TextStyle(fontSize: 16),
-                ),
-              )),
+              )
+            : Container(),
+
+        //////////////////////////////////////////////////////
+
+        SizedBox(
+          height: 10,
         ),
+
+        submittedAnswer!.answer != question.answer
+            ? OptionWidgett(
+                text: submittedAnswer.answer.toString(),
+                isTrue: false,
+              )
+            : Container(),
+
+        SizedBox(
+          height: 10,
+        ),
+
+        OptionWidgett(
+          text: question.answer.toString(),
+          isTrue: true,
+        ),
+
         SizedBox(
           height: 10,
         ),

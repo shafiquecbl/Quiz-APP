@@ -12,7 +12,6 @@ import 'package:quiz_app/controllers/page_controller.dart';
 
 class ScoreBoardWEB extends StatefulWidget {
   final LoginResponse? loginResponse;
-
   ScoreBoardWEB({@required this.loginResponse});
   @override
   _ScoreBoardWEBState createState() => _ScoreBoardWEBState();
@@ -35,6 +34,7 @@ class _ScoreBoardWEBState extends State<ScoreBoardWEB> {
 
   getStudentQuiz() {
     CustomProvier provider = Provider.of<CustomProvier>(context, listen: false);
+
     solvedQuiz = APIManager().adminGetStudentQuiz(
         token: widget.loginResponse!.token, id: provider.studentId);
   }
