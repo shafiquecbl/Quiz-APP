@@ -123,7 +123,7 @@ class _SideBarState extends State<SideBar> {
         'Course',
         style: style,
       ),
-      leading: Icon(Icons.person),
+      leading: Icon(Icons.library_books_outlined),
       children: [
         DrawerListTile(
           title: 'Course',
@@ -163,7 +163,7 @@ class _SideBarState extends State<SideBar> {
         'Quiz',
         style: style,
       ),
-      leading: Icon(Icons.person),
+      leading: Icon(Icons.quiz_outlined),
       children: [
         DrawerListTile(
           title: 'Quiz',
