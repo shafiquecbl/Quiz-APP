@@ -87,7 +87,10 @@ class _QuizDetailsState extends State<QuizDetails> {
                     : Container(),
                 scoreDetails(quiz: widget.studentQuiz!.quiz!),
                 for (int index = 0;
-                    index <= widget.studentQuiz!.quiz!.question!.length - 1;
+                    index <=
+                        widget.studentQuiz!.solvedQuiz!.submittedAnswer!
+                                .length -
+                            1;
                     index++)
                   questionData(
                       question: widget.studentQuiz!.quiz!.question![index],

@@ -50,7 +50,7 @@ class _QuizWEBState extends State<QuizWEB> {
 
   static List coursesMenu = [];
   static List subjectsMenu = [];
-  static List questionsMenu = [];
+  static List<Questions> questionsMenu = [];
   List? questionsList = [];
   static const levelMenu = <String>[
     'Beginner',
@@ -455,6 +455,8 @@ class _QuizWEBState extends State<QuizWEB> {
     level = null;
     timeType = null;
     timeInSeconds = null;
+    subjectsMenu.clear();
+    coursesMenu.clear();
     questionsList!.clear();
     questionsMenu.clear();
 
@@ -634,8 +636,7 @@ class _QuizWEBState extends State<QuizWEB> {
 
   clearThis() {
     myState!(() {
-      isLoad = false;
-      subjectId = null;
+      subjectsMenu.clear();
       questionsList!.clear();
       questionsMenu.clear();
     });

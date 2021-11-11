@@ -26,10 +26,7 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
   String? search = '';
 
 ///////////////////// CONTROLLER ////////////////////////
-  TextEditingController name = TextEditingController();
-  TextEditingController email = TextEditingController();
-  TextEditingController phoneNo = TextEditingController();
-  TextEditingController password = TextEditingController();
+  String? name, email, phoneNo, password;
   /////////////////////////////////////////////////////////
 
   String? gender;
@@ -307,10 +304,10 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
     APIManager()
         .addSubAdmin(
             token: widget.loginResponse!.token,
-            name: name.text,
-            email: email.text,
-            password: password.text,
-            phoneNo: phoneNo.text,
+            name: name,
+            email: email,
+            password: password,
+            phoneNo: phoneNo,
             image: image,
             gender: gender)
         .then((value) {
@@ -336,9 +333,9 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
         .updateSubAdmin(
             id: editSubAdmin!.id,
             token: widget.loginResponse!.token,
-            name: name.text,
-            email: email.text,
-            phoneNo: phoneNo.text,
+            name: name,
+            email: email,
+            phoneNo: phoneNo,
             image: image,
             gender: gender)
         .then((value) {
@@ -357,10 +354,10 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
 
   clearController() {
     editSubAdmin = null;
-    name.clear();
-    email.clear();
-    password.clear();
-    phoneNo.clear();
+    name = null;
+    email = null;
+    password = null;
+    phoneNo = null;
     gender = null;
     image = null;
   }
@@ -464,8 +461,13 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
-          controller: name
-            ..text = editSubAdmin != null ? editSubAdmin!.name! : '',
+          initialValue: editSubAdmin == null ? null : editSubAdmin!.name,
+          onChanged: (value) {
+            name = value;
+          },
+          onFieldSubmitted: (value) {
+            name = value;
+          },
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter name';
@@ -481,8 +483,13 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
-          controller: email
-            ..text = editSubAdmin != null ? editSubAdmin!.email! : '',
+          initialValue: editSubAdmin == null ? null : editSubAdmin!.email,
+          onFieldSubmitted: (value) {
+            email = value;
+          },
+          onChanged: (value) {
+            email = value;
+          },
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter email';
@@ -500,8 +507,13 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
-          controller: phoneNo
-            ..text = editSubAdmin != null ? editSubAdmin!.phoneNumber! : '',
+          initialValue: editSubAdmin == null ? null : editSubAdmin!.phoneNumber,
+          onChanged: (value) {
+            phoneNo = value;
+          },
+          onFieldSubmitted: (value) {
+            phoneNo = value;
+          },
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter phone no';
@@ -520,7 +532,12 @@ class _SubAdminWEBState extends State<SubAdminWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
-          controller: password,
+          onChanged: (value) {
+            password = value;
+          },
+          onFieldSubmitted: (value) {
+            password = value;
+          },
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter password';

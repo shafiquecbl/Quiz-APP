@@ -26,11 +26,7 @@ class _StudentsWEBState extends State<StudentsWEB> {
   int _rowsOffset = 0;
 
   ///////////////////// CONTROLLER ////////////////////////
-  TextEditingController name = TextEditingController();
-  TextEditingController email = TextEditingController();
-  TextEditingController phoneNo = TextEditingController();
-  TextEditingController password = TextEditingController();
-  TextEditingController rollNo = TextEditingController();
+  String? name, email, phoneNo, password, rollNo;
   /////////////////////////////////////////////////////////
 
   String? gender;
@@ -344,15 +340,16 @@ class _StudentsWEBState extends State<StudentsWEB> {
     return APIManager()
         .addStudent(
             token: widget.loginResponse.token,
-            name: name.text,
-            email: email.text,
-            password: password.text,
-            rollNo: rollNo.text,
-            phoneNo: phoneNo.text,
+            name: name,
+            email: email,
+            password: password,
+            rollNo: rollNo,
+            phoneNo: phoneNo,
             image: image,
             gender: gender)
         .then((value) {
       myState!(() {
+        clearController();
         isLoading = false;
       });
       updatePage();
@@ -373,10 +370,10 @@ class _StudentsWEBState extends State<StudentsWEB> {
         .updateStudent(
             id: updateStudent!.id,
             token: widget.loginResponse.token,
-            name: name.text,
-            email: email.text,
-            rollNo: rollNo.text,
-            phoneNo: phoneNo.text,
+            name: name,
+            email: email,
+            rollNo: rollNo,
+            phoneNo: phoneNo,
             image: image,
             gender: gender)
         .then((value) {
@@ -500,8 +497,13 @@ class _StudentsWEBState extends State<StudentsWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
-          controller: name
-            ..text = updateStudent != null ? updateStudent!.name! : '',
+          initialValue: updateStudent == null ? null : updateStudent!.name,
+          onChanged: (value) {
+            name = value;
+          },
+          onFieldSubmitted: (value) {
+            name = value;
+          },
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter name';
@@ -519,8 +521,13 @@ class _StudentsWEBState extends State<StudentsWEB> {
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
           keyboardType: TextInputType.emailAddress,
-          controller: email
-            ..text = updateStudent != null ? updateStudent!.email! : '',
+          initialValue: updateStudent == null ? null : updateStudent!.email,
+          onFieldSubmitted: (value) {
+            email = value;
+          },
+          onChanged: (value) {
+            email = value;
+          },
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter email';
@@ -540,8 +547,14 @@ class _StudentsWEBState extends State<StudentsWEB> {
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
           keyboardType: TextInputType.phone,
-          controller: phoneNo
-            ..text = updateStudent != null ? updateStudent!.phoneNumber! : '',
+          initialValue:
+              updateStudent == null ? null : updateStudent!.phoneNumber,
+          onChanged: (value) {
+            phoneNo = value;
+          },
+          onFieldSubmitted: (value) {
+            phoneNo = value;
+          },
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter phone no';
@@ -560,7 +573,12 @@ class _StudentsWEBState extends State<StudentsWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
-          controller: password,
+          onChanged: (value) {
+            password = value;
+          },
+          onFieldSubmitted: (value) {
+            password = value;
+          },
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter password';
@@ -579,8 +597,13 @@ class _StudentsWEBState extends State<StudentsWEB> {
     return Container(
         width: SizeConfig.screenWidth! / 4,
         child: TextFormField(
-          controller: rollNo
-            ..text = updateStudent != null ? updateStudent!.rollNo! : '',
+          initialValue: updateStudent == null ? null : updateStudent!.rollNo,
+          onChanged: (value) {
+            rollNo = value;
+          },
+          onFieldSubmitted: (value) {
+            rollNo = value;
+          },
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter roll no';
@@ -613,7 +636,7 @@ class _StudentsWEBState extends State<StudentsWEB> {
             labelText: "GENDER",
             hintText:
                 updateStudent == null ? "Select gender" : updateStudent!.gender,
-            floatingLabelBehavior: FloatingLabelBehavior.always,
+            // floatingLabelBehavior: FloatingLabelBehavior.always,
           ),
           items: popUpMenuItem,
         ));
@@ -621,11 +644,11 @@ class _StudentsWEBState extends State<StudentsWEB> {
 
   clearController() {
     updateStudent = null;
-    name.clear();
-    email.clear();
-    password.clear();
-    phoneNo.clear();
-    rollNo.clear();
+    name = null;
+    email = null;
+    password = null;
+    phoneNo = null;
+    rollNo = null;
     gender = null;
     image = null;
   }

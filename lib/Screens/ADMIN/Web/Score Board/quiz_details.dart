@@ -62,7 +62,10 @@ class _QuizDetailsWEBState extends State<QuizDetailsWEB> {
               children: [
                 scoreDetails(sQuiz: widget.studentQuiz),
                 for (int index = 0;
-                    index <= widget.studentQuiz!.quiz!.question!.length - 1;
+                    index <=
+                        widget.studentQuiz!.solvedQuiz!.submittedAnswer!
+                                .length -
+                            1;
                     index++)
                   questionData(
                       question: widget.studentQuiz!.quiz!.question![index],

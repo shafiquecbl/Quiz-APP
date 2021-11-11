@@ -155,8 +155,6 @@ class APIManager {
           'Authorization': 'Bearer $token',
           "Content-Type": "application/json"
         }).then((response) async {
-      print(2);
-      print(response.body);
       List<Course> jsonMap = (json.decode(response.body) as List)
           .map((e) => Course.fromJson(e))
           .toList();
@@ -819,8 +817,6 @@ class APIManager {
       'Authorization': 'Bearer $token',
       "Content-Type": "application/json"
     }).then((response) async {
-      print(3);
-      print(response.body);
       List<NewSubject> jsonMap = (json.decode(response.body) as List)
           .map((e) => NewSubject.fromJson(e))
           .toList();
@@ -837,6 +833,7 @@ class APIManager {
       'id': subjectId,
       'level': level,
     }).then((response) async {
+      print(response.body);
       List<Questions> jsonMap = (json.decode(response.body) as List)
           .map((e) => Questions.fromJson(e))
           .toList();
